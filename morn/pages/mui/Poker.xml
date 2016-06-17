@@ -1,0 +1,8 @@
+<View width="93" height="133" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.face_1" layer="1"/>
+  <Image skin="png.images.face_0" layer="1"/>
+  <Label text="A" styleSkin="png.comp.label" x="3" y="4" layer="1" width="16" height="19" size="15" var="lab_0"/>
+  <Label text="A" styleSkin="png.comp.label" x="72" y="128" layer="1" rotationX="180" size="15" var="lab_1"/>
+  <Image skin="png.images.type_1" x="3" y="26" layer="1" width="16" height="16" var="img_0"/>
+  <Image skin="png.images.type_1" x="71" y="106" layer="1" width="16" height="16" rotationX="180" var="img_1"/>
+</View>

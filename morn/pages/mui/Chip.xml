@@ -1,0 +1,4 @@
+<View width="60" height="60" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.chip_side_0" layer="1" width="60" height="60" var="img_0" x="30" y="30" anchorX="0.5" anchorY="0.5" rotation="0"/>
+  <Label text="100" styleSkin="png.comp.label" x="3" y="19" layer="1" width="53" height="18" align="center" size="15" var="lab_0"/>
+</View>

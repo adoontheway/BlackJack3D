@@ -1,0 +1,9 @@
+<View width="1000" height="100" sceneColor="0x0" layers="1,1,0,0,第 1 层">
+  <Image skin="png.ui.balance" x="855" y="1" layer="1"/>
+  <Image skin="png.ui.betMoney" x="-133" y="15" layer="1"/>
+  <Button skin="png.ui.btn_clear" x="167" y="4" layer="1" stateNum="1" var="btn_clear" buttonMode="true"/>
+  <Button skin="png.ui.btn_double" x="635" y="-3" layer="1" var="btn_double" buttonMode="true"/>
+  <Button skin="png.ui.btn_submit" x="395" y="-4" layer="1" var="btn_submit" buttonMode="true"/>
+  <Label text="0" styleSkin="png.comp.label" x="-77" y="51" layer="1" color="0x996600" size="24" var="lab_bet" width="225" height="37"/>
+  <Label text="label" styleSkin="png.comp.label" x="945" y="40" layer="1" var="label_balance" width="208" height="30" color="0x996600" size="24"/>
+</View>
