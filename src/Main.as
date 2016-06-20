@@ -38,7 +38,7 @@ package
 			
 			App.init(this);
 			App.loader.loadAssets(["assets/bg.swf"], new Handler(bgLoaded));
-			App.loader.loadAssets(["assets/chips.swf", "assets/ui.swf", "assets/pokers.swf", "assets/images.swf","assets/comp.swf"], new Handler(onAssetsLoade));
+			App.loader.loadAssets(["assets/chips.swf", "assets/ui.swf", "assets/pokers.swf", "assets/images.swf","assets/comp.swf","resource/swfs/effects.swf"], new Handler(onAssetsLoade));
 			
 			comman.duke.display.BitmapClipFactory.Instance.loadAnim();
 			

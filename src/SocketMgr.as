@@ -6,6 +6,7 @@ package
 	import comman.duke.TickerMgr;
 	import consts.CodeInfo;
 	import consts.PokerGameVars;
+	import flash.utils.setTimeout;
 	import model.ProtocolServerEnum;
 	import uiimpl.*;
 	/**
@@ -85,15 +86,33 @@ package
 				case ProtocolServerEnum.S_B_ROUND_END:
 					this.onRoundEnd(data);
 					break;
+				case ProtocolServerEnum.S_B_END://游戏结束并结算
+					this.onTableEnd(data);
+					break;
 				default:
 					GameUtils.log('unhandled proto ', proto);
 					break;
 			}
 		}
 		private var mgr:GameMgr;
+		private function onTableEnd(data:*):void{
+			if (data.hasOwnProperty('money')){
+				mgr.money = data.money;
+			}
+			if ( data.result == -1){
+				FloatHint.Instance.show('YOU LOSE '+data.gain);
+			}else if ( data.result == 1){
+				FloatHint.Instance.show('YOU WIN'+data.gain);
+			}else{
+				FloatHint.Instance.show('DRAW ROUND!');
+			}
+		}
 		private function onRoundEnd(data:*):void{
-			mgr.onRoundEnd(data);
-			MainViewImpl.Instance.onRoundEnd();
+			mgr.onRoundEnd();
+			setTimeout(function():void{
+				MainViewImpl.Instance.onRoundEnd();
+			}, 2000);
+			
 		}
 		private function onHitResult(data:*):void{
 			
@@ -124,7 +143,6 @@ package
 			GameVars.STAGE.addChild( MainViewImpl.Instance);
 			MainViewImpl.Instance.showBtns(MainViewImpl.START);
 			mgr.money = data.money;
-			mgr.addTable(data.table);
 		}
 		
 		private function onMessage(evt:WebSocketEvent):void{

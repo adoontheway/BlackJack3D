@@ -1,6 +1,7 @@
 package 
 {
-	import model.Table;
+	import comman.duke.PoolMgr;
+	import model.*;
 	import uiimpl.MainViewImpl;
 	import uiimpl.PokerImpl;
 	/**
@@ -19,75 +20,114 @@ package
 
 		private var pokerMap:Object = {};
 		private var tables:Object = {};
+		private var socketMgr:SocketMgr;
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
+			socketMgr = SocketMgr.Instance;
 		}
 		
-		public function addTable(gameIndex:int):void{
-			var table:Table = this.tables[gameIndex];
-			if ( table == null ){
-				this.tables[gameIndex] = new Table(gameIndex);
-			}else{
-				table.reset();
+		private var _currentTable:Table;
+		public function get currentTable():Table{
+			if ( _currentTable == null ){
+				var idx = 1; 
+				while (idx < 10){
+					_currentTable = this.tables[idx];
+					if ( _currentTable.actived){
+						return _currentTable;
+					}
+				}
 			}
+			return null;
 		}
+		
+		public function nextTable():Table{
+			return null;
+		}
+		
 		private var mainView:MainViewImpl;
 		public function dispense(tableId:uint, card:uint):void{
 			var table:Table = this.tables[tableId];
-			var poker:PokerImpl = new PokerImpl(card);
+			var poker:PokerImpl = PoolMgr.gain(PokerImpl);//new PokerImpl(card);
+			poker.value = card;
 			table.addCard(poker);
+			if ( mainView == null){
+				mainView = MainViewImpl.Instance;
+			}
 			mainView.onDispenseBack(poker);
 		}
+		
 		public function onDispenseComplete():void{
 			
 		}
-		public function addBet(bet:uint):void{
-			
-		}
-		public function onRoundEnd(data:Object):void{
-			this.money = data.money;
-		}
-		public function onStarted(tabelIndex:int):void{
-			this.started = true;
-			this.tables[tabelIndex] = new Table(tabelIndex);
-			if ( mainView == null ){
-				mainView = MainViewImpl.Instance;
+		/**
+		 * 添加赌注到某桌
+		 * 仅限开局使用
+		 * **/
+		public function betToTable(bet:uint,tableIndex:int):void{
+			var table:Table = this.tables[tableIndex];
+			if ( table == null ){
+				table = this.tables[tableIndex] = new Table();
+				table.setIndex(tableIndex);
+			}else{
+				table.reset();
 			}
+			table.actived = true;
+			table.currentBet = bet;
+		}
+		/**
+		 * 清桌
+		 * */
+		public function cleanTables():void{
+			var table:Table;
+			for (var key in this.tables){
+				table = tables[key];
+				table.currentBet = 0;
+				table.actived = false;
+			}
+		}
+		/**
+		 * 开始游戏
+		 * */
+		public function start():void{
+			var betObj:Object = {};
+			var table:Table;
+			var got:Boolean;
+			for (var key in this.tables){
+				table = tables[key];
+				if ( table.currentBet != 0){
+					got = true;
+					table.tableId = table.tableIndex;
+					betObj[table.tableId] = table.currentBet;
+				}
+			}
+			if (got){
+				table = this.tables[0];
+				if ( table == null ){
+					table = this.tables[0] = new Table();
+					table.setIndex(0);
+				}else{
+					table.reset();
+				}
+				table.actived = true;
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
+			}
+		}
+		
+		public function onRoundEnd():void{
+			for (var key in this.tables){
+				tables[key].reset();
+			}
+		}
+		public function onStarted(tabelId:int):void{
+			this.started = true;
+			var table:Table = this.tables[tabelId];
+			table.actived = true;
 		}
 		
 		public function onEnded():void{
 			this.started = false;
 		}
-		/**
-		public function caculate(id:int):uint{
-			var card:Array = this.playerCard[id];
-			var hasA:Boolean = false;//todo multi A
-			var index:int = 0;
-			var len:int = card.length;
-			var points:int = 0;
-			var point:int = 0;
-			while ( index < len){
-				point = (card[index] - 1) % 13 + 1;
-				if ( point == 1){
-					hasA = true;
-				}else if ( point >= 10){
-					points += 10;
-				}else{
-					points += point;
-				}
-				index++;
-			}
-			if ( hasA ){
-				if ( points + 11 <= 21 ){
-					return points + 11;
-				}else{
-					return points + 1;
-				}
-			}
-			return points;
-		}
-		*/
 	
 		private static var _instance:GameMgr;
 		public static function get Instance():GameMgr{

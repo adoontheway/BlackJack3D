@@ -1,5 +1,6 @@
 package uiimpl 
 {
+	import comman.duke.IRecyclable;
 	import consts.PokerGameVars;
 	import game.ui.mui.ChipUI;
 	
@@ -7,7 +8,7 @@ package uiimpl
 	 * ...
 	 * @author jerry.d
 	 */
-	public class ChipImpl extends ChipUI 
+	public class ChipImpl extends ChipUI implements IRecyclable
 	{
 		private var _value:uint;//bet value
 		private var _index:int;//bg related
@@ -42,6 +43,14 @@ package uiimpl
 		
 		public function roll():void{
 			this.img_0.rotation++;
+		}
+		
+		public function reset():void{
+			
+		}
+		
+		public function destroy():void{
+			
 		}
 	}
 
