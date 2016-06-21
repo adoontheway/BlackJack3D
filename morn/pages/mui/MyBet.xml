@@ -1,4 +1,4 @@
 <View width="183" height="68" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
   <Image skin="png.images.betMoney" layer="1" x="0" y="0" width="183" height="68"/>
-  <Label text="100" styleSkin="png.comp.label" x="36" y="25" layer="1" width="143" height="29" color="0xffffff" size="20"/>
+  <Label text="100" styleSkin="png.comp.label" x="36" y="25" layer="1" width="143" height="29" color="0xffffff" size="20" var="lab"/>
 </View>

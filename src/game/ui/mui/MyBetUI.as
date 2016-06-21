@@ -2,10 +2,11 @@
 package game.ui.mui {
 	import morn.core.components.*;
 	public class MyBetUI extends View {
+		public var lab:Label = null;
 		protected static var uiXML:XML =
 			<View width="183" height="68">
 			  <Image skin="png.images.betMoney" x="0" y="0" width="183" height="68"/>
-			  <Label text="100" x="36" y="25" width="143" height="29" color="0xffffff" size="20"/>
+			  <Label text="100" x="36" y="25" width="143" height="29" color="0xffffff" size="20" var="lab"/>
 			</View>;
 		public function MyBetUI(){}
 		override protected function createChildren():void {

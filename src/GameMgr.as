@@ -1,5 +1,6 @@
 package 
 {
+	import comman.duke.GameUtils;
 	import comman.duke.PoolMgr;
 	import model.*;
 	import uiimpl.MainViewImpl;
@@ -14,13 +15,18 @@ package
 		public var model:uint = 1;//0,1,2筹码大小
 		public var started:Boolean = false;
 		public var ME:uint = 1;
-		public var money:uint = 0;
+		private var _money:Number = 0;
 		public const BANKER:uint = 0;
 		private var splitors:Array;
 
 		private var pokerMap:Object = {};
 		private var tables:Object = {};
+		
+		public var mainView:MainViewImpl;
 		private var socketMgr:SocketMgr;
+		
+		private var currentTables:Vector.<int> = new Vector.<int>();
+		private var endTables:Vector.<int> = new Vector.<int>();
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
@@ -28,31 +34,27 @@ package
 		}
 		
 		private var _currentTable:Table;
-		public function get currentTable():Table{
-			if ( _currentTable == null ){
-				var idx = 1; 
-				while (idx < 10){
-					_currentTable = this.tables[idx];
-					if ( _currentTable.actived){
-						return _currentTable;
-					}
-				}
+		
+		public function nextTable():void{
+			if ( this.currentTables.length != 0 ){
+				_currentTable = this.tables[this.currentTables[0]];
+			}else{
+				_currentTable = null;
 			}
-			return null;
 		}
 		
-		public function nextTable():Table{
-			return null;
+		public function get currentTable():Table{
+			return this._currentTable;
 		}
 		
-		private var mainView:MainViewImpl;
+		
 		public function dispense(tableId:uint, card:uint):void{
 			var table:Table = this.tables[tableId];
 			var poker:PokerImpl = PoolMgr.gain(PokerImpl);//new PokerImpl(card);
 			poker.value = card;
 			table.addCard(poker);
-			if ( mainView == null){
-				mainView = MainViewImpl.Instance;
+			if ( table.bust || table.fiveDragon || table.blackjack){
+				this.putToEnd(tableId);
 			}
 			mainView.onDispenseBack(poker);
 		}
@@ -64,11 +66,11 @@ package
 		 * 添加赌注到某桌
 		 * 仅限开局使用
 		 * **/
-		public function betToTable(bet:uint,tableIndex:int):void{
-			var table:Table = this.tables[tableIndex];
+		public function betToTable(bet:uint,tableId:int,tabIndex:int):void{
+			var table:Table = this.tables[tableId];
 			if ( table == null ){
-				table = this.tables[tableIndex] = new Table();
-				table.setIndex(tableIndex);
+				table = this.tables[tableId] = new Table();
+				table.setIndex(tabIndex);
 			}else{
 				table.reset();
 			}
@@ -123,12 +125,62 @@ package
 			this.started = true;
 			var table:Table = this.tables[tabelId];
 			table.actived = true;
+			this.currentTables.push(table.tableId);
+			if ( this.currentTables.length > 1){
+				this.currentTables.sort(Array.NUMERIC);
+				this._currentTable = this.tables[this.currentTables[0]];
+				GameUtils.log('sort tables:', this.currentTables.join('.'));
+			}
+		}
+		public function onSplitBack(data:Object):void{
+			var ttables:Object = data.tables;
+			var bet:int = data.bet;
+			var tabId:int = data.tabId;
+			var rtable:Table = this.tables[tabId];
+			var table:Table;
+			for (var tablId in ttables ){
+				table = this.tables[tablId];
+				if ( table != null ){
+					table.reset();
+					table.actived = true;
+					table.split = true;
+					table.addCard(ttables[tablId]);
+				}else{
+					betToTable(bet, tablId, rtable.tableIndex+3);
+					table = this.tables[tablId];
+					table.addCard(ttables[tablId]);
+					this.currentTables.push(tablId);
+				}
+			}
+		}
+		public function onStandBack(data:Object):void{
+			var tabId:int = data.tabId;
+			putToEnd(tabId);
+			mainView.onStandBack();
+		}
+		
+		private function putToEnd(tabId:int):void{
+			var index:int = this.currentTables.indexOf(tabId);
+			this.currentTables.splice(index, 1);
+			this.endTables.push(tabId);
+			this.nextTable();
 		}
 		
 		public function onEnded():void{
 			this.started = false;
 		}
 	
+		public function get money():Number{
+			return this._money;
+		}
+		
+		public function set money(_val:Number):void{
+			if ( this._money == _val) return;
+			this._money = _val;
+			if( mainView != null)
+				mainView.updateBalance(_val);
+		}
+		
 		private static var _instance:GameMgr;
 		public static function get Instance():GameMgr{
 			if ( GameMgr._instance == null ){

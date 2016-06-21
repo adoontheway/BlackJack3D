@@ -122,6 +122,7 @@ package
 		}
 		private function onStarted(data:*):void{
 			mgr.onStarted(data.table);
+			MainViewImpl.Instance.onStarted();
 		}
 		private function onDispense(data:Object):void{
 			mgr.dispense(data.table, data.card);
@@ -133,8 +134,10 @@ package
 		private function onHeartbeat(data:Object):void{
 		}
 		private function onSplit(data:Object):void{
+			mgr.onSplitBack(data);
 		}
 		private function onStand(data:Object):void{
+			mgr.onStandBack(data);
 		}
 		private function onSurrender(data:Object):void{
 		}
@@ -143,6 +146,7 @@ package
 			GameVars.STAGE.addChild( MainViewImpl.Instance);
 			MainViewImpl.Instance.showBtns(MainViewImpl.START);
 			mgr.money = data.money;
+			MainViewImpl.Instance.updateBalance(data.money);
 		}
 		
 		private function onMessage(evt:WebSocketEvent):void{
