@@ -78,7 +78,7 @@ package uiimpl
 			if ( TableCircle != null){
 				var circle:MovieClip;
 				var posInfo:Object;
-				for (var i:int = 1; i <= 3; i++){
+				for (i = 1; i <= 3; i++){
 					circle = new TableCircle() as MovieClip;
 					circle.name = 'circle_'+i;
 					posInfo = PokerGameVars.Circle_Pos[i];
@@ -330,6 +330,11 @@ package uiimpl
 			}
 		}
 		
+		public function onDoubleBack(tabId:int, moreBet:int):void{
+			this.totalBet += moreBet;
+			this.updateBet();
+		}
+		
 		public function onStandBack():void{
 			currentTable = mgr.currentTable;
 			if ( currentTable != null ){
@@ -364,10 +369,11 @@ package uiimpl
 			for each(var mc:MovieClip in this.circles){
 				mc.mouseChildren = mc.mouseEnabled = true;
 			}
-			
-			this.stage.removeChild(this.arrow);
+			if( this.arrow && this.arrow.parent != null)
+				this.stage.removeChild(this.arrow);
 			this.arrow.stop();
 			this.showBtns(START);
+			this.totalBet = 0;
 		}
 		
 		private static var _instance:MainViewImpl;

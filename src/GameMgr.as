@@ -25,8 +25,8 @@ package
 		public var mainView:MainViewImpl;
 		private var socketMgr:SocketMgr;
 		
-		private var currentTables:Vector.<int> = new Vector.<int>();
-		private var endTables:Vector.<int> = new Vector.<int>();
+		private var currentTables:Array = [];
+		private var endTables:Array = [];
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
@@ -36,7 +36,12 @@ package
 		private var _currentTable:Table;
 		
 		public function nextTable():void{
-			if ( this.currentTables.length != 0 ){
+			if ( this._currentTable != null && this._currentTable.split ){
+				this._currentTable = this.tables[this._currentTable.tableId + 3];
+				if ( this._currentTable.blackjack){
+					putToEnd(this._currentTable.tableId);
+				}
+			}else if ( this.currentTables.length != 0 ){
 				_currentTable = this.tables[this.currentTables[0]];
 			}else{
 				_currentTable = null;
@@ -50,10 +55,11 @@ package
 		
 		public function dispense(tableId:uint, card:uint):void{
 			var table:Table = this.tables[tableId];
-			var poker:PokerImpl = PoolMgr.gain(PokerImpl);//new PokerImpl(card);
+			var poker:PokerImpl = PoolMgr.gain(PokerImpl);
 			poker.value = card;
 			table.addCard(poker);
-			if ( table.bust || table.fiveDragon || table.blackjack){
+			pokerMap[card] = poker;
+			if ( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11)){
 				this.putToEnd(tableId);
 			}
 			mainView.onDispenseBack(poker);
@@ -69,7 +75,7 @@ package
 		public function betToTable(bet:uint,tableId:int,tabIndex:int):void{
 			var table:Table = this.tables[tableId];
 			if ( table == null ){
-				table = this.tables[tableId] = new Table();
+				table = this.tables[tableId] = new Table(tableId);
 				table.setIndex(tabIndex);
 			}else{
 				table.reset();
@@ -99,14 +105,13 @@ package
 				table = tables[key];
 				if ( table.currentBet != 0){
 					got = true;
-					table.tableId = table.tableIndex;
 					betObj[table.tableId] = table.currentBet;
 				}
 			}
 			if (got){
 				table = this.tables[0];
 				if ( table == null ){
-					table = this.tables[0] = new Table();
+					table = this.tables[0] = new Table(0);
 					table.setIndex(0);
 				}else{
 					table.reset();
@@ -120,6 +125,9 @@ package
 			for (var key in this.tables){
 				tables[key].reset();
 			}
+			pokerMap = {};
+			this.currentTables = [];
+			this.endTables = [];
 		}
 		public function onStarted(tabelId:int):void{
 			this.started = true;
@@ -136,21 +144,26 @@ package
 			var ttables:Object = data.tables;
 			var bet:int = data.bet;
 			var tabId:int = data.tabId;
+			var card0:PokerImpl;
+			
 			var rtable:Table = this.tables[tabId];
 			var table:Table;
+			var poker:PokerImpl;
 			for (var tablId in ttables ){
 				table = this.tables[tablId];
+				poker = pokerMap[ttables[tablId]];
 				if ( table != null ){
 					table.reset();
 					table.actived = true;
 					table.split = true;
-					table.addCard(ttables[tablId]);
 				}else{
 					betToTable(bet, tablId, rtable.tableIndex+3);
 					table = this.tables[tablId];
-					table.addCard(ttables[tablId]);
 					this.currentTables.push(tablId);
 				}
+				table.addCard(poker);
+				poker.x = poker.targetX;
+				poker.y = poker.targetY;
 			}
 		}
 		public function onStandBack(data:Object):void{
@@ -158,18 +171,33 @@ package
 			putToEnd(tabId);
 			mainView.onStandBack();
 		}
+		public function onDoubleBack(data:Object):void{
+			var tabId:int = data.tabId;
+			var table:Table = this.tables[tabId];
+			var moreBet:int = data.bet - table.currentBet;
+			table.currentBet = data.bet;
+			mainView.onDoubleBack(data.tabId, moreBet);
+		}
 		
 		private function putToEnd(tabId:int):void{
+			GameUtils.log('Before put ', tabId, 'to the end', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			var index:int = this.currentTables.indexOf(tabId);
 			this.currentTables.splice(index, 1);
 			this.endTables.push(tabId);
+			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			this.nextTable();
 		}
-		
+		/**
 		public function onEnded():void{
 			this.started = false;
+			var table:Table;
+			for (var i in this.tables){
+				table = this.tables[i];
+			}
+			this.currentTables = [];
+			this.endTables = [];
 		}
-	
+		*/
 		public function get money():Number{
 			return this._money;
 		}

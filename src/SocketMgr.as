@@ -6,6 +6,7 @@ package
 	import comman.duke.TickerMgr;
 	import consts.CodeInfo;
 	import consts.PokerGameVars;
+	import flash.events.IOErrorEvent;
 	import flash.utils.setTimeout;
 	import model.ProtocolServerEnum;
 	import uiimpl.*;
@@ -29,6 +30,7 @@ package
 			this.socket.addEventListener(WebSocketEvent.PONG, onPong);
 			this.socket.addEventListener(WebSocketEvent.CLOSED, onClosed);
 			this.socket.addEventListener(WebSocketEvent.FRAME, onFrame);
+			this.socket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			this.socket.connect();
 			mgr = GameMgr.Instance;
 		}
@@ -118,6 +120,7 @@ package
 			
 		}
 		private function onDoubleBack(data:*):void{
+			mgr.onDoubleBack(data);
 			
 		}
 		private function onStarted(data:*):void{
@@ -172,6 +175,9 @@ package
 		}
 		private function onFrame(evt:WebSocketEvent):void{
 			GameUtils.log('onframe');
+		}
+		private function onIOError(evt:IOErrorEvent):void{
+			GameUtils.fatal(evt.text);
 		}
 		private var reconnectiong:Boolean = false;
 		

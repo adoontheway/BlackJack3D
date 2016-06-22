@@ -31,11 +31,10 @@ package model
 		public var canSplit:Boolean;//can split
 		public var _isSplited:Boolean;//already splited
 		
-		public function Table(index:int=-1) 
+		public function Table(tabId:int) 
 		{
 			this.cards = new Vector.<PokerImpl>();
-			if( index != -1)
-				this.setIndex(index);
+			this.tableId = tabId;
 		}
 		private var startX:int;
 		private var k:Number;
@@ -66,7 +65,7 @@ package model
 		/**
 		 * @param card  compare value of card
 		 * **/
-		public function addCard(card:PokerImpl):Boolean{
+		public function addCard(card:PokerImpl):void{
 			this.cards.push(card);
 			this.points += card.compareValue;
 			card.targetX = this.startX + (this.cards.length - 1) * 20;
@@ -79,20 +78,14 @@ package model
 			if ( this.cards.length == 2){
 				if ( this.hasA && this.points == 11 ){
 					this.blackjack = true;
-					return true;
 				}else if ( cards[0].compareValue == cards[1].compareValue && (!this._isSplited && this.tableIndex <= 3)){
 					this.canSplit = true;
-					return false;
 				}
 			}else if ( this.cards.length == 5 && this.points <= 21){
 				this.fiveDragon = true;
-				return true;
 			}else if ( this.points > 21 ){
 				this.bust = true;
-				return true;
 			}
-			
-			return false;
 		}
 		
 		public function set split(val:Boolean):void{
@@ -116,14 +109,16 @@ package model
 		}
 		
 		public function reset():void{
-			this.tableId = -1;
+			this.points = 0;
+			this.currentBet = 0;
 			this.blackjack = false;
 			this.canSplit = false;
 			this.doubled = false;
 			this.fiveDragon = false;
 			this.bust = false;
 			this.actived = false;
-			if ( this.tableIndex % 2 != 1){
+			this.hasA = false;
+			if ( this.tableIndex <= 3){
 				this.split = false;
 			}
 			while ( this.cards.length ){
