@@ -244,10 +244,16 @@ package uiimpl
 			}else{
 				//check split, insurrance
 				currentTable = mgr.currentTable;
+				
 				if ( currentTable != null ){
 					this.arrow.x = currentTable.arrowX;
 					this.arrow.y = currentTable.arrowY;
 					this.stage.addChild(this.arrow);
+					/**
+					if ( mgr.needShowInsure){
+						showBtns(INSURRANCE);
+					}else 
+					*/
 					if ( currentTable.canSplit ){
 						showBtns(SPLIT);
 					}else if ( currentTable.blackjack || currentTable.bust ){

@@ -1,5 +1,6 @@
 package 
 {
+	import comman.duke.FloatHint;
 	import comman.duke.GameUtils;
 	import comman.duke.PoolMgr;
 	import model.*;
@@ -27,6 +28,8 @@ package
 		
 		private var currentTables:Array = [];
 		private var endTables:Array = [];
+		
+		public var needShowInsure:Boolean;
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
@@ -118,6 +121,9 @@ package
 				}
 				table.actived = true;
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
+			}else{
+				FloatHint.Instance.show('no bet');
+				mainView.showBtns(MainViewImpl.START);
 			}
 		}
 		
@@ -176,28 +182,33 @@ package
 			var table:Table = this.tables[tabId];
 			var moreBet:int = data.bet - table.currentBet;
 			table.currentBet = data.bet;
+			putToEnd(tabId);
 			mainView.onDoubleBack(data.tabId, moreBet);
 		}
 		
 		private function putToEnd(tabId:int):void{
 			GameUtils.log('Before put ', tabId, 'to the end', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			var index:int = this.currentTables.indexOf(tabId);
-			this.currentTables.splice(index, 1);
-			this.endTables.push(tabId);
+			if ( index != -1){
+				this.currentTables.splice(index, 1);
+				this.endTables.push(tabId);
+			}
+			
 			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			this.nextTable();
 		}
-		/**
-		public function onEnded():void{
-			this.started = false;
-			var table:Table;
-			for (var i in this.tables){
-				table = this.tables[i];
+		
+		public function onTableEnd(data:Object):void{
+			var table:Table = this.tables[data.tabId];
+			if ( data.result == -1){
+				FloatHint.Instance.show('YOU LOSE '+data.gain,table.arrowX, table.arrowY);
+			}else if ( data.result == 1){
+				FloatHint.Instance.show('YOU WIN'+data.gain,table.arrowX, table.arrowY);
+			}else{
+				FloatHint.Instance.show('DRAW ROUND!',table.arrowX, table.arrowY);
 			}
-			this.currentTables = [];
-			this.endTables = [];
 		}
-		*/
+		
 		public function get money():Number{
 			return this._money;
 		}

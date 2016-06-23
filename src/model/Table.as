@@ -30,6 +30,8 @@ package model
 		public var standing:Boolean;//stand or not
 		public var canSplit:Boolean;//can split
 		public var _isSplited:Boolean;//already splited
+		/** 是否保险过 **/
+		public var insured:Boolean;
 		
 		public function Table(tabId:int) 
 		{
@@ -68,6 +70,9 @@ package model
 		public function addCard(card:PokerImpl):void{
 			this.cards.push(card);
 			this.points += card.compareValue;
+			if ( this.tableId == 0 ){
+				GameMgr.Instance.needShowInsure = this.cards.length == 1 && this.points == 1;
+			}
 			card.targetX = this.startX + (this.cards.length - 1) * 20;
 			card.targetY = this.k * card.targetX + this.b;
 			card.targetRotate = this.rotation;

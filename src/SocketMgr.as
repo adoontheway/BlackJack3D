@@ -101,13 +101,8 @@ package
 			if (data.hasOwnProperty('money')){
 				mgr.money = data.money;
 			}
-			if ( data.result == -1){
-				FloatHint.Instance.show('YOU LOSE '+data.gain);
-			}else if ( data.result == 1){
-				FloatHint.Instance.show('YOU WIN'+data.gain);
-			}else{
-				FloatHint.Instance.show('DRAW ROUND!');
-			}
+			mgr.onTableEnd(data);
+			
 		}
 		private function onRoundEnd(data:*):void{
 			mgr.onRoundEnd();
@@ -171,7 +166,7 @@ package
 			GameUtils.log('onpong');
 		}
 		private function onClosed(evt:WebSocketEvent):void{
-			GameUtils.log('onclose');
+			FloatHint.Instance.show('CONNECTION CLOSED...');
 		}
 		private function onFrame(evt:WebSocketEvent):void{
 			GameUtils.log('onframe');
