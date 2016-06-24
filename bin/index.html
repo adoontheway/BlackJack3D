@@ -7,12 +7,15 @@
 	
 	<script src="js/swfobject.js"></script>
 	<script>
+		var log = function(info){
+			console.log(info);
+		};
 		var flashvars = {
 		};
 		var params = {
 			menu: "false",
 			scale: "noScale",
-			allowFullscreen: "true",
+			allowFullscreen: "false",
 			allowScriptAccess: "always",
 			bgcolor: "",
 			wmode: "direct" // can cause issues with FP settings & webcam

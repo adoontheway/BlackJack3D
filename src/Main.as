@@ -35,6 +35,7 @@ package
 			stage.align = StageAlign.TOP_LEFT;
 			parseParams();
 			Security.allowDomain('*');
+			Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
 			
 			App.init(this);
 			App.loader.loadAssets(["assets/bg.swf"], new Handler(bgLoaded));

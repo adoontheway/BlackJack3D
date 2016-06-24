@@ -172,7 +172,7 @@ package
 			GameUtils.log('onframe');
 		}
 		private function onIOError(evt:IOErrorEvent):void{
-			GameUtils.fatal(evt.text);
+			GameUtils.log(evt.text);
 		}
 		private var reconnectiong:Boolean = false;
 		
