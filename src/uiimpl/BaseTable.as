@@ -68,6 +68,31 @@ package uiimpl
 		{
 			if ( con == 0 ){
 				tableData.addCard(poker);
+				if ( !tableData.bust ){
+					if ( !tableData.blackjack){
+						if ( !tableData.hasA || (tableData.hasA && tableData.points > 11) ){
+							if (tableData.points < 21 ){
+								this.img_points_bg.url = 'png.images.green';
+								this.lab_points.text =  tableData.points+"";
+							}else{
+								this.img_points_bg.url = 'png.images.full';
+								this.lab_points.text =  tableData.points+"";
+							}
+						}else{
+							this.img_points_bg.url = 'png.images.soft';
+							this.lab_points.text =  tableData.points+"/"+(tableData.points+10);
+						}
+						
+					}else{
+						this.img_points_bg.url = 'png.images.blackjack';
+						this.lab_points.text =  "21";
+					}
+				}else{
+					this.img_points_bg.url = 'png.images.bust';
+					this.lab_points.text = tableData.points + "";
+				}
+				this.point_display.visible = true;
+				this.btn_split.visible = tableData.canSplit;
 			}else if ( con == 1){
 				splitTableData.addCard(poker);
 			}
@@ -123,7 +148,7 @@ package uiimpl
 		
 		public function addChip(chip:Chip, type:int):void{
 			var con:Box = type == 0 ? this.chips_con : this.pair_con;
-			chip.y = con.numChildren * -10;
+			chip.y = con.numChildren * -8;
 			chip.x = 0;
 			con.addChild(chip);
 		}
@@ -164,6 +189,11 @@ package uiimpl
 				chip = chips_con.removeChildAt(0) as Chip;
 				PoolMgr.reclaim(chip);
 			}
+			while ( pair_con.numChildren != 0){
+				chip = pair_con.removeChildAt(0) as Chip;
+				PoolMgr.reclaim(chip);
+			}
+			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
 		}
 		
 		public function update():void 
