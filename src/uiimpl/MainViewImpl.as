@@ -1,16 +1,19 @@
 package uiimpl 
 {
+	import com.greensock.loading.core.DisplayObjectLoader;
 	import comman.duke.display.BitmapClip;
 	import consts.PokerGameVars;
+	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.geom.Point;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.setTimeout;
 	import game.ui.mui.MainViewUI;
 	import model.ProtocolClientEnum;
-	import model.Table;
+	import model.TableData;
 	import morn.core.components.Button;
 	import morn.core.components.Image;
 	import comman.duke.*;
@@ -31,6 +34,9 @@ package uiimpl
 		private var currentHandler:Vector.<Function>;
 		private var circles:Array;
 		private var socketMgr:SocketMgr;
+		
+		//-------------ui elments ------------------//
+
 		public function MainViewImpl() 
 		{
 			super();
@@ -38,60 +44,29 @@ package uiimpl
 		}
 		private var arrow:MovieClip;
 		private function init():void{
-			this.currentBtns = new Vector.<Button>();
-			this.currentHandler = new Vector.<Function>();
-			this.circles = [];
+			//this.circles = [];
 			socketMgr = SocketMgr.Instance;
 			
 			mgr = GameMgr.Instance;
 			mgr.mainView = this;
 			
+			
 			var model:uint = mgr.model;
 			var chipValues:Array = PokerGameVars.Model_Config[model];
-			var len:int = CHIPSX.length;
-			var posx:int = 0;
-			var chip:ChipImpl;
-			for (var i:int = 0; i < len; i++){
-				posx = CHIPSX[i];
-				chip = new ChipImpl(i);
-				chip.x = posx;
-				chip.y = CHIPSY;
-				chip.value = chipValues[i];
-				chip.addEventListener(MouseEvent.CLICK, this.onChipClick);
-				this.addChild(chip);
-				if ( i == 1){
-					currentChip = chip;
-					currentChip.y = CHOSEY;
-					_currentValue = currentChip.value;
-				}
-			}
+			ChipsViewUIImpl.Instance.setupValues(chipValues);
+			addChild(ChipsViewUIImpl.Instance);
+
+			this.addChild(new BaseTable(1));
+			this.addChild(new BaseTable(2));
+			this.addChild(new BaseTable(3));
 			
-			
-			this.btns = [btn_0, btn_1, btn_2, btn_3, btn_4];
-			this.btn_0.addEventListener(MouseEvent.CLICK, this.onBtn);
-			this.btn_1.addEventListener(MouseEvent.CLICK, this.onBtn);
-			this.btn_2.addEventListener(MouseEvent.CLICK, this.onBtn);
-			this.btn_3.addEventListener(MouseEvent.CLICK, this.onBtn);
-			this.btn_4.addEventListener(MouseEvent.CLICK, this.onBtn);
-			
-			var TableCircle:Class = getDefinitionByName('BetCircle') as Class;
-			if ( TableCircle != null){
-				var circle:MovieClip;
-				var posInfo:Object;
-				for (i = 1; i <= 3; i++){
-					circle = new TableCircle() as MovieClip;
-					circle.name = 'circle_'+i;
-					posInfo = PokerGameVars.Circle_Pos[i];
-					circle.x = posInfo.x;
-					circle.y = posInfo.y;
-					circle.addEventListener(MouseEvent.ROLL_OVER, this.onCircle);
-					circle.addEventListener(MouseEvent.ROLL_OUT, this.onOutCircle);
-					circle.addEventListener(MouseEvent.CLICK, this.onCircleClick);
-					this.circles.push(circle);
-					this.addChild( circle );
-				}
-			}
-			
+			this.btn_group.btn_double.addEventListener(MouseEvent.CLICK, this.double);
+			this.btn_group.btn_hit.addEventListener(MouseEvent.CLICK, this.hit);
+			this.btn_group.btn_stand.addEventListener(MouseEvent.CLICK, this.stand);
+			this.btn_group.btn_rebet.addEventListener(MouseEvent.CLICK, this.rebet);
+
+			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
+			/*
 			var Arrow:Class = getDefinitionByName('Arrow') as Class;
 			if ( Arrow != null){
 				this.arrow = new Arrow() as MovieClip;
@@ -101,13 +76,17 @@ package uiimpl
 			
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);
-			/**
+			
 			var clip:BitmapClip = new BitmapClip('anims', 'anim_dispense');
 			clip.play( -1);
 			this.addChild(clip);
 			*/
 		}
 		
+		private function onRecharge(evt:MouseEvent):void{
+			
+		}
+		/*
 		private function playArrow(evt:Event):void{
 			this.arrow.play();
 		}
@@ -116,129 +95,56 @@ package uiimpl
 			this.arrow.stop();
 		}
 		
-		private function onCircle(evt:MouseEvent):void{
-			var target:MovieClip = evt.currentTarget as MovieClip;
-			if ( target != null ){
-				target.gotoAndPlay(2);
+		*/
+		
+		public function betTable(table:BaseTable):void{
+			var bet:int = ChipsViewUIImpl.Instance.currentValue;
+			
+			if ( bet != 0 ){
+				var chip:Chip = PoolMgr.gain(Chip);
+				chip.value = bet;
+				this.stage.addChild(chip);
+				var pos:Point = ChipsViewUIImpl.Instance.currentChip.localToGlobal(GameVars.Raw_Point);
+				chip.x = pos.x;
+				chip.y = pos.y;
+				var targetPo:Point = table.getChipReferPoint();
+				TweenLite.to(chip, 0.4, {x:targetPo.x, y:targetPo.y, onComplete:onChipTweenComplete, onCompleteParams:[table,chip,0]});
+				mgr.betToTable(bet, table.id);
+				totalBet += bet;
+				this.updateBet();
+			}
+		}
+		/** type 0:bet 1 :pair **/
+		private function onChipTweenComplete(table:BaseTable, chip:Chip, type:int):void{
+			table.addChip(chip,type);
+		}
+		
+		public function betPair(table:BaseTable):void{
+			var bet:int = ChipsViewUIImpl.Instance.currentValue;
+			
+			if ( bet != 0 ){
+				var chip:Chip = PoolMgr.gain(Chip);
+				chip.value = bet;
+				this.stage.addChild(chip);
+				var pos:Point = ChipsViewUIImpl.Instance.currentChip.localToGlobal(GameVars.Raw_Point);
+				chip.x = pos.x;
+				chip.y = pos.y;
+				var targetPo:Point = table.getPairReferPoint();
+				TweenLite.to(chip, 0.4, {x:targetPo.x, y:targetPo.y,onComplete:onChipTweenComplete, onCompleteParams:[table,chip,1]});
+				mgr.betPair(bet, table.id);
+				totalBet += bet;
+				this.updateBet();
 			}
 		}
 		
-		private function onOutCircle(evt:MouseEvent):void{
-			var target:MovieClip = evt.currentTarget as MovieClip;
-			if ( target != null ){
-				target.gotoAndStop(1);
-			}
-		}
-		
-		private function onCircleClick(evt:MouseEvent):void{
-			var target:MovieClip = evt.currentTarget as MovieClip;
-			if ( target != null && this.currentChip){
-				var id:int = parseInt(target.name.replace('circle_', ''));
-				if ( this.currentChip ){
-					var value:uint = this.currentChip.value;
-					var chip:ChipImpl = PoolMgr.gain(ChipImpl);//new ChipImpl(this.currentChip.index);
-					chip.index = this.currentChip.index;
-					chip.value = value;
-					this.stage.addChild(chip);
-					chip.x = 200;
-					chip.y = 510;
-					chip.scaleY = 0.8;
-					this.allChip.push(chip);
-					TweenLite.to(chip, 0.4, {x:target.x - 30, y:target.y-50});
-					mgr.betToTable(this._currentValue, id, id);
-					totalBet += _currentValue;
-					this.updateBet();
-				}
-			}
-		}
 		
 		private var totalBet:int = 0;
-		
-		private function onBtn(evt:MouseEvent):void{
-			var target:Button = evt.currentTarget as Button;
-			var name:String = target.name;
-			var callBack:Function = callMapObject[name];
-			if ( callBack != null ){
-				callBack();
-			}
-		}
-		private var btns:Array;
-		public static const START:uint = 0;
-		public static const OPER:uint = 1;
-		public static const SPLIT:uint = 2;
-		public static const INSURRANCE:uint = 3;
-		private static const LABELS:Object = {
-			0 : ['START'],
-			1 : ['HIT', 'STAND', 'DOUBLE'],
-			2 : ['HIT', 'STAND', 'DOUBLE','SPLIT'],
-			3 : ['INSURRANCE','NOINSURRANCE']
-		};
-			private var callMapObject:Object = {
-				//'BET' : addbet,
-				'START' : start,
-				'STAND' : stand,
-				'HIT' : hit,
-				'DOUBLE' : double,
-				'SPLIT' : split,
-				//'SURRENDER' : surrender,
-				'INSURRANDE' : insurrance,
-				'NOINSURRANCE': noinsurrance
-			}
-		
-			private function hideAllBtns():void{
-				var btn:Button;
-				for (var i:int = 0; i < 5; i++){
-					btn = this.btns[i];
-					btn.visible = false;
-				}
-			}
-		public function showBtns(operation:uint):void{
-			var labels:Array = LABELS[operation];
-			var labelLen:uint = labels.length;
-			var btn:Button;
-			for (var i:int = 0; i < 5; i++){
-				btn = this.btns[i];
-				if ( i < labelLen){
-					btn.visible = true;
-					btn.name = labels[i];
-					btn.label = labels[i];
-				}else{
-					btn.visible = false;
-				}
-			}
-		}
-		private var startX:int = 600;
-		private var startY:int = 110;
-		private var targetX:int = 250;
-		private var bankerY:int = 100;
-		private var playerY:int = 250;
-		private var tweening:Boolean = false;
-		private var tweenQueue:Array = [];
-		public function onDispenseBack(poker:PokerImpl):void{
-			if ( this.tweening ){
-				//GameUtils.log('queue:', poker.name);
-				this.tweenQueue.push( poker);
-				return;
-			}
-			
-			GameVars.STAGE.stage.addChild(poker);
-		
-			this.allPoker.push(poker);
-			poker.x = startX;
-			poker.y = startY;
-			tweening = true;
-			//GameUtils.log('tween:', poker.name);
-			if( poker.targetRotate == 0 )
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.onTweenComplete});
-			else
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, rotation:poker.targetRotate, onComplete:this.onTweenComplete});
-			
-		}
-		private var currentTable:Table;
+		private var currentTable:TableData;
 		private function onTweenComplete():void{
-			tweening = false;
+			//tweening = false;
+			/**
 			if ( this.tweenQueue.length){
-				var temp:PokerImpl = this.tweenQueue.shift();
+				var temp:Poker = this.tweenQueue.shift();
 				//GameUtils.log('ready tweening:', temp.name);
 				this.onDispenseBack(temp);
 			}else{
@@ -246,73 +152,60 @@ package uiimpl
 				currentTable = mgr.currentTable;
 				
 				if ( currentTable != null ){
-					this.arrow.x = currentTable.arrowX;
-					this.arrow.y = currentTable.arrowY;
+					//this.arrow.x = currentTable.arrowX;
+					//this.arrow.y = currentTable.arrowY;
 					this.stage.addChild(this.arrow);
-					/**
+					
 					if ( mgr.needShowInsure){
 						showBtns(INSURRANCE);
 					}else 
-					*/
+					
 					if ( currentTable.canSplit ){
-						showBtns(SPLIT);
+						//showBtns(SPLIT);
 					}else if ( currentTable.blackjack || currentTable.bust ){
 						socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:currentTable.tableId});
 					}else{
-						showBtns(OPER);
+						//showBtns(OPER);
 					}
 				}
 			}
+			*/
 		}
 		
 		
 		
-		private function hit():void{
-			this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:currentTable.tableId});
+		private function hit(evt:MouseEvent):void{
+			if (mgr.started){
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
+			}else{
+				start();
+			}
 		}
-		private var allChip:Vector.<ChipImpl> = new Vector.<ChipImpl>();
-		private var allPoker:Vector.<PokerImpl> = new Vector.<PokerImpl>();
+		//private var allChip:Vector.<Chip> = new Vector.<Chip>();
+		//private var allPoker:Vector.<Poker> = new Vector.<Poker>();
 		private function start():void{
-			this.hideAllBtns();
+			//this.hideAllBtns();
 			mgr.start();	
 		}
-		private function double():void{
-			this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:currentTable.tableId});
+		private function rebet(evt:MouseEvent):void{
+			//this.hideAllBtns();
 		}
-		private function stand():void{
-			this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:currentTable.tableId});
+		private function double(evt:MouseEvent):void{
+			//this.hideAllBtns();
+			socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 		}
-		private function split():void{
-			this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:currentTable.tableId});
+		private function stand(evt:MouseEvent):void{
+			//this.hideAllBtns();
+			socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 		}
-		
-		private function insurrance():void{
-			this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tabId:currentTable.tableId});
-		}
-		private function noinsurrance():void{
-			
+		private function split(evt:MouseEvent):void{
+			//this.hideAllBtns();
+			socketMgr.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:mgr.currentTable.tableId});
 		}
 		
-		private var currentChip:ChipImpl;
-		private var _currentValue:uint;
-		private function onChipClick(evt:MouseEvent):void{
-			if ( currentChip && currentChip == evt.currentTarget) return;
-			if ( currentChip != null){
-				currentChip.y = CHIPSY;
-			}
-			currentChip = evt.currentTarget as ChipImpl;
-			currentChip.y = CHOSEY;
-			_currentValue = currentChip.value;
-			GameUtils.info('chose chip :', _currentValue);
-		}
-		
-		public function get currentValue():uint{
-			return _currentValue;
+		private function insurrance(evt:MouseEvent):void{
+			//this.hideAllBtns();
+			socketMgr.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tabId:mgr.currentTable.tableId});
 		}
 		
 		public function updateBalance(value:Number):void{
@@ -320,14 +213,11 @@ package uiimpl
 		}
 		
 		public function updateBet():void{
-			this.bet.lab.text = GameUtils.NumberToString(totalBet);
+			//this.bet.lab.text = GameUtils.NumberToString(totalBet);
 		}
 		
 		public function update(delta:int):void{
-			if ( this.currentChip != null ){
-				this.currentChip.roll();
-			}
-			this.lab_time.text = 'Now:'+GameUtils.GetDateTime(TickerMgr.SYSTIME);
+			//this.lab_time.text = 'Now:'+GameUtils.GetDateTime(TickerMgr.SYSTIME);
 		}
 		
 		public function onStarted():void{
@@ -344,34 +234,35 @@ package uiimpl
 		public function onStandBack():void{
 			currentTable = mgr.currentTable;
 			if ( currentTable != null ){
-				this.arrow.x = currentTable.arrowX;
-				this.arrow.y = currentTable.arrowY;
+				//this.arrow.x = currentTable.arrowX;
+				//this.arrow.y = currentTable.arrowY;
 				if ( currentTable.canSplit ){
-					showBtns(SPLIT);
+					//showBtns(SPLIT);
 				}else if ( currentTable.blackjack || currentTable.bust ){
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:currentTable.tableId});
 				}else{
-					this.stage.addChild(this.arrow);
-					this.arrow.play();
-					showBtns(OPER);
+					//this.stage.addChild(this.arrow);
+					//this.arrow.play();
+					//showBtns(OPER);
 				}
 			}
 		}
 		
 		public function onRoundEnd():void{
-			var poker:PokerImpl;
+			/**
+			var poker:Poker;
 			while (this.allPoker.length != 0){
 				poker = allPoker.pop();
 				this.stage.removeChild(poker);
 				PoolMgr.reclaim(poker);
 			}
-			var chip:ChipImpl;
+			var chip:Chip;
 			while ( this.allChip.length != 0){
 				chip = this.allChip.pop();
 				this.stage.removeChild(chip);
 				PoolMgr.reclaim(chip);
 			}
-			
+			/**
 			for each(var mc:MovieClip in this.circles){
 				mc.mouseChildren = mc.mouseEnabled = true;
 			}
@@ -379,7 +270,13 @@ package uiimpl
 				this.stage.removeChild(this.arrow);
 			this.arrow.stop();
 			this.showBtns(START);
+			*/
 			this.totalBet = 0;
+		}
+		private var dispenserPos:Point = new Point(612, 50);
+		public function onResize():void{
+			this.x = GameVars.Stage_Width - this.width >> 1;
+			PokerGameVars.DispensePostion = this.localToGlobal(dispenserPos);
 		}
 		
 		private static var _instance:MainViewImpl;

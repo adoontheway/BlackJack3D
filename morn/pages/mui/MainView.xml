@@ -1,12 +1,9 @@
-<View width="751" height="505" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
-  <Image skin="png.bg.398" layer="1"/>
-  <UIView source="mui/Balance.xml" y="355" layer="1" var="balance" x="536"/>
-  <UIView source="mui/MyBet.xml" y="355" layer="1" var="bet"/>
-  <Image skin="png.images.game_intro" layer="1" var="gameIntro"/>
-  <Label text="time:" styleSkin="png.comp.label" x="112" y="17" layer="1" color="0x6600" size="15" width="118" height="18" var="lab_time"/>
-  <Button label="STAND" skin="png.comp.button" x="31" y="181" layer="1" var="btn_0" visible="false"/>
-  <Button label="HIT" skin="png.comp.button" x="32" y="212" layer="1" var="btn_1" visible="false"/>
-  <Button label="START" skin="png.comp.button" x="32" y="243" layer="1" var="btn_2" visible="false"/>
-  <Button label="BET" skin="png.comp.button" x="32" y="274" layer="1" var="btn_3" visible="false"/>
-  <Button label="SURRENDER" skin="png.comp.button" x="32" y="303" layer="1" var="btn_4" visible="false"/>
+<View width="800" height="600" sceneColor="0xffffff" layers="1,1,0,0,第 1 层;2,1,0,1,第 2 层">
+  <Image skin="png.bg.desk" x="-644" y="-1" layer="2"/>
+  <Image skin="png.images.chip-box" x="259" y="-11" layer="1"/>
+  <Image skin="png.images.recycle-bin" x="-130" y="-64" layer="1"/>
+  <Image skin="png.images.dispenser" x="612" y="-63" layer="1"/>
+  <UIView source="mui/ChipsView.xml" x="156" y="625" layer="1" var="chips_group"/>
+  <UIView source="mui/Balance.xml" x="831" y="38" layer="1" var="balance"/>
+  <UIView source="mui/ButtonGroup.xml" x="640" y="513" layer="1" var="btn_group"/>
 </View>

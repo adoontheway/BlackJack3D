@@ -13,33 +13,46 @@ package uiimpl
 	 */
 	public class ChipsViewUIImpl extends ChipsViewUI 
 	{
-		private var rawY:Vector.<int> = new Vector.<int>();
-		private var chips:Vector.<Image> = new  Vector.<Image>();
+		private var rawY:Array = [0, 4, 6, 6, 4, 0];
+		private var rawX:Array = [-1, 75, 151, 227, 303, 379];
+		private var chips:Vector.<Chip> = new  Vector.<Chip>();
 		public function ChipsViewUIImpl() 
 		{
 			super();
-			this.y = 480;
-			this.x = 1000;
-			this.chip_0.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_1.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_2.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_3.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_4.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_5.addEventListener(MouseEvent.CLICK, onChip);
-			this.chip_6.addEventListener(MouseEvent.CLICK, onChip);
-			rawY.push(chip_0.y, chip_1.y, chip_2.y, chip_3.y, chip_4.y, chip_5.y, chip_6.y);
-			chips.push(chip_0, chip_1, chip_2, chip_3, chip_4, chip_5, chip_6);
+			this.x = 156;
+			this.y = 625;
+			init();
 		}
-		private var currentChip:Image;
-		private var _currentValue:uint;
+		
+		private function init():void{
+			var chip:Chip;
+			for (var i:int = 0; i <= 5; i++){
+				chip = new Chip();
+				chip.x = rawX[i];
+				chip.y = rawY[i];
+				chips.push(chip);
+				this.addChild(chip);
+				chip.addEventListener(MouseEvent.CLICK, onChip);
+			}
+		}
+		
+		public function setupValues(arr:Array):void{
+			var chip:Chip;
+			for (var i:int = 0; i <= 5; i++){
+				chip = chips[i];
+				chip.value = arr[i];
+			}
+		}
+		public var currentChip:Chip;
+		public var currentValue:uint;
 		private function onChip(evt:MouseEvent):void{
 			GameUtils.info(evt.target['name'] + ' clicked');
 			if ( currentChip && currentChip == evt.target) return;
 			if ( currentChip != null){
 				TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]});
 			}
-			currentChip = evt.target as Image;
-			_currentValue = parseInt(evt.target['name'].replace('chip_', ''));
+			currentChip = evt.target as Chip;
+			currentValue = currentChip.value;
 			TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]-30});
 		}
 		
@@ -52,9 +65,6 @@ package uiimpl
 			}
 		}
 		
-		public function get currentValue():uint{
-			return _currentValue;
-		}
 		
 		private static var _instance:ChipsViewUIImpl;
 		public static function get Instance():ChipsViewUIImpl{

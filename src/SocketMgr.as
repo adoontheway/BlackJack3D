@@ -142,9 +142,9 @@ package
 		private function onLogin(data:Object):void{
 			GameVars.STAGE.removeChild(LoginImpl.Instance);
 			GameVars.STAGE.addChild( MainViewImpl.Instance);
-			MainViewImpl.Instance.showBtns(MainViewImpl.START);
+			//MainViewImpl.Instance.showBtns(MainViewImpl.START);
 			mgr.money = data.money;
-			MainViewImpl.Instance.updateBalance(data.money);
+			//MainViewImpl.Instance.updateBalance(data.money);
 		}
 		
 		private function onMessage(evt:WebSocketEvent):void{

@@ -17,11 +17,11 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
-    <class path="D:\3rd\Starling-Framework\starling\src" />
     <class path="..\DukeComman\src" />
     <class path="D:\3rd\GreenSock-AS3\src" />
     <class path="D:\3rd\AS3WebSocket\AS3WebSocket\src" />
     <class path="D:\3rd\as3corelib\src" />
+    <class path="D:\3rd\MornUI\MornUILib\src" />
   </classpaths>
   <!-- Build options -->
   <build>
@@ -58,7 +58,7 @@
   </includeLibraries>
   <!-- SWC Libraries -->
   <libraryPaths>
-    <element path="libs\MornUILib.swc" />
+    <!-- example: <element path="..." /> -->
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>

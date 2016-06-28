@@ -33,7 +33,7 @@ package
 		}
 		
 		private function init():void{
-			this.pokePool = new Vector.<Card>();
+			this.pokePool = new Vector.<Poker>();
 			this.playerCard = {};
 			//this.playerMap = {};
 			//this.endAnimMap = {};
@@ -185,7 +185,7 @@ package
 			if ( this.currentDispense >= this.pokers.length - 1){
 				return;
 			}
-			var poker:Card = this.getCard(this.pokers[this.currentDispense]);//new Card(this.pokers[this.currentDispense]);
+			var poker:Poker = this.getCard(this.pokers[this.currentDispense]);//new Card(this.pokers[this.currentDispense]);
 			poker.x = 1560;
 			poker.y = 20;
 			poker.rotationX = 180;
@@ -250,7 +250,7 @@ package
 		}
 		
 		public function restart():void{
-			var card:Card;
+			var card:Poker;
 			for (var key:String in this.pokerMap){
 				card = this.pokerMap[key];
 				PokerGameVars.STAGE.removeChild(card);
@@ -269,17 +269,17 @@ package
 			
 			start();
 		}
-		private var pokePool:Vector.<Card>;
-		public function getCard(value:uint = 0):Card{
+		private var pokePool:Vector.<Poker>;
+		public function getCard(value:uint = 0):Poker{
 			if ( this.pokePool.length){
-				var card:Card = this.pokePool.pop();
+				var card:Poker = this.pokePool.pop();
 				card.value = value;
 				return card;
 			}
-			return new Card(value);
+			return new Poker(value);
 		}
 		
-		public function reclaim(card:Card):void{
+		public function reclaim(card:Poker):void{
 			if ( this.pokers.indexOf(card) != -1){
 				this.pokers.push(card);
 			}

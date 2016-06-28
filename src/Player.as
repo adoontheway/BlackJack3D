@@ -17,14 +17,14 @@ package
 		public var isDoubled:Boolean;
 		public var hasAce:Boolean;
 		
-		public var currentCards:Vector.<Card> = new Vector.<Card>();
+		public var currentCards:Vector.<Poker> = new Vector.<Poker>();
 		private var _points:int;
 		public function Player() 
 		{
 			
 		}
 		
-		public function addCard(card:Card){
+		public function addCard(card:Poker){
 			if ( !this.hasAce && card.realValue == 1){
 				this.hasAce = true;
 			}

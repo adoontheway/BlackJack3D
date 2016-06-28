@@ -1,0 +1,16 @@
+<View width="345" height="215" sceneColor="0xffffff" layers="2,1,1,1,第 2 层;1,1,1,0,第 1 层">
+  <Button skin="png.ui.btn_table_right" layer="1" stateNum="2" var="table"/>
+  <Button skin="png.ui.btn_pair_right" x="197" layer="1" stateNum="2" y="11" var="pair"/>
+  <Box skin="png.comp.blank" x="84" y="7" layer="1" var="poker_con_1"/>
+  <Box skin="png.comp.blank" x="84" y="-53" layer="1" var="poker_con_2"/>
+  <UIView source="mui/MyBet.xml" x="207" y="160" layer="2" var="bet_display"/>
+  <Box layers="1,1,0,0,第 1 层" layer="2" x="197" y="-40" var="point_display">
+    <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
+    <Label text="21" styleSkin="png.comp.label" x="10" y="13" layer="1" color="0xffffff" width="48" height="37" align="center" size="30"/>
+  </Box>
+  <Image skin="png.images.blackjack" x="24" y="78" layer="2" var="mark_blackjack"/>
+  <Button skin="png.ui.btn_insurrance" x="44" y="44" layer="2" stateNum="2" var="btn_insurrance"/>
+  <Button skin="png.ui.btn_split" x="46" y="44" layer="2" stateNum="2" var="btn_split"/>
+  <Box skin="png.comp.blank" x="150" y="115" layer="2" var="chips_con"/>
+  <Box skin="png.comp.blank" x="220" y="29" layer="2" var="pair_con" width="81" height="33"/>
+</View>

@@ -9,9 +9,11 @@ package
 	public class Chip extends Image 
 	{
 		private var _value:uint;
-		public function Chip(url:String=null) 
+		public function Chip(_val:int=-1) 
 		{
-			super(url);
+			if ( _val != -1){
+				this.value = _val;
+			}
 		}
 		public function set value(val:uint):void{
 			if ( this._value == val) return;

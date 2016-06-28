@@ -3,10 +3,12 @@ package game.ui.mui {
 	import morn.core.components.*;
 	public class MyBetUI extends View {
 		public var lab:Label = null;
+		public var btn_close:Button = null;
 		protected static var uiXML:XML =
-			<View width="183" height="68">
-			  <Image skin="png.images.betMoney" x="0" y="0" width="183" height="68"/>
-			  <Label text="100" x="36" y="25" width="143" height="29" color="0xffffff" size="20" var="lab"/>
+			<View width="106" height="41">
+			  <Image skin="png.images.betMoney" x="0" y="0"/>
+			  <Label text="100.00" x="6" y="7" width="87" height="29" color="0xffffff" size="18" var="lab" align="center"/>
+			  <Button skin="png.images.btn_close" x="87" y="-3" stateNum="1" var="btn_close"/>
 			</View>;
 		public function MyBetUI(){}
 		override protected function createChildren():void {

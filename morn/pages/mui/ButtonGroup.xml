@@ -1,0 +1,6 @@
+<View width="480" height="119" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Button skin="png.ui.btn_clean" x="320" y="-54" layer="1" stateNum="2" var="btn_rebet"/>
+  <Button skin="png.ui.btn_double" x="213" y="-7" layer="1" stateNum="2" var="btn_double"/>
+  <Button skin="png.ui.btn_hit" x="0" y="47" layer="1" stateNum="2" var="btn_hit"/>
+  <Button skin="png.ui.btn_stand" x="107" y="25" layer="1" stateNum="2" var="btn_stand"/>
+</View>

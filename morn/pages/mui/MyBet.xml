@@ -1,4 +1,5 @@
-<View width="183" height="68" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
-  <Image skin="png.images.betMoney" layer="1" x="0" y="0" width="183" height="68"/>
-  <Label text="100" styleSkin="png.comp.label" x="36" y="25" layer="1" width="143" height="29" color="0xffffff" size="20" var="lab"/>
+<View width="106" height="41" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.betMoney" layer="1" x="0" y="0"/>
+  <Label text="100.00" styleSkin="png.comp.label" x="6" y="7" layer="1" width="87" height="29" color="0xffffff" size="18" var="lab" align="center"/>
+  <Button skin="png.images.btn_close" x="87" y="-3" layer="1" stateNum="1" var="btn_close"/>
 </View>

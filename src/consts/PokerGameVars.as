@@ -1,6 +1,7 @@
 package consts 
 {
 	import flash.display.Stage;
+	import flash.geom.Point;
 	/**
 	 * ...
 	 * @author jerry.d
@@ -10,6 +11,8 @@ package consts
 		
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
+		
+		public static var DispensePostion:Point = new Point(612,50);
 		
 		public static const CHIP_SHOWS:Object = {
 			1:'1',
@@ -55,9 +58,9 @@ package consts
 		
 		public static const DESK_TIMES:Array = [45000,60000,75000];
 		public static const Model_Config:Object = {
-		0:[1, 2, 5, 10, 50, 100, 1000],
-		1:[100, 200, 300, 500, 600, 800, 1000],
-		2:[1000, 2000, 3000, 5000, 6000, 8000, 10000]
+		0:[1, 2, 5, 10, 50, 100,],
+		1:[100, 200, 300, 500, 600, 800],
+		2:[1000, 2000, 3000, 5000, 6000, 8000]
 		};
 		
 		public static const Chars:Array = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
