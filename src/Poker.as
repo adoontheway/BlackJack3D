@@ -22,15 +22,23 @@ package
 			if (value != -1){
 				this.value = value;
 			}
+			//this.anchorX = 0.5;
+			//this.anchorY = 0.5;
 		}
 		
 		public function set value(val:int):void{
 			if ( this._value == val ) return;
-			this.realValue = (val-1)%13+1;
-			this.compareValue = this.realValue < 10 ? this.realValue : 10;
-			this.type = Math.ceil(val / 13);
-			this.url = 'png.pokers.' + realValue;
-			this.name = 'poker_' + val;
+			_value = val;
+			if ( val == -1 ){
+				this.url = 'png.pokers.back';
+			}else{
+				
+				this.realValue = (val-1)%13+1;
+				this.compareValue = this.realValue < 10 ? this.realValue : 10;
+				this.type = Math.ceil(val / 13);
+				this.url = 'png.pokers.' + realValue;
+				this.name = 'poker_' + val;
+			}	
 		}
 		
 		public function get value():int{

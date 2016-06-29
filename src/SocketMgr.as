@@ -105,9 +105,9 @@ package
 			
 		}
 		private function onRoundEnd(data:*):void{
-			mgr.onRoundEnd();
 			setTimeout(function():void{
 				MainViewImpl.Instance.onRoundEnd();
+				mgr.onRoundEnd();
 			}, 2000);
 			
 		}
@@ -119,7 +119,7 @@ package
 			
 		}
 		private function onStarted(data:*):void{
-			mgr.onStarted(data.table);
+			mgr.onStarted(data.tables);
 			MainViewImpl.Instance.onStarted();
 		}
 		private function onDispense(data:Object):void{

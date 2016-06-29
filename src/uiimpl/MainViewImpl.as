@@ -18,21 +18,15 @@ package uiimpl
 	import morn.core.components.Image;
 	import comman.duke.*;
 	import com.greensock.*;
+	import utils.TableUtil;
 	/**
 	 * ...
 	 * @author jerry.d
 	 */
 	public class MainViewImpl extends MainViewUI 
-	{
-		private const CHOSEY:int = 440;
-		private const CHIPSY:int = 455;
-		private const CHIPSX:Array = [126,194,262,330,398,466,534];
-		
+	{		
 		private var mgr:GameMgr;
 		private var frameItem:FrameItem;
-		private var currentBtns:Vector.<Button>;
-		private var currentHandler:Vector.<Function>;
-		private var circles:Array;
 		private var socketMgr:SocketMgr;
 		
 		//-------------ui elments ------------------//
@@ -50,7 +44,6 @@ package uiimpl
 			mgr = GameMgr.Instance;
 			mgr.mainView = this;
 			
-			
 			var model:uint = mgr.model;
 			var chipValues:Array = PokerGameVars.Model_Config[model];
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
@@ -59,14 +52,10 @@ package uiimpl
 			this.addChild(new BaseTable(1));
 			this.addChild(new BaseTable(2));
 			this.addChild(new BaseTable(3));
+			this.addChild(Buttons.Instance);
 			
-			this.btn_group.btn_double.addEventListener(MouseEvent.CLICK, this.double);
-			this.btn_group.btn_hit.addEventListener(MouseEvent.CLICK, this.hit);
-			this.btn_group.btn_stand.addEventListener(MouseEvent.CLICK, this.stand);
-			this.btn_group.btn_rebet.addEventListener(MouseEvent.CLICK, this.rebet);
-
 			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
-			/*
+			
 			var Arrow:Class = getDefinitionByName('Arrow') as Class;
 			if ( Arrow != null){
 				this.arrow = new Arrow() as MovieClip;
@@ -76,7 +65,7 @@ package uiimpl
 			
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);
-			
+			/*
 			var clip:BitmapClip = new BitmapClip('anims', 'anim_dispense');
 			clip.play( -1);
 			this.addChild(clip);
@@ -86,7 +75,7 @@ package uiimpl
 		private function onRecharge(evt:MouseEvent):void{
 			
 		}
-		/*
+		
 		private function playArrow(evt:Event):void{
 			this.arrow.play();
 		}
@@ -95,50 +84,7 @@ package uiimpl
 			this.arrow.stop();
 		}
 		
-		*/
-		
-		public function betTable(table:BaseTable):void{
-			var bet:int = ChipsViewUIImpl.Instance.currentValue;
-			
-			if ( bet != 0 ){
-				var chip:Chip = PoolMgr.gain(Chip);
-				chip.value = bet;
-				this.stage.addChild(chip);
-				var pos:Point = ChipsViewUIImpl.Instance.currentChip.localToGlobal(GameVars.Raw_Point);
-				chip.x = pos.x;
-				chip.y = pos.y;
-				var targetPo:Point = table.getChipReferPoint();
-				TweenLite.to(chip, 0.4, {x:targetPo.x, y:targetPo.y, onComplete:onChipTweenComplete, onCompleteParams:[table,chip,0]});
-				mgr.betToTable(bet, table.id);
-				totalBet += bet;
-				this.updateBet();
-			}
-		}
-		/** type 0:bet 1 :pair **/
-		private function onChipTweenComplete(table:BaseTable, chip:Chip, type:int):void{
-			table.addChip(chip,type);
-		}
-		
-		public function betPair(table:BaseTable):void{
-			var bet:int = ChipsViewUIImpl.Instance.currentValue;
-			
-			if ( bet != 0 ){
-				var chip:Chip = PoolMgr.gain(Chip);
-				chip.value = bet;
-				this.stage.addChild(chip);
-				var pos:Point = ChipsViewUIImpl.Instance.currentChip.localToGlobal(GameVars.Raw_Point);
-				chip.x = pos.x;
-				chip.y = pos.y;
-				var targetPo:Point = table.getPairReferPoint();
-				TweenLite.to(chip, 0.4, {x:targetPo.x, y:targetPo.y,onComplete:onChipTweenComplete, onCompleteParams:[table,chip,1]});
-				mgr.betPair(bet, table.id);
-				totalBet += bet;
-				this.updateBet();
-			}
-		}
-		
-		
-		private var totalBet:int = 0;
+		//private var totalBet:int = 0;
 		private var currentTable:TableData;
 		private function onTweenComplete():void{
 			//tweening = false;
@@ -174,39 +120,7 @@ package uiimpl
 		
 		
 		
-		private function hit(evt:MouseEvent):void{
-			if (mgr.started){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
-			}else{
-				start();
-			}
-		}
-		//private var allChip:Vector.<Chip> = new Vector.<Chip>();
-		//private var allPoker:Vector.<Poker> = new Vector.<Poker>();
-		private function start():void{
-			//this.hideAllBtns();
-			mgr.start();	
-		}
-		private function rebet(evt:MouseEvent):void{
-			//this.hideAllBtns();
-		}
-		private function double(evt:MouseEvent):void{
-			//this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
-		}
-		private function stand(evt:MouseEvent):void{
-			//this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
-		}
-		private function split(evt:MouseEvent):void{
-			//this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:mgr.currentTable.tableId});
-		}
 		
-		private function insurrance(evt:MouseEvent):void{
-			//this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tabId:mgr.currentTable.tableId});
-		}
 		
 		public function updateBalance(value:Number):void{
 			this.balance.lab_0.text = GameUtils.NumberToString(value);
@@ -217,17 +131,20 @@ package uiimpl
 		}
 		
 		public function update(delta:int):void{
+			if ( PokerGameVars.Glow_Filter.strength == 1){
+				PokerGameVars.Glow_Filter.strength = 2;
+			}else{
+				PokerGameVars.Glow_Filter.strength = 1;
+			}
 			//this.lab_time.text = 'Now:'+GameUtils.GetDateTime(TickerMgr.SYSTIME);
 		}
 		
 		public function onStarted():void{
-			for each(var mc:MovieClip in this.circles){
-				mc.mouseChildren = mc.mouseEnabled = false;
-			}
+			
 		}
 		
 		public function onDoubleBack(tabId:int, moreBet:int):void{
-			this.totalBet += moreBet;
+			//this.totalBet += moreBet;
 			this.updateBet();
 		}
 		
@@ -245,6 +162,33 @@ package uiimpl
 					//this.arrow.play();
 					//showBtns(OPER);
 				}
+			}
+		}
+		
+		private var tweening:Boolean = false;
+		private var tweenQueue:Array = [];
+		public function onDispenseBanker(poker:Poker):void{
+			if ( tweening ){
+				tweenQueue.push(poker);
+				return;
+			}
+			this.banker_poker_con.addChild(poker);
+			var startPos:Point = banker_poker_con.globalToLocal( PokerGameVars.DispensePostion);
+			poker.x = startPos.x;
+			poker.y = startPos.y;
+			poker.targetX = banker_poker_con.x+banker_poker_con.numChildren*20;
+			poker.targetY = banker_poker_con.y;
+			tweening = true;
+			TweenLite.to(poker, 0.5, {rotationX:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+		}
+		
+		private function reOrderBankerContaner():void{
+			tweening = false;
+			TableUtil.reOrderContainer(banker_poker_con, 0, 200, 200);
+			if ( tweenQueue.length != 0 ){
+				var poker:Poker = tweenQueue.shift();
+				onDispenseBanker(poker);
+				return;
 			}
 		}
 		
@@ -271,7 +215,12 @@ package uiimpl
 			this.arrow.stop();
 			this.showBtns(START);
 			*/
-			this.totalBet = 0;
+			var poker:Poker;
+			while ( banker_poker_con.numChildren != 0){
+				poker = banker_poker_con.removeChildAt(0) as Poker;
+				PoolMgr.reclaim(poker);
+			}
+			//this.totalBet = 0;
 		}
 		private var dispenserPos:Point = new Point(612, 50);
 		public function onResize():void{

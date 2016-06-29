@@ -6,7 +6,7 @@
   <UIView source="mui/MyBet.xml" x="207" y="160" layer="2" var="bet_display"/>
   <Box layers="1,1,0,0,第 1 层" layer="2" x="197" y="-40" var="point_display">
     <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
-    <Label text="21" styleSkin="png.comp.label" x="10" y="13" layer="1" color="0xffffff" width="48" height="37" align="center" size="30" var="lab_points"/>
+    <Label text="21" styleSkin="png.comp.label" x="10" y="11" layer="1" color="0xffffff" width="48" height="37" align="center" size="30" var="lab_points"/>
   </Box>
   <Image skin="png.images.blackjack" x="24" y="78" layer="2" var="mark_blackjack"/>
   <Button skin="png.ui.btn_insurrance" x="44" y="44" layer="2" stateNum="2" var="btn_insurrance"/>

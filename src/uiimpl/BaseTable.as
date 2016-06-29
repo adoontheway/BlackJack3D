@@ -1,13 +1,17 @@
 package uiimpl 
 {
 	import com.greensock.TweenLite;
+	import com.greensock.easing.*;
+	import comman.duke.GameUtils;
 	import comman.duke.GameVars;
 	import comman.duke.PoolMgr;
 	import consts.PokerGameVars;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
 	import game.ui.mui.TableRightUI;
+	import model.ProtocolClientEnum;
 	import model.TableData;
 	import morn.core.components.Box;
 	import utils.TableUtil;
@@ -46,14 +50,48 @@ package uiimpl
 			GameMgr.Instance.registerTableDisplay(_id, this);
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
 			pair.addEventListener(MouseEvent.CLICK, this.betPair);
+			btn_insurrance.addEventListener(MouseEvent.CLICK, this.insurrance);
+			btn_split.addEventListener(MouseEvent.CLICK, this.split);
+			this.bet_display.btn_close.addEventListener(MouseEvent.CLICK, onCloseBets);
+		}
+		
+		private function split(evt:MouseEvent):void{
+			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:_id});
+		}
+		
+		private function insurrance(evt:MouseEvent):void{
+			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tabId:_id});
+		}
+		
+		private function onCloseBets(evt:MouseEvent):void{
+			this.bet_display.visible = false;
 		}
 		
 		private function betTable(evt:MouseEvent):void{
-			MainViewImpl.Instance.betTable(this);
+			var bet:int = ChipsViewUIImpl.Instance.currentValue;
+			if ( bet != 0 ){
+				var chip:Chip = PoolMgr.gain(Chip);
+				chip.value = bet;
+				addChip(chip, 0);
+				GameMgr.Instance.betToTable(bet, _id);
+				this.bet_display.visible = true;
+				this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
+				this.tabelRemind(false);
+			}
 		}
 		
 		private function betPair(evt:MouseEvent):void{
-			MainViewImpl.Instance.betPair(this);
+			var bet:int = ChipsViewUIImpl.Instance.currentValue;
+			if ( bet != 0 ){
+				var result:Boolean = GameMgr.Instance.betPair(bet, _id);
+				if ( result){
+					var chip:Chip = PoolMgr.gain(Chip);
+					chip.value = bet;
+					addChip(chip, 1);
+				}else{
+					this.tabelRemind(true);
+				}
+			}
 		}
 		
 		public function get id():int{
@@ -62,12 +100,11 @@ package uiimpl
 		
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
-		/* INTERFACE ITable */
-		
 		public function addCardTo(poker:Poker, con:int=0):void 
 		{
 			if ( con == 0 ){
 				tableData.addCard(poker);
+				this.lab_points.size = 30;
 				if ( !tableData.bust ){
 					if ( !tableData.blackjack){
 						if ( !tableData.hasA || (tableData.hasA && tableData.points > 11) ){
@@ -80,19 +117,23 @@ package uiimpl
 							}
 						}else{
 							this.img_points_bg.url = 'png.images.soft';
+							this.lab_points.size = 20;
 							this.lab_points.text =  tableData.points+"/"+(tableData.points+10);
 						}
 						
 					}else{
-						this.img_points_bg.url = 'png.images.blackjack';
+						this.img_points_bg.url = 'png.images.green';
 						this.lab_points.text =  "21";
+						
 					}
 				}else{
+					
 					this.img_points_bg.url = 'png.images.bust';
 					this.lab_points.text = tableData.points + "";
 				}
 				this.point_display.visible = true;
 				this.btn_split.visible = tableData.canSplit;
+				mark_blackjack.visible = tableData.blackjack;
 			}else if ( con == 1){
 				splitTableData.addCard(poker);
 			}
@@ -107,42 +148,28 @@ package uiimpl
 		private function doTween(poker:Poker, con:int=0):void{
 			if ( con == 0 ){
 				this.poker_con_1.addChild(poker);
-				var startPos:Point = this.globalToLocal( PokerGameVars.DispensePostion);
-				poker.x = startPos.x;
-				poker.y = startPos.y;
 				poker.targetX = poker_con_1.x+poker_con_1.numChildren*20;
 				poker.targetY = poker_con_1.y;
-				tweening = true;
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderContainer1});
 			}else if ( con == 1){
 				this.poker_con_2.addChild(poker);
-				poker.x = PokerGameVars.DispensePostion.x;
-				poker.y = PokerGameVars.DispensePostion.y;
 				poker.targetX = poker_con_2.x;
 				poker.targetY = poker_con_2.y;
-				tweening = true;
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reorderContainer2});
 			}
+			var startPos:Point = this.globalToLocal( PokerGameVars.DispensePostion);
+			poker.x = startPos.x;
+			poker.y = startPos.y;
+			tweening = true;
+			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationX:0,y:poker.targetY, onComplete:this.onTweenComplete,onCompleteParams:[con == 0 ? poker_con_1 : poker_con_2]});
 		}
 		
-		private function reOrderContainer1():void{
+		private function onTweenComplete(con:Sprite):void{
 			tweening = false;
-			if ( this.tweenQueue.length){
+			if ( this.tweenQueue.length != 0){
 				var temp:Poker = this.tweenQueue.shift();
-				var con:int = this.tweenQueue.shift();
-				this.doTween(temp,con);
+				var type:int = this.tweenQueue.shift();
+				this.doTween(temp,type);
 			}else{
-				TableUtil.reOrderContainer(poker_con_1, 0, 280, 250);
-			}
-		}
-		
-		private function reorderContainer2():void{
-			if ( this.tweenQueue.length){
-				var temp:Poker = this.tweenQueue.shift();
-				var con:int = this.tweenQueue.shift();
-				this.doTween(temp,con);
-			}else{
-				TableUtil.reOrderContainer(poker_con_2, 0, 200, 250);
+				TableUtil.reOrderContainer(con, 0, 200, 200);
 			}
 		}
 		
@@ -150,7 +177,9 @@ package uiimpl
 			var con:Box = type == 0 ? this.chips_con : this.pair_con;
 			chip.y = con.numChildren * -8;
 			chip.x = 0;
+			chip.scaleX = chip.scaleY = 0.5;
 			con.addChild(chip);
+			TweenLite.to(chip, 0.4, {scaleX:1, scaleY:1, ease: Back.easeOut});
 		}
 		private var _referChipPos:Point;
 		public function getChipReferPoint():Point{
@@ -169,7 +198,8 @@ package uiimpl
 		}
 		public function reset():void 
 		{
-			tableData.reset();
+			if( tableData != null)
+				tableData.reset();
 			if( splitTableData != null)
 				splitTableData.reset();
 			var poker:Poker;
@@ -194,11 +224,16 @@ package uiimpl
 				PoolMgr.reclaim(chip);
 			}
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
+			tweening = false;
 		}
 		
-		public function update():void 
+		public function tabelRemind(bool:Boolean):void 
 		{
-			
+			if ( bool ){
+				table.filters = [PokerGameVars.Glow_Filter];
+			}else if(table.filters.length != 0){
+				table.filters = [];
+			}
 		}
 		
 		public function setTableData(tableData:TableData, isMain:Boolean):void 

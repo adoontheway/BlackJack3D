@@ -1,6 +1,9 @@
 package consts 
 {
 	import flash.display.Stage;
+	import flash.filters.ColorMatrixFilter;
+	import flash.filters.GlowFilter;
+	import flash.geom.Matrix;
 	import flash.geom.Point;
 	/**
 	 * ...
@@ -13,6 +16,12 @@ package consts
 		public static var Desk:uint = 0;
 		
 		public static var DispensePostion:Point = new Point(612,50);
+		public static var Glow_Filter:GlowFilter = new GlowFilter(0xcccccc,0.5);
+		public static var Gray_Filter:ColorMatrixFilter = new ColorMatrixFilter(
+		[0.3086, 0.6094, 0.0820, 0, 0,
+		0.3086, 0.6094, 0.0820, 0, 0,
+		0.3086, 0.6094, 0.0820, 0, 0,
+		0,      0,      0,      1, 0]);
 		
 		public static const CHIP_SHOWS:Object = {
 			1:'1',

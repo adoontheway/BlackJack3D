@@ -5,5 +5,5 @@
   <Image skin="png.images.dispenser" x="612" y="-63" layer="1"/>
   <UIView source="mui/ChipsView.xml" x="156" y="625" layer="1" var="chips_group"/>
   <UIView source="mui/Balance.xml" x="831" y="38" layer="1" var="balance"/>
-  <UIView source="mui/ButtonGroup.xml" x="640" y="513" layer="1" var="btn_group"/>
+  <Box skin="png.comp.blank" x="293" y="125" layer="1" var="banker_poker_con" width="81" height="33"/>
 </View>

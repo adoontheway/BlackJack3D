@@ -53,7 +53,7 @@ package model
 				this.hasA = card.realValue == 1;
 			}
 			
-			if ( this.cards.length == 2){
+			if ( this.cards.length == 2 && !_isSplited){
 				if ( this.hasA && this.points == 11 ){
 					this.blackjack = true;
 				}else if ( cards[0].compareValue == cards[1].compareValue && (!this._isSplited && this.tableIndex <= 3)){

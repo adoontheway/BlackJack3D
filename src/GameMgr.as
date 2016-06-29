@@ -4,8 +4,10 @@ package
 	import comman.duke.GameUtils;
 	import comman.duke.PoolMgr;
 	import model.*;
+	import flash.geom.Point;
 	import uiimpl.MainViewImpl;
 	import uiimpl.BaseTable;
+	import utils.NumDisplay;
 	/**
 	 * ...
 	 * @author jerry.d
@@ -64,16 +66,17 @@ package
 			var table:TableData = this.tables[tableId];
 			var poker:Poker = PoolMgr.gain(Poker);
 			poker.value = card;
-			
+			poker.rotationX = 180;
 			if ( tableId > 3 ){
 				var tableDisplay:BaseTable = this.tableDisplays[tableId - 3];
 				tableDisplay.addCardTo(poker,1);
 			}else{
-				tableDisplay = this.tableDisplays[tableId];
-				if ( tableDisplay != null){
+				if ( tableId != 0){
+					tableDisplay = this.tableDisplays[tableId];
 					tableDisplay.addCardTo(poker);
 				}else{
 					table.addCard(poker);
+					mainView.onDispenseBanker(poker);
 				}
 				
 			}
@@ -82,7 +85,6 @@ package
 			if ( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11)){
 				this.putToEnd(tableId);
 			}
-			//mainView.onDispenseBack(poker);
 		}
 		
 		/**
@@ -93,7 +95,12 @@ package
 			var table:TableData = this.tables[tableId];
 			if ( table == null ){
 				table = this.tables[tableId] = new TableData(tableId);
-				var tableDisplay:BaseTable = this.tableDisplays[tableId];
+				if ( tableId <= 3){
+					var tableDisplay:BaseTable = this.tableDisplays[tableId];
+				}else{
+					tableDisplay = this.tableDisplays[tableId-3];
+				}
+				
 				tableDisplay.setTableData(table, tableId <= 3 );
 			}else{
 				table.reset();
@@ -106,30 +113,38 @@ package
 		 * 赌对子
 		 * 仅限开局使用
 		 * **/
-		public function betPair(bet:uint,tableId:int):void{
+		public function betPair(bet:uint,tableId:int):Boolean{
 			var table:TableData = this.tables[tableId];
-			if ( table == null ){
-				table = this.tables[tableId] = new TableData(tableId);
+			if ( table != null && table.currentBet != 0 ){
+				//table = this.tables[tableId] = new TableData(tableId);
 				var tableDisplay:BaseTable = this.tableDisplays[tableId];
-				tableDisplay.setTableData(table, tableId <= 3 );
+				tableDisplay.setTableData(table, true );
+				table.pairBet = bet;
+				return true;
+			}else{
+				return false;
 			}
-			table.pairBet = bet;
 		}
 		/**
 		 * 清桌
 		 * */
 		public function cleanTables():void{
 			var table:TableData;
+			var tableDisplay:BaseTable;
 			for (var key in this.tables){
+				if ( key == 0) continue;
 				table = tables[key];
+				table.pairBet = 0;
 				table.currentBet = 0;
 				table.actived = false;
+				tableDisplay = tableDisplays[key];
+				tableDisplay.reset();
 			}
 		}
 		/**
 		 * 开始游戏
 		 * */
-		public function start():void{
+		public function start():Boolean{
 			var betObj:Object = {};
 			var pairBet:Object = {};
 			var table:TableData;
@@ -160,8 +175,10 @@ package
 				}else{
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj, pair:pairBet });
 				}
+				return true;
 			}else{
 				FloatHint.Instance.show('no bet');
+				return false;
 				//mainView.showBtns(MainViewImpl.START);
 			}
 		}
@@ -177,19 +194,32 @@ package
 			this.currentTables = [];
 			this.endTables = [];
 			this.started = false;
+			enableDisplayMouse(true);
 		}
-		public function onStarted(tabelId:int):void{
+		
+		public function enableDisplayMouse(value:Boolean):void{
+			var tableDisplay:BaseTable;
+			for (var key in this.tableDisplays){
+				tableDisplay = tableDisplays[key];
+				tableDisplay.table.mouseChildren = tableDisplay.pair.mouseChildren = tableDisplay.table.mouseEnabled = tableDisplay.pair.mouseEnabled = value;
+			}
+		}
+		
+		public function onStarted(tabelIds:Array):void{
 			this.started = true;
-			var table:TableData = this.tables[tabelId];
-			table.actived = true;
-			this.currentTables.push(table.tableId);
+			var table:TableData ;
+			this.currentTables = tabelIds;
+			for each(var tableId:int in tables){
+				table = tables[tableId];
+				table.actived = true;
+			}
+			enableDisplayMouse(false);
 			if ( this.currentTables.length > 1){
 				this.currentTables.sort(Array.NUMERIC);
-				this._currentTable = this.tables[this.currentTables[0]];
 				GameUtils.log('sort tables:', this.currentTables.join('.'));
-			}else if ( this.currentTables.length == 1){
-				this._currentTable = this.tables[tabelId];
 			}
+			this._currentTable = this.tables[this.currentTables[0]];
+			
 		}
 		public function onSplitBack(data:Object):void{
 			var ttables:Object = data.tables;
@@ -200,21 +230,26 @@ package
 			var rtable:TableData = this.tables[tabId];
 			var table:TableData;
 			var poker:Poker;
+			var tableDisplay:BaseTable = tableDisplays[tabId];
 			for (var tablId in ttables ){
 				table = this.tables[tablId];
 				poker = pokerMap[ttables[tablId]];
+				poker.x = 0 ;
+				poker.y = 0;
+				poker.rotation = 0;
 				if ( table != null ){
 					table.reset();
 					table.actived = true;
 					table.split = true;
+					tableDisplay.poker_con_1.addChild(poker);
 				}else{
 					betToTable(bet, tablId);
 					table = this.tables[tablId];
 					this.currentTables.push(tablId);
+					tableDisplay.poker_con_2.addChild(poker);
 				}
 				table.addCard(poker);
-				poker.x = poker.targetX;
-				poker.y = poker.targetY;
+				
 			}
 		}
 		public function onStandBack(data:Object):void{
@@ -245,15 +280,23 @@ package
 		
 		public function onTableEnd(data:Object):void{
 			var table:TableData = this.tables[data.tabId];
-			/**
-			if ( data.result == -1){
-				FloatHint.Instance.show('YOU LOSE '+data.gain,table.arrowX, table.arrowY);
-			}else if ( data.result == 1){
-				FloatHint.Instance.show('YOU WIN'+data.gain,table.arrowX, table.arrowY);
-			}else{
-				FloatHint.Instance.show('DRAW ROUND!',table.arrowX, table.arrowY);
+			var startX:int = 100;
+			var startY:int = 50;
+			if ( data.tabId <= 3){
+				var tableDisplay:BaseTable = this.tableDisplays[data.tabId];
+			}else {
+				tableDisplay = this.tableDisplays[data.tabId - 3];
+				startY = 0;
 			}
-			*/
+			var pos:Point = tableDisplay.localToGlobal(new Point(100,50))
+			if ( data.result == -1){
+				NumDisplay.show( -data.gain, pos.x,  pos.y);
+			}else if ( data.result == 1){
+				NumDisplay.show( data.gain, pos.x, pos.y);
+			}else{
+				//FloatHint.Instance.show('DRAW ROUND!',table.arrowX, table.arrowY);
+			}
+			
 		}
 		
 		public function get money():Number{
