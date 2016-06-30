@@ -56,6 +56,9 @@ package uiimpl
 			
 			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
 			
+			Buttons.Instance.switchModel(Buttons.MODEL_START);
+			this.banker_poker_con.scaleX = this.banker_poker_con.scaleY = 0.8;
+			/*
 			var Arrow:Class = getDefinitionByName('Arrow') as Class;
 			if ( Arrow != null){
 				this.arrow = new Arrow() as MovieClip;
@@ -65,7 +68,7 @@ package uiimpl
 			
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);
-			/*
+			
 			var clip:BitmapClip = new BitmapClip('anims', 'anim_dispense');
 			clip.play( -1);
 			this.addChild(clip);
@@ -131,16 +134,7 @@ package uiimpl
 		}
 		
 		public function update(delta:int):void{
-			if ( PokerGameVars.Glow_Filter.strength == 1){
-				PokerGameVars.Glow_Filter.strength = 2;
-			}else{
-				PokerGameVars.Glow_Filter.strength = 1;
-			}
 			//this.lab_time.text = 'Now:'+GameUtils.GetDateTime(TickerMgr.SYSTIME);
-		}
-		
-		public function onStarted():void{
-			
 		}
 		
 		public function onDoubleBack(tabId:int, moreBet:int):void{
@@ -167,19 +161,26 @@ package uiimpl
 		
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
+		private var startPos:Point;
 		public function onDispenseBanker(poker:Poker):void{
 			if ( tweening ){
 				tweenQueue.push(poker);
 				return;
 			}
 			this.banker_poker_con.addChild(poker);
-			var startPos:Point = banker_poker_con.globalToLocal( PokerGameVars.DispensePostion);
+			if( startPos == null)
+				startPos = banker_poker_con.globalToLocal( PokerGameVars.DispensePostion);
 			poker.x = startPos.x;
 			poker.y = startPos.y;
-			poker.targetX = banker_poker_con.x+banker_poker_con.numChildren*20;
-			poker.targetY = banker_poker_con.y;
+			poker.targetX = banker_poker_con.numChildren*20;
+			poker.targetY = 0;
 			tweening = true;
-			TweenLite.to(poker, 0.5, {rotationX:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+			if (poker.value != -1){
+				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+			}else{
+				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+			}
+			
 		}
 		
 		private function reOrderBankerContaner():void{
@@ -192,20 +193,37 @@ package uiimpl
 			}
 		}
 		
-		public function onRoundEnd():void{
-			/**
+		public function traverseTheFakePoker(card:int):void{
+			var index:int = 0;
+			var num:int = this.banker_poker_con.numChildren;
 			var poker:Poker;
-			while (this.allPoker.length != 0){
-				poker = allPoker.pop();
-				this.stage.removeChild(poker);
-				PoolMgr.reclaim(poker);
+			while (index < num){
+				poker = this.banker_poker_con.getChildAt(index) as Poker;
+				if ( poker.value == -1){
+					poker.value = card;
+					poker.rotationX = 180;
+					TweenLite.to(poker, 0.3, {rotationX:0});
+					break;
+				}
+				index++;
 			}
-			var chip:Chip;
-			while ( this.allChip.length != 0){
-				chip = this.allChip.pop();
-				this.stage.removeChild(chip);
-				PoolMgr.reclaim(chip);
+		}
+		
+		public function checkTheFakePoker():void{
+			var index:int = 0;
+			var num:int = this.banker_poker_con.numChildren;
+			var poker:Poker;
+			while (index < num){
+				poker = this.banker_poker_con.getChildAt(index) as Poker;
+				if ( poker.value == -1){
+					//todo popup and shake it
+					break;
+				}
+				index++;
 			}
+		}
+		
+		public function onRoundEnd():void{
 			/**
 			for each(var mc:MovieClip in this.circles){
 				mc.mouseChildren = mc.mouseEnabled = true;

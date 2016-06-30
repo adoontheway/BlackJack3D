@@ -12,7 +12,7 @@ package
 		public var targetX:int;
 		public var targetY:int;
 		public var targetRotate:Number;
-		private var _value:int = -1;
+		private var _value:int = -2;
 		public var type:uint;
 		public var realValue:uint;
 		public var compareValue:uint = 0;
@@ -22,8 +22,6 @@ package
 			if (value != -1){
 				this.value = value;
 			}
-			//this.anchorX = 0.5;
-			//this.anchorY = 0.5;
 		}
 		
 		public function set value(val:int):void{
@@ -45,9 +43,9 @@ package
 			return _value;
 		}
 		
-		override public function set rotationX(value:Number):void{
-			super.rotationX  = value;
-			if ( rotationX > 90 ){
+		override public function set rotationY(value:Number):void{
+			super.rotationY  = value;
+			if ( rotationY > 90 ){
 				if ( this.url != 'png.pokers.back'){
 					this.url = 'png.pokers.back';
 				}

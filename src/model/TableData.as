@@ -13,6 +13,7 @@ package model
 		public var tableId:int;
 		
 		private var cards:Vector.<Poker>;
+		public var numCards:int = 0;
 		public var points:int = 0;
 		public var currentBet:int;
 		/** 是否活跃 **/
@@ -42,9 +43,11 @@ package model
 		
 		/**
 		 * @param card  compare value of card
+		 * 
 		 * **/
 		public function addCard(card:Poker):void{
 			this.cards.push(card);
+			numCards = this.cards.length;
 			this.points += card.compareValue;
 			if ( this.tableId == 0 ){
 				GameMgr.Instance.needShowInsure = this.cards.length == 1 && this.points == 1;
@@ -52,18 +55,10 @@ package model
 			if ( !this.hasA ){
 				this.hasA = card.realValue == 1;
 			}
-			
-			if ( this.cards.length == 2 && !_isSplited){
-				if ( this.hasA && this.points == 11 ){
-					this.blackjack = true;
-				}else if ( cards[0].compareValue == cards[1].compareValue && (!this._isSplited && this.tableIndex <= 3)){
-					this.canSplit = true;
-				}
-			}else if ( this.cards.length == 5 && this.points <= 21){
-				this.fiveDragon = true;
-			}else if ( this.points > 21 ){
-				this.bust = true;
-			}
+			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this._isSplited && this.tableIndex <= 3;
+			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !_isSplited  && this.tableIndex <= 3;
+			this.fiveDragon =  numCards == 5 && this.points <= 21;
+			this.bust = points > 21;
 		}
 		
 		public function set split(val:Boolean):void{
@@ -98,6 +93,7 @@ package model
 			this.actived = false;
 			this.hasA = false;
 			this.pairBet = 0;
+			this.insured = false;
 			if ( this.tableIndex <= 3){
 				this.split = false;
 			}

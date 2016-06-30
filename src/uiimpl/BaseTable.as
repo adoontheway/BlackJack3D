@@ -4,6 +4,7 @@ package uiimpl
 	import com.greensock.easing.*;
 	import comman.duke.GameUtils;
 	import comman.duke.GameVars;
+	import comman.duke.ImageClickCenter;
 	import comman.duke.PoolMgr;
 	import consts.PokerGameVars;
 	import flash.display.DisplayObjectContainer;
@@ -25,7 +26,6 @@ package uiimpl
 		public var tableData:TableData;
 		public var splitTableData:TableData;
 		public var _id:int = -1;
-		
 		public function BaseTable($id:int) 
 		{
 			super();
@@ -53,6 +53,51 @@ package uiimpl
 			btn_insurrance.addEventListener(MouseEvent.CLICK, this.insurrance);
 			btn_split.addEventListener(MouseEvent.CLICK, this.split);
 			this.bet_display.btn_close.addEventListener(MouseEvent.CLICK, onCloseBets);
+			this.poker_con_1.scaleX = this.poker_con_1.scaleY = 0.8;
+			ImageClickCenter.Instance.add(this.btn_insurrance);
+			ImageClickCenter.Instance.add(this.btn_split);
+			rawIndex = this.getChildIndex(this.poker_con_2);
+		}
+		
+		private var _selectTable:int = -1;
+		/**
+		 * 0 maintable
+		 * 1 splittable
+		 * **/
+		public function selectTable(table:int){
+			_selectTable = table;
+			var con:Box = table == 0 ? poker_con_1 : poker_con_2;
+			if ( table == 0){
+				TweenLite.to(con, 0.2, {scaleX:1, scaleY:1, ease:Bounce.easeInOut});
+			}else{
+				swapFlag = false;
+				TweenLite.to(con, 0.2, {scaleX:1, scaleY:1, ease:Bounce.easeInOut, onChange:onChange,onChangeParams:[true]});
+			}
+			if ( table == 0 ){
+				this.btn_split.visible = !tableData.split && tableData.canSplit;
+			}
+		}
+		private var rawIndex:int;
+		private var swapFlag:Boolean = false;
+		private function onChange(flag:Boolean):void{
+			if ( poker_con_2.scaleX >= 0.9 && !swapFlag && flag){
+				this.setChildIndex(poker_con_2, this.numChildren - 1);
+				swapFlag = true;
+			}else if ( poker_con_2.scaleX <= 0.9 && !swapFlag && !flag){
+				this.setChildIndex(poker_con_2, this.rawIndex);
+				swapFlag = true;
+			}
+		}
+		
+		public function desect():void{
+			if ( _selectTable == -1 ) return;
+			if ( _selectTable == 0){
+				TweenLite.to(poker_con_1, 0.2, {scaleX:0.8, scaleY:0.8, ease:Bounce.easeInOut});
+			}else{
+				swapFlag = false;
+				TweenLite.to(poker_con_2, 0.2, {scaleX:0.8, scaleY:0.8, ease:Bounce.easeInOut, onChange:onChange,onChangeParams:[false]});
+			}
+			_selectTable = -1;
 		}
 		
 		private function split(evt:MouseEvent):void{
@@ -60,7 +105,8 @@ package uiimpl
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
-			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tabId:_id});
+			tableData.insured = true;
+			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
 		}
 		
 		private function onCloseBets(evt:MouseEvent):void{
@@ -132,7 +178,7 @@ package uiimpl
 					this.lab_points.text = tableData.points + "";
 				}
 				this.point_display.visible = true;
-				this.btn_split.visible = tableData.canSplit;
+				//this.btn_split.visible = tableData.canSplit;
 				mark_blackjack.visible = tableData.blackjack;
 			}else if ( con == 1){
 				splitTableData.addCard(poker);
@@ -148,18 +194,18 @@ package uiimpl
 		private function doTween(poker:Poker, con:int=0):void{
 			if ( con == 0 ){
 				this.poker_con_1.addChild(poker);
-				poker.targetX = poker_con_1.x+poker_con_1.numChildren*20;
-				poker.targetY = poker_con_1.y;
+				poker.targetX = poker_con_1.numChildren*20;
+				poker.targetY = 0;
 			}else if ( con == 1){
 				this.poker_con_2.addChild(poker);
-				poker.targetX = poker_con_2.x;
-				poker.targetY = poker_con_2.y;
+				poker.targetX = poker_con_1.numChildren*20;
+				poker.targetY = 0
 			}
 			var startPos:Point = this.globalToLocal( PokerGameVars.DispensePostion);
 			poker.x = startPos.x;
 			poker.y = startPos.y;
 			tweening = true;
-			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationX:0,y:poker.targetY, onComplete:this.onTweenComplete,onCompleteParams:[con == 0 ? poker_con_1 : poker_con_2]});
+			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationY:0,y:poker.targetY, onComplete:this.onTweenComplete,onCompleteParams:[con == 0 ? poker_con_1 : poker_con_2]});
 		}
 		
 		private function onTweenComplete(con:Sprite):void{
@@ -170,6 +216,7 @@ package uiimpl
 				this.doTween(temp,type);
 			}else{
 				TableUtil.reOrderContainer(con, 0, 200, 200);
+				GameMgr.Instance.checkButtons();
 			}
 		}
 		

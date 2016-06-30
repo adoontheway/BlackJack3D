@@ -13,6 +13,7 @@ package model
 		public static const PROTO_STAND:uint = 4;
 		public static const PROTO_DOUBLE:uint = 5;
 		public static const PROTO_INSURRANCE:uint = 6;
+		public static const PROTO_SKIP_INSURRANCE:uint = 6;
 	}
 
 }

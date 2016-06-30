@@ -12,26 +12,26 @@ package game.ui.mui {
 		public var img_points_bg:Image = null;
 		public var lab_points:Label = null;
 		public var mark_blackjack:Image = null;
-		public var btn_insurrance:Button = null;
-		public var btn_split:Button = null;
+		public var btn_insurrance:Image = null;
+		public var btn_split:Image = null;
 		public var chips_con:Box = null;
 		public var pair_con:Box = null;
 		protected static var uiXML:XML =
 			<View width="345" height="215">
 			  <Button skin="png.ui.btn_table_right" stateNum="2" var="table"/>
 			  <Button skin="png.ui.btn_pair_right" x="197" stateNum="2" y="11" var="pair"/>
-			  <Box skin="png.comp.blank" x="84" y="7" var="poker_con_1"/>
-			  <Box skin="png.comp.blank" x="84" y="-53" var="poker_con_2"/>
+			  <Box skin="png.comp.blank" x="85" y="44" var="poker_con_1"/>
+			  <Box skin="png.comp.blank" x="85" y="-11" var="poker_con_2"/>
 			  <MyBet x="207" y="160" var="bet_display" runtime="game.ui.mui.MyBetUI"/>
-			  <Box x="197" y="-40" var="point_display">
+			  <Box x="164" y="-23" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
 			    <Label text="21" x="10" y="11" color="0xffffff" width="48" height="37" align="center" size="30" var="lab_points"/>
 			  </Box>
 			  <Image skin="png.images.blackjack" x="24" y="78" var="mark_blackjack"/>
-			  <Button skin="png.ui.btn_insurrance" x="44" y="44" stateNum="2" var="btn_insurrance"/>
-			  <Button skin="png.ui.btn_split" x="46" y="44" stateNum="2" var="btn_split"/>
+			  <Image skin="png.ui.btn-insurrance" x="54" y="52" stateNum="1" var="btn_insurrance"/>
+			  <Image skin="png.ui.btn-split" x="55" y="51" stateNum="1" var="btn_split"/>
 			  <Box skin="png.comp.blank" x="150" y="115" var="chips_con"/>
-			  <Box skin="png.comp.blank" x="220" y="29" var="pair_con" width="81" height="33"/>
+			  <Box skin="png.comp.blank" x="220" y="19" var="pair_con" width="81" height="33"/>
 			</View>;
 		public function TableRightUI(){}
 		override protected function createChildren():void {

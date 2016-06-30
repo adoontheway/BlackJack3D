@@ -104,24 +104,27 @@ package
 			mgr.onTableEnd(data);
 			
 		}
+		
 		private function onRoundEnd(data:*):void{
 			setTimeout(function():void{
 				MainViewImpl.Instance.onRoundEnd();
 				mgr.onRoundEnd();
 			}, 2000);
-			
 		}
+		
 		private function onHitResult(data:*):void{
 			
 		}
+		
 		private function onDoubleBack(data:*):void{
 			mgr.onDoubleBack(data);
 			
 		}
+		
 		private function onStarted(data:*):void{
 			mgr.onStarted(data.tables);
-			MainViewImpl.Instance.onStarted();
 		}
+		
 		private function onDispense(data:Object):void{
 			mgr.dispense(data.table, data.card);
 		}
