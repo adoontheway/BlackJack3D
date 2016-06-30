@@ -1,6 +1,8 @@
 package uiimpl 
 {
+	import comman.duke.FloatHint;
 	import comman.duke.ImageClickCenter;
+	import comman.duke.PoolMgr;
 	import flash.display.DisplayObject;
 	import flash.events.MouseEvent;
 	import game.ui.mui.ButtonGroupUI;
@@ -41,16 +43,15 @@ package uiimpl
 			[btn_hit, btn_double,btn_clean],
 			[btn_skip],
 			[btn_ok],
-			[btn_hit, btn_double, btn_stand],
+			[btn_hit, btn_stand,btn_double],
 			[btn_rebet, btn_double, btn_clean],//btn_clean clean the table btn_rebet rebet and start
 			];
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
-			hideAll();
 		}
 		private var currentModel:uint = 999;
 		public function switchModel(model:uint):void{
-			if ( currentModel == model) return;
+			//if ( currentModel == model) return;
 			this.currentModel = model;
 			this.hideAll();
 			if ( model == 0 ) return;
@@ -68,6 +69,10 @@ package uiimpl
 				index++;
 				ImageClickCenter.Instance.add(button);
 			}
+			if ( _tableData != null ){
+				btn_double.visible = btn_double.visible &&  !_tableData.doubled;
+			}
+			
 		}
 		private var _tableData:TableData;
 		public function bindTable(tableData:TableData):void{
@@ -76,6 +81,7 @@ package uiimpl
 			if ( _tableData == null ){
 				return;
 			}
+			switchModel(MODEL_NORMAL);
 		}
 		
 		public function hideAll():void{
@@ -89,7 +95,34 @@ package uiimpl
 			ImageClickCenter.Instance.remove(btn_stand);
 		}
 		public function rebet(evt:MouseEvent):void{
+			mgr.reset();
+			var betData:Object  = mgr.lastBetData;
+			var pairBetData:Object = mgr.lastPairBetData;
+			if ( betData == null ){
+				FloatHint.Instance.show('no bet record');
+				return;
+			}
+			var chip:Chip;
+			var tableDisplay:BaseTable;
+			for (var i in betData){
+				tableDisplay = mgr.tableDisplays[i];
+				chip = PoolMgr.gain(Chip);
+				chip.value = betData[i];
+				tableDisplay.addChip(chip, 0);
+				mgr.betToTable(betData[i], i);
+				tableDisplay.onBet();
+			}
+			if ( pairBetData != null ){
+				for ( i in pairBetData){
+					mgr.betPair(betData[i], i);
+				}
+			}
 			
+			if (mgr.lastPairBetData == null){
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData });
+			}else{
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData, pair:mgr.lastPairBetData });
+			}
 		}
 		public function skip(evt:MouseEvent):void{
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
@@ -104,9 +137,8 @@ package uiimpl
 			
 		}
 		private function hit(evt:MouseEvent):void{ 
-			
 			if (mgr.started){
-				hideAll();
+				//hideAll();
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
 			}else{
 				var result:Boolean = mgr.start();	
@@ -119,15 +151,13 @@ package uiimpl
 		}
 
 		private function clean(evt:MouseEvent):void{
-			//this.hideAllBtns();
-			mgr.cleanTables();
+			mgr.reset();
 		}
 		private function double(evt:MouseEvent):void{
 			//this.hideAllBtns();
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 		}
 		private function stand(evt:MouseEvent):void{
-			//this.hideAllBtns();
 			if( mgr.started && mgr.currentTable)
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 		}

@@ -2,6 +2,8 @@ package uiimpl
 {
 	import com.greensock.TweenLite;
 	import com.greensock.easing.*;
+	import comman.duke.FrameItem;
+	import comman.duke.FrameMgr;
 	import comman.duke.GameUtils;
 	import comman.duke.GameVars;
 	import comman.duke.ImageClickCenter;
@@ -26,6 +28,7 @@ package uiimpl
 		public var tableData:TableData;
 		public var splitTableData:TableData;
 		public var _id:int = -1;
+		private var frameItem:FrameItem;
 		public function BaseTable($id:int) 
 		{
 			super();
@@ -46,6 +49,7 @@ package uiimpl
 			}
 			
 			this.name = 'table_' + $id;
+			this.frameItem = new FrameItem(this.name, this.checkDepth);
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
 			GameMgr.Instance.registerTableDisplay(_id, this);
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
@@ -66,36 +70,41 @@ package uiimpl
 		 * **/
 		public function selectTable(table:int){
 			_selectTable = table;
+			
 			var con:Box = table == 0 ? poker_con_1 : poker_con_2;
 			if ( table == 0){
+				Buttons.Instance.bindTable(tableData);
 				TweenLite.to(con, 0.2, {scaleX:1, scaleY:1, ease:Bounce.easeInOut});
 			}else{
-				swapFlag = false;
-				TweenLite.to(con, 0.2, {scaleX:1, scaleY:1, ease:Bounce.easeInOut, onChange:onChange,onChangeParams:[true]});
+				Buttons.Instance.bindTable(splitTableData );
+				TweenLite.to(con, 0.2, {scaleX:1, scaleY:1, ease:Bounce.easeInOut});
+				inorout = true;
+				FrameMgr.Instance.add(this.frameItem);
 			}
 			if ( table == 0 ){
-				this.btn_split.visible = !tableData.split && tableData.canSplit;
+				this.btn_split.visible = !tableData.isSplited && tableData.canSplit;
 			}
 		}
 		private var rawIndex:int;
-		private var swapFlag:Boolean = false;
-		private function onChange(flag:Boolean):void{
-			if ( poker_con_2.scaleX >= 0.9 && !swapFlag && flag){
+		private var inorout:Boolean = false;
+		private function checkDepth():void{
+			if ( poker_con_2.scaleX >= 0.9  && inorout){
 				this.setChildIndex(poker_con_2, this.numChildren - 1);
-				swapFlag = true;
-			}else if ( poker_con_2.scaleX <= 0.9 && !swapFlag && !flag){
+				FrameMgr.Instance.remove(this.name);
+			}else if ( poker_con_2.scaleX <= 0.9 && !inorout){
 				this.setChildIndex(poker_con_2, this.rawIndex);
-				swapFlag = true;
+				FrameMgr.Instance.remove(this.name);
 			}
 		}
 		
-		public function desect():void{
+		public function deselect():void{
 			if ( _selectTable == -1 ) return;
 			if ( _selectTable == 0){
 				TweenLite.to(poker_con_1, 0.2, {scaleX:0.8, scaleY:0.8, ease:Bounce.easeInOut});
 			}else{
-				swapFlag = false;
-				TweenLite.to(poker_con_2, 0.2, {scaleX:0.8, scaleY:0.8, ease:Bounce.easeInOut, onChange:onChange,onChangeParams:[false]});
+				TweenLite.to(poker_con_2, 0.2, {scaleX:0.8, scaleY:0.8, ease:Bounce.easeInOut});
+				inorout = false;
+				FrameMgr.Instance.add(this.frameItem);
 			}
 			_selectTable = -1;
 		}
@@ -105,7 +114,8 @@ package uiimpl
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
-			tableData.insured = true;
+			tableData.insureNeeded = true;
+			this.btn_insurrance.visible = false;
 			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
 		}
 		
@@ -120,10 +130,14 @@ package uiimpl
 				chip.value = bet;
 				addChip(chip, 0);
 				GameMgr.Instance.betToTable(bet, _id);
-				this.bet_display.visible = true;
-				this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
-				this.tabelRemind(false);
+				onBet();
 			}
+		}
+		
+		public function onBet():void{
+			this.bet_display.visible = true;
+			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
+			this.tabelRemind(false);
 		}
 		
 		private function betPair(evt:MouseEvent):void{
@@ -227,6 +241,9 @@ package uiimpl
 			chip.scaleX = chip.scaleY = 0.5;
 			con.addChild(chip);
 			TweenLite.to(chip, 0.4, {scaleX:1, scaleY:1, ease: Back.easeOut});
+			if ( con.numChildren > 1){
+				//todo merge chips
+			}
 		}
 		private var _referChipPos:Point;
 		public function getChipReferPoint():Point{
@@ -252,7 +269,7 @@ package uiimpl
 			var poker:Poker;
 			while ( poker_con_1.numChildren != 0){
 				poker = poker_con_1.removeChildAt(0) as Poker;
-				poker.rotation = 0;
+				poker.rotation = 0;//disapear tween
 				PoolMgr.reclaim(poker);
 			}
 			while ( poker_con_2.numChildren != 0){

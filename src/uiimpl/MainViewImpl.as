@@ -89,42 +89,6 @@ package uiimpl
 		
 		//private var totalBet:int = 0;
 		private var currentTable:TableData;
-		private function onTweenComplete():void{
-			//tweening = false;
-			/**
-			if ( this.tweenQueue.length){
-				var temp:Poker = this.tweenQueue.shift();
-				//GameUtils.log('ready tweening:', temp.name);
-				this.onDispenseBack(temp);
-			}else{
-				//check split, insurrance
-				currentTable = mgr.currentTable;
-				
-				if ( currentTable != null ){
-					//this.arrow.x = currentTable.arrowX;
-					//this.arrow.y = currentTable.arrowY;
-					this.stage.addChild(this.arrow);
-					
-					if ( mgr.needShowInsure){
-						showBtns(INSURRANCE);
-					}else 
-					
-					if ( currentTable.canSplit ){
-						//showBtns(SPLIT);
-					}else if ( currentTable.blackjack || currentTable.bust ){
-						socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:currentTable.tableId});
-					}else{
-						//showBtns(OPER);
-					}
-				}
-			}
-			*/
-		}
-		
-		
-		
-		
-		
 		public function updateBalance(value:Number):void{
 			this.balance.lab_0.text = GameUtils.NumberToString(value);
 		}
@@ -142,22 +106,6 @@ package uiimpl
 			this.updateBet();
 		}
 		
-		public function onStandBack():void{
-			currentTable = mgr.currentTable;
-			if ( currentTable != null ){
-				//this.arrow.x = currentTable.arrowX;
-				//this.arrow.y = currentTable.arrowY;
-				if ( currentTable.canSplit ){
-					//showBtns(SPLIT);
-				}else if ( currentTable.blackjack || currentTable.bust ){
-					socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:currentTable.tableId});
-				}else{
-					//this.stage.addChild(this.arrow);
-					//this.arrow.play();
-					//showBtns(OPER);
-				}
-			}
-		}
 		
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
@@ -201,8 +149,8 @@ package uiimpl
 				poker = this.banker_poker_con.getChildAt(index) as Poker;
 				if ( poker.value == -1){
 					poker.value = card;
-					poker.rotationX = 180;
-					TweenLite.to(poker, 0.3, {rotationX:0});
+					poker.rotationY = 180;
+					TweenLite.to(poker, 0.3, {rotationY:0});
 					break;
 				}
 				index++;

@@ -41,14 +41,14 @@ package
 			socketMgr = SocketMgr.Instance;
 		}
 		
-		private var tableDisplays:Object = {};
+		public var tableDisplays:Object = {};
 		public function registerTableDisplay(id:int, table:BaseTable):void{
 			tableDisplays[id] = table;
 		}
 		
 		private var _currentTable:TableData;
 		public function nextTable():void{
-			if ( this._currentTable != null && this._currentTable.split ){
+			if ( this._currentTable != null && this._currentTable.isSplited ){
 				this._currentTable = this.tables[this._currentTable.tableId + 3];
 				if ( this._currentTable != null && (this._currentTable.blackjack || this._currentTable.points == 21)){
 					putToEnd(this._currentTable.tableId);
@@ -58,6 +58,8 @@ package
 			}else{
 				_currentTable = null;
 			}
+			Buttons.Instance.bindTable(_currentTable);
+			checkButtons();
 		}
 		
 		public function get currentTable():TableData{
@@ -68,28 +70,19 @@ package
 		private var lastDipenseTime:Number = 0;
 		private var dispenseQueue:Array = [];
 		public function dispense(tableId:uint, card:int):void{
-			if ( lastDipenseTime == 0){
-				lastDipenseTime = TickerMgr.SYSTIME;
-				dispenseTo(tableId, card);
-			}else if ( TickerMgr.SYSTIME - lastDipenseTime > 1000 && dispenseQueue.length == 0){
-				lastDipenseTime = TickerMgr.SYSTIME;
-				dispenseTo(tableId, card);
-			}else{
-				dispenseQueue.push(tableId, card);
-				if ( dispenseTimer == 0){
-					dispenseTimer = setInterval(function():void{
-						var tabId:uint = _instance.dispenseQueue.shift();
-						var cardId:int = _instance.dispenseQueue.shift();
-						_instance.dispenseTo(tabId, cardId);
-						
-						if ( _instance.dispenseQueue.length == 0 ){
-							clearInterval(_instance.dispenseTimer);
-						}
-					}, 600);
-				}
-				return;
+			dispenseQueue.push(tableId, card);
+			if ( dispenseTimer == 0){
+				dispenseTimer = setInterval(function():void{
+					var tabId:uint = _instance.dispenseQueue.shift();
+					var cardId:int = _instance.dispenseQueue.shift();
+					_instance.dispenseTo(tabId, cardId);
+					
+					if ( _instance.dispenseQueue.length == 0 ){
+						clearInterval(_instance.dispenseTimer);
+						_instance.dispenseTimer = 0;
+					}
+				}, 600);
 			}
-			
 		}
 		
 		public function checkButtons():void{
@@ -98,7 +91,7 @@ package
 			}
 			var table:TableData = tables[0];
 			var tableDisplay:BaseTable;
-			if ( table.points == 1 && !table.insured){
+			if ( table.points == 1 && !table.insureNeeded){
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in tableDisplays){
 					tableDisplay = tableDisplays[i];
@@ -114,8 +107,6 @@ package
 						tableDisplay = tableDisplays[_currentTable.tableId - 3];
 						tableDisplay.selectTable(1);
 					}
-					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
-					Buttons.Instance.bindTable(currentTable);
 				}
 				
 			}
@@ -123,6 +114,7 @@ package
 		
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
+			lastDipenseTime = TickerMgr.SYSTIME;
 			GameUtils.log('dispenseTo :', tableId,card);
 			var table:TableData = this.tables[tableId];
 			var poker:Poker = PoolMgr.gain(Poker);
@@ -195,22 +187,8 @@ package
 				return false;
 			}
 		}
-		/**
-		 * 清桌
-		 * */
-		public function cleanTables():void{
-			var table:TableData;
-			var tableDisplay:BaseTable;
-			for (var key in this.tables){
-				if ( key == 0) continue;
-				table = tables[key];
-				table.pairBet = 0;
-				table.currentBet = 0;
-				table.actived = false;
-				tableDisplay = tableDisplays[key];
-				tableDisplay.reset();
-			}
-		}
+		public var lastBetData:Object;
+		public var lastPairBetData:Object;
 		/**
 		 * 开始游戏
 		 * */
@@ -235,11 +213,12 @@ package
 				table = this.tables[0];
 				if ( table == null ){
 					table = this.tables[0] = new TableData(0);
-					//table.setIndex(0);
 				}else{
 					table.reset();
 				}
 				table.actived = true;
+				lastBetData = betObj;
+				lastPairBetData = pairBet;
 				if (!gotPair){
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
 				}else{
@@ -252,6 +231,16 @@ package
 				return false;
 				//mainView.showBtns(MainViewImpl.START);
 			}
+		}
+		
+		public function deselectTable(tabId:int):void{
+			var tableDisplay:BaseTable;
+			if ( tabId <= 3){
+				tableDisplay = tableDisplays[tabId];
+			}else{
+				tableDisplay = tableDisplays[tabId - 3];
+			}
+			tableDisplay.deselect();
 		}
 		
 		public function onRoundEnd():void{
@@ -315,7 +304,7 @@ package
 				if ( table != null ){
 					table.reset();
 					table.actived = true;
-					table.split = true;
+					table.isSplited = true;
 					tableDisplay.poker_con_1.addChild(poker);
 				}else{
 					betToTable(bet, tablId);
@@ -330,8 +319,9 @@ package
 		
 		public function onStandBack(data:Object):void{
 			var tabId:int = data.tabId;
+			deselectTable(tabId);
 			putToEnd(tabId);
-			mainView.onStandBack();
+			//mainView.onStandBack();
 		}
 		
 		public function onDoubleBack(data:Object):void{
@@ -381,7 +371,7 @@ package
 			var table:TableData;
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
-				if ( table.insured){
+				if ( table.insureNeeded){
 					result.push(i);
 				}
 			}

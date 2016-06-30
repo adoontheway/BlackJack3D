@@ -15,7 +15,8 @@ package consts
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
 		
-		public static var DispensePostion:Point = new Point(612,50);
+		public static var DispensePostion:Point = new Point(612, 50);
+		public static var DisaprearPoint:Point = new Point(50, 80);
 		public static var Glow_Filter:GlowFilter = new GlowFilter(0xcccccc,0.5);
 		public static var Gray_Filter:ColorMatrixFilter = new ColorMatrixFilter(
 		[0.3086, 0.6094, 0.0820, 0, 0,

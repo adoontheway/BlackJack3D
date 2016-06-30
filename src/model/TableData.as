@@ -29,9 +29,9 @@ package model
 		public var doubled:Boolean;//already doubled
 		public var standing:Boolean;//stand or not
 		public var canSplit:Boolean;//can split
-		public var _isSplited:Boolean;//already splited
+		public var isSplited:Boolean;//already splited
 		/** 是否保险过 **/
-		public var insured:Boolean;
+		public var insureNeeded:Boolean;
 		/** 赌对子 */
 		public var pairBet:int;
 		
@@ -55,33 +55,12 @@ package model
 			if ( !this.hasA ){
 				this.hasA = card.realValue == 1;
 			}
-			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this._isSplited && this.tableIndex <= 3;
-			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !_isSplited  && this.tableIndex <= 3;
+			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this.isSplited && this.tableIndex <= 3;
+			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !isSplited  && this.tableIndex <= 3;
 			this.fiveDragon =  numCards == 5 && this.points <= 21;
 			this.bust = points > 21;
 		}
-		
-		public function set split(val:Boolean):void{
-			/**
-			this._isSplited = val;
-			if ( !this._isSplited){
-				this.startX = rawStartX;
-				this.k = rawK;
-				this.b = rawB;
-			}else{
-				this.startX = splitedStartX;
-				this.k = splitedK;
-				this.b = splitedB;
-			}
-			this.arrowX = this.startX;
-			this.arrowY = this.k *  this.startX + this.b;
-			*/
-		}
-		
-		public function get split():Boolean{
-			return _isSplited;
-		}
-		
+
 		public function reset():void{
 			this.points = 0;
 			this.currentBet = 0;
@@ -93,9 +72,9 @@ package model
 			this.actived = false;
 			this.hasA = false;
 			this.pairBet = 0;
-			this.insured = false;
+			this.insureNeeded = false;
 			if ( this.tableIndex <= 3){
-				this.split = false;
+				this.isSplited = false;
 			}
 			while ( this.cards.length ){
 				this.cards.pop();
