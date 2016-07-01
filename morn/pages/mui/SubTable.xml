@@ -1,0 +1,12 @@
+<View width="260" height="200" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Box skin="png.comp.blank" x="64" y="-1" layer="1" var="poker_con"/>
+  <Box skin="png.comp.blank" x="153" y="117" layer="1" var="chips_con"/>
+  <Image skin="png.ui.btn-split" x="35" y="34" layer="1" stateNum="1" var="btn_split"/>
+  <Image skin="png.ui.btn-insurrance" x="34" y="35" layer="1" stateNum="1" var="btn_insurrance"/>
+  <Image skin="png.images.blackjack" x="-9" y="63" layer="1" var="mark_blackjack"/>
+  <UIView source="mui/MyBet.xml" x="153" y="154" layer="1" var="bet_display"/>
+  <Box layers="1,1,0,0,第 1 层" layer="1" x="143" y="0" var="point_display">
+    <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
+    <Label styleSkin="png.comp.label" x="14" y="11" layer="1" var="lab_points" color="0xffffff" text="21" size="30" width="38" height="39"/>
+  </Box>
+</View>

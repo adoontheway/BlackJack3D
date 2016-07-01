@@ -186,6 +186,7 @@ package uiimpl
 				poker = banker_poker_con.removeChildAt(0) as Poker;
 				PoolMgr.reclaim(poker);
 			}
+			
 			//this.totalBet = 0;
 		}
 		private var dispenserPos:Point = new Point(612, 50);

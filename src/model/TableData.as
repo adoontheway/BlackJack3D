@@ -1,17 +1,16 @@
 package model 
 {
 	import consts.PokerGameVars;
+	import uiimpl.SubTable;
 	/**
 	 * ...
 	 * @author jerry.d
 	 */
 	public class TableData 
 	{
-		/** 前端使用的index，用来标示位置与显示信息 **/
-		public var tableIndex:int;
 		/** 前后端通用的id **/
 		public var tableId:int;
-		
+		public var display:SubTable;
 		private var cards:Vector.<Poker>;
 		public var numCards:int = 0;
 		public var points:int = 0;
@@ -31,10 +30,11 @@ package model
 		public var canSplit:Boolean;//can split
 		public var isSplited:Boolean;//already splited
 		/** 是否保险过 **/
-		public var insureNeeded:Boolean;
+		public var insured:Boolean;
 		/** 赌对子 */
 		public var pairBet:int;
-		
+		/** 保险花费 */
+		public var insureBet:int;
 		public function TableData(tabId:int) 
 		{
 			this.cards = new Vector.<Poker>();
@@ -55,8 +55,8 @@ package model
 			if ( !this.hasA ){
 				this.hasA = card.realValue == 1;
 			}
-			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this.isSplited && this.tableIndex <= 3;
-			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !isSplited  && this.tableIndex <= 3;
+			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this.isSplited && this.tableId <= 3;
+			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !isSplited  && this.tableId <= 3;
 			this.fiveDragon =  numCards == 5 && this.points <= 21;
 			this.bust = points > 21;
 		}
@@ -72,8 +72,9 @@ package model
 			this.actived = false;
 			this.hasA = false;
 			this.pairBet = 0;
-			this.insureNeeded = false;
-			if ( this.tableIndex <= 3){
+			this.insureBet = 0;
+			this.insured = false;
+			if ( this.tableId <= 3){
 				this.isSplited = false;
 			}
 			while ( this.cards.length ){

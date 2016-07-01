@@ -25,6 +25,7 @@ package utils
 				prefix = "p";
 				image = PoolMgr.gain(Image); 
 				image.url = "png.nums.pos";
+				image.x = 0;
 				con.addChild(image);
 				posX += image.width;
 			}else{
@@ -32,6 +33,7 @@ package utils
 				image = PoolMgr.gain(Image); 
 				image.url = "png.nums.neg";
 				con.addChild(image);
+				image.x = 0;
 				posX += image.width;
 			}
 			var char:String;
@@ -46,8 +48,9 @@ package utils
 			}
 			con.x = x;
 			con.y = y;
+			con.scaleX = con.scaleY = 0.8;
 			GameVars.STAGE.addChild(con);
-			TweenLite.to(con, 2, {y:y - 100, alpha:0, onComplete:onTweenComplete, onCompleteParams:[con]});
+			TweenLite.to(con, 2, {y:y - 100, alpha:0, scaleX:1.2, scaleY:1.2, onComplete:onTweenComplete, onCompleteParams:[con]});
 		}
 		
 		private static function onTweenComplete(con:Sprite):void{
@@ -57,26 +60,9 @@ package utils
 				PoolMgr.reclaim(image);
 			}
 			GameVars.STAGE.removeChild(con);
-			con.alpha = 1;
+			con.scaleX = con.scaleY = con.alpha = 1;
 			PoolMgr.reclaim(con);
 		}
-		
-		/**
-		private static var displayList:Array = [];
-		private static var conPool:Array = [];
-		private static function gain():DisplayObjectContainer{
-			if ( conPool.length != 0 ){
-				return conPool.pop();
-			}
-			return new Sr();
-		}
-		
-		private static function reclaim(con:DisplayObjectContainer):void{
-			if ( conPool.indexOf(con) == -1){
-				conPool.push(con);
-			}
-		}
-		*/
 	}
 
 }

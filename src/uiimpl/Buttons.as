@@ -18,7 +18,7 @@ package uiimpl
 	{
 		private var mgr:GameMgr;
 		private var socketMgr:SocketMgr;
-		private var poses:Array = [{x:0, y:47}, {x:107, y:25}, {x:213, y: -7}, {x:320, y: -54}];
+		private var poses:Array = [{x:0, y:50}, {x:99, y:25}, {x:198, y: -5}, {x:297, y: -46}];
 		public static const MODEL_START:uint = 1 ;//hit rebet double
 		public static const MODEL_INSRRUREABLE:uint = 2;//skip --> table insurrance
 		public static const MODEL_INSRRURING:uint = 3;//done 
@@ -29,7 +29,7 @@ package uiimpl
 		public function Buttons() 
 		{
 			super();
-			this.x = 640;
+			this.x = 650;
 			this.y = 515;
 			this.btn_double.addEventListener(MouseEvent.CLICK, this.double);
 			this.btn_hit.addEventListener(MouseEvent.CLICK, this.hit);
@@ -95,6 +95,7 @@ package uiimpl
 			ImageClickCenter.Instance.remove(btn_stand);
 		}
 		public function rebet(evt:MouseEvent):void{
+			hideAll();
 			mgr.reset();
 			var betData:Object  = mgr.lastBetData;
 			var pairBetData:Object = mgr.lastPairBetData;
@@ -103,18 +104,13 @@ package uiimpl
 				return;
 			}
 			var chip:Chip;
-			var tableDisplay:BaseTable;
+			var table:TableData;
 			for (var i in betData){
-				tableDisplay = mgr.tableDisplays[i];
-				chip = PoolMgr.gain(Chip);
-				chip.value = betData[i];
-				tableDisplay.addChip(chip, 0);
-				mgr.betToTable(betData[i], i);
-				tableDisplay.onBet();
+				mgr.betToTable(i,betData[i]);
 			}
 			if ( pairBetData != null ){
 				for ( i in pairBetData){
-					mgr.betPair(betData[i], i);
+					mgr.betPair(i,betData[i]);
 				}
 			}
 			
@@ -128,6 +124,7 @@ package uiimpl
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		public function ok(evt:MouseEvent):void{
+			this.hideAll();
 			var tables:Array = mgr.getInsuredTables();
 			if ( tables.length > 0){
 				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
@@ -155,7 +152,11 @@ package uiimpl
 		}
 		private function double(evt:MouseEvent):void{
 			//this.hideAllBtns();
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
+			if ( mgr.started){
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
+			}else{
+				mgr.doubleBet();
+			}
 		}
 		private function stand(evt:MouseEvent):void{
 			if( mgr.started && mgr.currentTable)

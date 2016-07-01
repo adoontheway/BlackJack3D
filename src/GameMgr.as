@@ -8,8 +8,10 @@ package
 	import flash.geom.Point;
 	import flash.utils.*;
 	import uiimpl.Buttons;
+	import uiimpl.ChipsViewUIImpl;
 	import uiimpl.MainViewImpl;
 	import uiimpl.BaseTable;
+	import uiimpl.SubTable;
 	import utils.NumDisplay;
 	/**
 	 * ...
@@ -44,6 +46,10 @@ package
 		public var tableDisplays:Object = {};
 		public function registerTableDisplay(id:int, table:BaseTable):void{
 			tableDisplays[id] = table;
+		}
+		public var subTableDisplays:Object = {};
+		public function registerSubTableDisplay(id:int, table:SubTable):void{
+			subTableDisplays[id] = table;
 		}
 		
 		private var _currentTable:TableData;
@@ -90,56 +96,46 @@ package
 				return;
 			}
 			var table:TableData = tables[0];
-			var tableDisplay:BaseTable;
-			if ( table.points == 1 && !table.insureNeeded){
+			var subTable:SubTable;
+			if ( table.points == 1 && !table.insured){
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
-				for (var i in tableDisplays){
-					tableDisplay = tableDisplays[i];
-					tableDisplay.btn_insurrance.visible = true;
+				for (var i in subTableDisplays){
+					subTable = tableDisplays[i];
+					subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
 				}
 			}else{
 				if ( currentTable != null){
 					var tableId:int = _currentTable.tableId;
-					if ( tableId <= 3){
-						tableDisplay = tableDisplays[_currentTable.tableId];
-						tableDisplay.selectTable(0);
-					}else{
-						tableDisplay = tableDisplays[_currentTable.tableId - 3];
-						tableDisplay.selectTable(1);
-					}
+					_currentTable.display.selected = true;	
 				}
 				
 			}
 		}
 		
+		public function doubleBet():void{
+			
+		}
+		
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
 			lastDipenseTime = TickerMgr.SYSTIME;
-			GameUtils.log('dispenseTo :', tableId,card);
+			GameUtils.log('mgr->dispenseTo :', tableId, card);
+			
 			var table:TableData = this.tables[tableId];
+			
 			var poker:Poker = PoolMgr.gain(Poker);
 			poker.value = card;
 			if ( card != -1){
 				starting = false;
 				poker.rotationY = 180 ;
 			}
-			if ( tableId > 3 ){
-				var tableDisplay:BaseTable = this.tableDisplays[tableId - 3];
-				tableDisplay.addCardTo(poker,1);
+			if ( tableId != 0 ){
+				table.display.addCard(poker);
 			}else{
-				if ( tableId != 0){
-					tableDisplay = this.tableDisplays[tableId];
-					tableDisplay.addCardTo(poker);
-				}else{
-					if( card != -1 )
-						table.addCard(poker);
-					
-					if ( table.numCards != 2){
-						mainView.onDispenseBanker(poker);						
-					}else if ( table.numCards == 2){//翻牌就可以了
-						mainView.traverseTheFakePoker(card);
-					}
-				}
+				if( card != -1 )
+					table.addCard(poker);//fake poker
+				
+				mainView.onDispenseBanker(poker);						
 			}
 			
 			pokerMap[card] = poker;
@@ -153,17 +149,12 @@ package
 		 * 添加赌注到某桌
 		 * 仅限开局使用
 		 * **/
-		public function betToTable(bet:uint,tableId:int):void{
+		public function betToTable(tableId:int, bet:uint = 0):void{
+			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
 			var table:TableData = this.tables[tableId];
 			if ( table == null ){
 				table = this.tables[tableId] = new TableData(tableId);
-				if ( tableId <= 3){
-					var tableDisplay:BaseTable = this.tableDisplays[tableId];
-				}else{
-					tableDisplay = this.tableDisplays[tableId-3];
-				}
-				
-				tableDisplay.setTableData(table, tableId <= 3 );
+				table.display = this.subTableDisplays[tableId];
 			}else{
 				table.reset();
 			}
@@ -175,16 +166,17 @@ package
 		 * 赌对子
 		 * 仅限开局使用
 		 * **/
-		public function betPair(bet:uint,tableId:int):Boolean{
+		public function betPair(tableId:int, bet:uint=0):void{
+			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
+			if ( bet == 0 ) {
+				FloatHint.Instance.show('no chips seleted...');
+				return;
+			}
 			var table:TableData = this.tables[tableId];
 			if ( table != null && table.currentBet != 0 ){
-				//table = this.tables[tableId] = new TableData(tableId);
 				var tableDisplay:BaseTable = this.tableDisplays[tableId];
-				tableDisplay.setTableData(table, true );
+				tableDisplay.addPairBet(bet);
 				table.pairBet = bet;
-				return true;
-			}else{
-				return false;
 			}
 		}
 		public var lastBetData:Object;
@@ -233,14 +225,25 @@ package
 			}
 		}
 		
-		public function deselectTable(tabId:int):void{
-			var tableDisplay:BaseTable;
-			if ( tabId <= 3){
-				tableDisplay = tableDisplays[tabId];
-			}else{
-				tableDisplay = tableDisplays[tabId - 3];
+		public function onInsureBack(data:Object):void{
+			//1 播放庄家第二张牌的动画
+			//2 播放筹码得失动画
+			//3 更新余额
+			
+			var result:int = data.result;
+			var win:Boolean = data.win;
+			var tableDisplay:SubTable;
+			for (var i:String in subTableDisplays){
+				tableDisplay = subTableDisplays[i];
+				if ( result[i] != null ){
+					tableDisplay.onInsureBack(result[i]);
+				}else{
+					tableDisplay.btn_insurrance.visible = false;
+				}
+				
 			}
-			tableDisplay.deselect();
+			this.money = data.money;
+			mainView.updateBalance(this.money);
 		}
 		
 		public function onRoundEnd():void{
@@ -258,6 +261,7 @@ package
 			pokerMap = {};
 			this.currentTables = [];
 			this.endTables = [];
+			mainView.onRoundEnd();
 			enableDisplayMouse(true);
 		}
 		
@@ -288,13 +292,9 @@ package
 		public function onSplitBack(data:Object):void{
 			var ttables:Object = data.tables;
 			var bet:int = data.bet;
-			var tabId:int = data.tabId;
-			var card0:Poker;
-			
-			var rtable:TableData = this.tables[tabId];
 			var table:TableData;
 			var poker:Poker;
-			var tableDisplay:BaseTable = tableDisplays[tabId];
+
 			for (var tablId in ttables ){
 				table = this.tables[tablId];
 				poker = pokerMap[ttables[tablId]];
@@ -305,23 +305,20 @@ package
 					table.reset();
 					table.actived = true;
 					table.isSplited = true;
-					tableDisplay.poker_con_1.addChild(poker);
+					table.display.poker_con.addChild(poker);
 				}else{
-					betToTable(bet, tablId);
+					betToTable(tablId, bet);
 					table = this.tables[tablId];
 					this.currentTables.push(tablId);
-					tableDisplay.poker_con_2.addChild(poker);
+					table.display.poker_con.addChild(poker);
 				}
 				table.addCard(poker);
-				
 			}
 		}
 		
 		public function onStandBack(data:Object):void{
 			var tabId:int = data.tabId;
-			deselectTable(tabId);
 			putToEnd(tabId);
-			//mainView.onStandBack();
 		}
 		
 		public function onDoubleBack(data:Object):void{
@@ -339,6 +336,8 @@ package
 			if ( index != -1){
 				this.currentTables.splice(index, 1);
 			}
+			var table:TableData = tables[tabId];
+			table.display.selected = false;
 			this.endTables.push(tabId);
 			
 			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
@@ -349,19 +348,13 @@ package
 			var table:TableData = this.tables[data.tabId];
 			var startX:int = 100;
 			var startY:int = 50;
-			if ( data.tabId <= 3){
-				var tableDisplay:BaseTable = this.tableDisplays[data.tabId];
-			}else {
-				tableDisplay = this.tableDisplays[data.tabId - 3];
-				startY = 0;
-			}
-			var pos:Point = tableDisplay.localToGlobal(new Point(100,50))
+			var pos:Point = table.display.localToGlobal(new Point(100,50))
 			if ( data.result == -1){
 				NumDisplay.show( -data.gain, pos.x,  pos.y);
 			}else if ( data.result == 1){
 				NumDisplay.show( data.gain, pos.x, pos.y);
 			}else{
-				//FloatHint.Instance.show('DRAW ROUND!',table.arrowX, table.arrowY);
+				FloatHint.Instance.show('DRAW ROUND!',pos.x, pos.y);
 			}
 			
 		}
@@ -371,7 +364,7 @@ package
 			var table:TableData;
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
-				if ( table.insureNeeded){
+				if ( table.insured){
 					result.push(i);
 				}
 			}

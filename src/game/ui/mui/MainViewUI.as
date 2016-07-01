@@ -2,6 +2,7 @@
 package game.ui.mui {
 	import morn.core.components.*;
 	import game.ui.mui.BalanceUI;
+	import game.ui.mui.ButtonGroupUI;
 	import game.ui.mui.ChipsViewUI;
 	public class MainViewUI extends View {
 		public var chips_group:ChipsViewUI = null;
@@ -16,10 +17,12 @@ package game.ui.mui {
 			  <ChipsView x="156" y="625" var="chips_group" runtime="game.ui.mui.ChipsViewUI"/>
 			  <Balance x="831" y="38" var="balance" runtime="game.ui.mui.BalanceUI"/>
 			  <Box skin="png.comp.blank" x="293" y="125" var="banker_poker_con" width="81" height="33"/>
+			  <ButtonGroup x="650" y="515" runtime="game.ui.mui.ButtonGroupUI"/>
 			</View>;
 		public function MainViewUI(){}
 		override protected function createChildren():void {
 			viewClassMap["game.ui.mui.BalanceUI"] = BalanceUI;
+			viewClassMap["game.ui.mui.ButtonGroupUI"] = ButtonGroupUI;
 			viewClassMap["game.ui.mui.ChipsViewUI"] = ChipsViewUI;
 			super.createChildren();
 			createView(uiXML);

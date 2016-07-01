@@ -91,12 +91,23 @@ package
 				case ProtocolServerEnum.S_B_END://游戏结束并结算
 					this.onTableEnd(data);
 					break;
+				case ProtocolServerEnum.S_R_INSURE://游戏结束并结算
+					this.onInsurranceBack(data);
+					break;
+				case ProtocolServerEnum.S_B_FAKE_CARD://游戏结束并结算
+					this.onFakeCard(data);
+					break;
 				default:
 					GameUtils.log('unhandled proto ', proto);
 					break;
 			}
 		}
 		private var mgr:GameMgr;
+		private function onFakeCard(data:Object):void{
+			var card:int = data.card;
+			MainViewImpl.Instance.traverseTheFakePoker(card);
+		}
+		
 		private function onTableEnd(data:*):void{
 			if (data.hasOwnProperty('money')){
 				mgr.money = data.money;
@@ -107,13 +118,16 @@ package
 		
 		private function onRoundEnd(data:*):void{
 			setTimeout(function():void{
-				MainViewImpl.Instance.onRoundEnd();
+				//MainViewImpl.Instance.onRoundEnd();
 				mgr.onRoundEnd();
 			}, 2000);
 		}
 		
 		private function onHitResult(data:*):void{
 			
+		}
+		private function onInsurranceBack(data:*):void{
+			mgr.onInsureBack(data);
 		}
 		
 		private function onDoubleBack(data:*):void{
