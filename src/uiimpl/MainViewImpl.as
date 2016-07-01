@@ -57,7 +57,8 @@ package uiimpl
 			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
 			
 			Buttons.Instance.switchModel(Buttons.MODEL_START);
-			this.banker_poker_con.scaleX = this.banker_poker_con.scaleY = 0.8;
+			this.banker_poker_con.scale = 0.8;
+			this.point_display.visible = false;
 			/*
 			var Arrow:Class = getDefinitionByName('Arrow') as Class;
 			if ( Arrow != null){
@@ -86,27 +87,49 @@ package uiimpl
 		private function stopArrow(evt:Event):void{
 			this.arrow.stop();
 		}
-		
+		public var bankerData:TableData;
+		public function updatePoints(isSettled:Boolean = false):void{
+			this.lab_points.size = 30;
+			this.lab_points.y = 12;
+			if ( !bankerData.bust ){
+				if ( !bankerData.blackjack){
+					if ( !bankerData.hasA || (bankerData.hasA && bankerData.points >= 11) ){
+						if (bankerData.points < 21 ){
+							this.img_points_bg.url = 'png.images.green';
+							this.lab_points.text =  bankerData.points+"";
+						}else{
+							this.img_points_bg.url = 'png.images.full';
+							this.lab_points.text =  bankerData.points+"";
+						}
+					}else{
+						if ( !isSettled ){
+							this.img_points_bg.url = 'png.images.soft';
+							this.lab_points.size = 20;
+							this.lab_points.y = 22;
+							this.lab_points.text =  bankerData.points+"/"+(bankerData.points+10);
+						}else{
+							this.img_points_bg.url = 'png.images.green';
+							this.lab_points.size = 30;
+							this.lab_points.text =  (bankerData.points + 10) + "";
+						}
+					}
+					
+				}else{
+					this.img_points_bg.url = 'png.images.green';
+					this.lab_points.text =  "21";
+				}
+			}else{
+				this.img_points_bg.url = 'png.images.bust';
+				this.lab_points.text = bankerData.points + "";
+			}
+			this.point_display.visible = true;
+		}
 		//private var totalBet:int = 0;
 		private var currentTable:TableData;
-		public function updateBalance(value:Number):void{
-			this.balance.lab_0.text = GameUtils.NumberToString(value);
+		public function updateBalance():void{
+			this.balance.lab_0.text = GameUtils.NumberToString(mgr.money);
 		}
-		
-		public function updateBet():void{
-			//this.bet.lab.text = GameUtils.NumberToString(totalBet);
-		}
-		
-		public function update(delta:int):void{
-			//this.lab_time.text = 'Now:'+GameUtils.GetDateTime(TickerMgr.SYSTIME);
-		}
-		
-		public function onDoubleBack(tabId:int, moreBet:int):void{
-			//this.totalBet += moreBet;
-			this.updateBet();
-		}
-		
-		
+
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
 		private var startPos:Point;
@@ -124,11 +147,11 @@ package uiimpl
 			poker.targetY = 0;
 			tweening = true;
 			if (poker.value != -1){
-				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.3, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
 			}else{
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
 			}
-			
+			updatePoints();
 		}
 		
 		private function reOrderBankerContaner():void{
@@ -141,20 +164,9 @@ package uiimpl
 			}
 		}
 		
-		public function traverseTheFakePoker(card:int):void{
-			var index:int = 0;
-			var num:int = this.banker_poker_con.numChildren;
-			var poker:Poker;
-			while (index < num){
-				poker = this.banker_poker_con.getChildAt(index) as Poker;
-				if ( poker.value == -1){
-					poker.value = card;
-					poker.rotationY = 180;
-					TweenLite.to(poker, 0.3, {rotationY:0});
-					break;
-				}
-				index++;
-			}
+		public function traverseTheFakePoker(poker:Poker):void{
+			poker.rotationY = 180;
+			TweenLite.to(poker, 0.1, {rotationY:0});
 		}
 		
 		public function checkTheFakePoker():void{
@@ -186,7 +198,7 @@ package uiimpl
 				poker = banker_poker_con.removeChildAt(0) as Poker;
 				PoolMgr.reclaim(poker);
 			}
-			
+			this.point_display.visible = false;
 			//this.totalBet = 0;
 		}
 		private var dispenserPos:Point = new Point(612, 50);

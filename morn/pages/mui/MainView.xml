@@ -6,5 +6,8 @@
   <UIView source="mui/ChipsView.xml" x="156" y="625" layer="1" var="chips_group"/>
   <UIView source="mui/Balance.xml" x="831" y="38" layer="1" var="balance"/>
   <Box skin="png.comp.blank" x="293" y="125" layer="1" var="banker_poker_con" width="81" height="33"/>
-  <UIView source="mui/ButtonGroup.xml" x="650" y="515" layer="1"/>
+  <Box layers="1,1,0,0,第 1 层" layer="1" x="384" y="207" var="point_display">
+    <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
+    <Label styleSkin="png.comp.label" x="4" y="11" layer="1" var="lab_points" color="0xffffff" text="21" size="30" width="58" height="39" align="center"/>
+  </Box>
 </View>

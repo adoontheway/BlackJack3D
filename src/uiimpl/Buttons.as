@@ -24,6 +24,7 @@ package uiimpl
 		public static const MODEL_INSRRURING:uint = 3;//done 
 		public static const MODEL_NORMAL:uint = 4;//hit stand double
 		public static const MODEL_END:uint = 5;//hit stand double
+		public static const MODEL_CLEAN:uint = 6;//hit stand double
 		public static const MODEL_HIDE:uint = 0;
 		private var models:Array;
 		public function Buttons() 
@@ -45,6 +46,7 @@ package uiimpl
 			[btn_ok],
 			[btn_hit, btn_stand,btn_double],
 			[btn_rebet, btn_double, btn_clean],//btn_clean clean the table btn_rebet rebet and start
+			[btn_rebet, btn_hit, btn_double, btn_clean],
 			];
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
@@ -120,9 +122,11 @@ package uiimpl
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData, pair:mgr.lastPairBetData });
 			}
 		}
+		
 		public function skip(evt:MouseEvent):void{
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
+		
 		public function ok(evt:MouseEvent):void{
 			this.hideAll();
 			var tables:Array = mgr.getInsuredTables();
@@ -149,6 +153,7 @@ package uiimpl
 
 		private function clean(evt:MouseEvent):void{
 			mgr.reset();
+			switchModel(MODEL_CLEAN);
 		}
 		private function double(evt:MouseEvent):void{
 			//this.hideAllBtns();

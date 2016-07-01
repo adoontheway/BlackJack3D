@@ -2,6 +2,7 @@ package uiimpl
 {
 	import com.greensock.TweenLite;
 	import com.greensock.easing.*;
+	import comman.duke.FloatHint;
 	import comman.duke.FrameItem;
 	import comman.duke.FrameMgr;
 	import comman.duke.GameUtils;
@@ -17,6 +18,7 @@ package uiimpl
 	import model.ProtocolClientEnum;
 	import model.TableData;
 	import morn.core.components.Box;
+	import utils.NumDisplay;
 	import utils.TableUtil;
 	
 	/**
@@ -50,6 +52,7 @@ package uiimpl
 			}
 			
 			this.name = 'table_' + $id;
+			trace(this.name);
 			mgr = GameMgr.Instance;
 			
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
@@ -80,6 +83,20 @@ package uiimpl
 			if ( pair_con.numChildren > 1){
 				//todo merge chips
 			}
+		}
+		
+		public function onPairResult(gain:int):void{
+			if ( gain == 0 ){
+				FloatHint.Instance.show('no pair');
+			}else{
+				var pos:Point = getPairReferPoint();
+				NumDisplay.show(gain, pos.x, pos.y);
+			}
+			var chip:Chip;
+			while ( this.pair_con.numChildren != 0){
+					chip = this.pair_con.removeChildAt(0) as Chip;
+					PoolMgr.reclaim(chip);
+				}
 		}
 		
 		private var _referPairPos:Point;

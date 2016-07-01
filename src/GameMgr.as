@@ -87,7 +87,7 @@ package
 						clearInterval(_instance.dispenseTimer);
 						_instance.dispenseTimer = 0;
 					}
-				}, 600);
+				}, 300);
 			}
 		}
 		
@@ -100,7 +100,7 @@ package
 			if ( table.points == 1 && !table.insured){
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
-					subTable = tableDisplays[i];
+					subTable = subTableDisplays[i];
 					subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
 				}
 			}else{
@@ -139,7 +139,7 @@ package
 			}
 			
 			pokerMap[card] = poker;
-			if ( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11)){
+			if (tableId != 0 &&( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
 				this.putToEnd(tableId);
 			}
 			this.checkButtons();
@@ -151,13 +151,19 @@ package
 		 * **/
 		public function betToTable(tableId:int, bet:uint = 0):void{
 			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
+			if ( bet == 0 ) {
+				FloatHint.Instance.show('no chips seleted...');
+				return;
+			}
 			var table:TableData = this.tables[tableId];
 			if ( table == null ){
 				table = this.tables[tableId] = new TableData(tableId);
 				table.display = this.subTableDisplays[tableId];
+				table.display.tableData = table;
 			}else{
 				table.reset();
 			}
+			table.display.addChip(bet);
 			table.actived = true;
 			table.currentBet = bet;
 			
@@ -204,7 +210,7 @@ package
 			if (got){
 				table = this.tables[0];
 				if ( table == null ){
-					table = this.tables[0] = new TableData(0);
+					mainView.bankerData = table = this.tables[0] = new TableData(0);
 				}else{
 					table.reset();
 				}
@@ -243,7 +249,6 @@ package
 				
 			}
 			this.money = data.money;
-			mainView.updateBalance(this.money);
 		}
 		
 		public function onRoundEnd():void{
@@ -252,11 +257,14 @@ package
 		}
 		
 		public function reset():void{
-			for (var key in this.tables){
+			for (var key:String in this.tables){
 				tables[key].reset();
 			}
 			for ( key in this.tableDisplays){
 				tableDisplays[key].reset();
+			}
+			for ( key in this.subTableDisplays){
+				subTableDisplays[key].reset();
 			}
 			pokerMap = {};
 			this.currentTables = [];
@@ -273,7 +281,7 @@ package
 			}
 		}
 		
-		public function onStarted(tabelIds:Array):void{
+		public function onStarted(tabelIds:Array, money:int):void{
 			this.started = true;
 			var table:TableData ;
 			this.currentTables = tabelIds;
@@ -287,6 +295,7 @@ package
 				GameUtils.log('sort tables:', this.currentTables.join('.'));
 			}
 			this._currentTable = this.tables[this.currentTables[0]];
+			this.money = money;
 		}
 		
 		public function onSplitBack(data:Object):void{
@@ -305,15 +314,23 @@ package
 					table.reset();
 					table.actived = true;
 					table.isSplited = true;
-					table.display.poker_con.addChild(poker);
 				}else{
 					betToTable(tablId, bet);
 					table = this.tables[tablId];
-					this.currentTables.push(tablId);
-					table.display.poker_con.addChild(poker);
 				}
+				if (currentTables.indexOf(tablId) == -1){
+					this.currentTables.push(tablId);
+				}
+				table.display.poker_con.addChild(poker);
+				table.display.visible = true;
 				table.addCard(poker);
 			}
+		}
+		
+		public function onPairBetResult(tabId:int, money:int, gain:int):void{
+			var table:BaseTable = this.tableDisplays[tabId];
+			table.onPairResult(gain);
+			this.money = money;
 		}
 		
 		public function onStandBack(data:Object):void{
@@ -327,7 +344,17 @@ package
 			var moreBet:int = data.bet - table.currentBet;
 			table.currentBet = data.bet;
 			putToEnd(tabId);
-			mainView.onDoubleBack(data.tabId, moreBet);
+		}
+		
+		public function onFakeCard(card:int):void{
+			var table:TableData = tables[0];
+			
+			var poker:Poker = this.pokerMap[ -1];
+			poker.value = card;
+			pokerMap[card] = poker;
+			delete pokerMap[ -1];
+			table.addCard(poker);
+			mainView.traverseTheFakePoker(poker);
 		}
 		
 		private function putToEnd(tabId:int):void{
@@ -338,6 +365,7 @@ package
 			}
 			var table:TableData = tables[tabId];
 			table.display.selected = false;
+			table.display.updatePoints(true);
 			this.endTables.push(tabId);
 			
 			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
@@ -379,7 +407,7 @@ package
 			if ( this._money == _val) return;
 			this._money = _val;
 			if( mainView != null)
-				mainView.updateBalance(_val);
+				mainView.updateBalance();
 		}
 		
 		private static var _instance:GameMgr;

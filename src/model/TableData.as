@@ -55,7 +55,8 @@ package model
 			if ( !this.hasA ){
 				this.hasA = card.realValue == 1;
 			}
-			this.canSplit = numCards == 2 && cards[0].compareValue == cards[1].compareValue && !this.isSplited && this.tableId <= 3;
+			if ( this.hasA && this.points == 11) this.points = 21;
+			this.canSplit = !this.isSplited && this.tableId <= 3 && numCards == 2 && cards[0].compareValue == cards[1].compareValue;
 			this.blackjack =  numCards == 2 && this.hasA && this.points == 11 && !isSplited  && this.tableId <= 3;
 			this.fiveDragon =  numCards == 5 && this.points <= 21;
 			this.bust = points > 21;

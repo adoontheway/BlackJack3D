@@ -23,6 +23,8 @@ package model
 		public static const S_B_ROUND_END:uint = 12;
 		public static const S_R_INSURE:uint = 13;
 		public static const S_B_FAKE_CARD:uint = 14;
+		public static const S_B_PAIR_RESULT:uint = 15;
+		
 	}
 
 }

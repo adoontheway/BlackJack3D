@@ -1,9 +1,9 @@
 <View width="480" height="119" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
-  <Image skin="png.ui.btn-clean" x="594" y="-100" layer="1" stateNum="1" var="btn_clean"/>
+  <Image skin="png.ui.btn-clean" x="614" y="-180" layer="1" stateNum="1" var="btn_clean"/>
   <Image skin="png.ui.btn-double" x="198" y="-5" layer="1" stateNum="1" var="btn_double"/>
   <Image skin="png.ui.btn-hit" x="0" y="50" layer="1" stateNum="1" var="btn_hit"/>
   <Image skin="png.ui.btn-stand" x="99" y="25" layer="1" stateNum="1" var="btn_stand"/>
   <Image skin="png.ui.btn-ok" x="396" y="-99" layer="1" stateNum="1" var="btn_ok"/>
-  <Image skin="png.ui.btn-skip" x="495" y="-75" layer="1" stateNum="1" var="btn_skip"/>
+  <Image skin="png.ui.btn-skip" x="506" y="-156" layer="1" stateNum="1" var="btn_skip"/>
   <Image skin="png.ui.btn-rebet" x="297" y="-46" layer="1" stateNum="1" var="btn_rebet"/>
 </View>

@@ -97,15 +97,21 @@ package
 				case ProtocolServerEnum.S_B_FAKE_CARD://游戏结束并结算
 					this.onFakeCard(data);
 					break;
+				case ProtocolServerEnum.S_B_PAIR_RESULT://游戏结束并结算
+					this.pairBetResult(data);
+					break;
 				default:
 					GameUtils.log('unhandled proto ', proto);
 					break;
 			}
 		}
 		private var mgr:GameMgr;
+		private function pairBetResult(data:Object):void{
+			mgr.onPairBetResult(data.tabId, data.money, data.gain);
+		}
 		private function onFakeCard(data:Object):void{
 			var card:int = data.card;
-			MainViewImpl.Instance.traverseTheFakePoker(card);
+			mgr.onFakeCard(card);
 		}
 		
 		private function onTableEnd(data:*):void{
@@ -136,7 +142,7 @@ package
 		}
 		
 		private function onStarted(data:*):void{
-			mgr.onStarted(data.tables);
+			mgr.onStarted(data.tables,data.money);
 		}
 		
 		private function onDispense(data:Object):void{
