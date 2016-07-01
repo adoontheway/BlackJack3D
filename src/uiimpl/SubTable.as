@@ -77,7 +77,7 @@ package uiimpl
 			
 			poker.x = dispenseStartPoint.x;
 			poker.y = dispenseStartPoint.y;
-			TweenLite.to(poker, 0.3, {x:poker.targetX, rotationY:0,y:poker.targetY, onComplete:this.onTweenComplete});
+			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationY:0,y:poker.targetY, onComplete:this.onTweenComplete});
 		}
 		
 		private function onTweenComplete():void{
@@ -150,7 +150,7 @@ package uiimpl
 			}
 			while ( insurranceChip.length != 0 ){
 				chip = insurranceChip.shift();
-				TweenLite.to(chip, 500, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
+				TweenLite.to(chip, 0.5, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
 			}
 		}
 		

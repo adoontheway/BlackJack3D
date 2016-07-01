@@ -10,7 +10,9 @@ package
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
+	import flash.events.ErrorEvent;
 	import flash.events.Event;
+	import flash.events.UncaughtErrorEvent;
 	import flash.system.Security;
 	import morn.core.handlers.Handler;
 	import uiimpl.*;
@@ -30,7 +32,7 @@ package
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			
+			stage.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUnknownError);
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.addEventListener(Event.RESIZE, onResize);
@@ -47,9 +49,27 @@ package
 			//comman.duke.display.BitmapClipFactory.Instance.loadAnim();
 			
 			GameVars.STAGE = stage;
-			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
+			GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
 			
 			FrameMgr.Instance.init(stage);
+		}
+		
+		private function onUnknownError(event:UncaughtErrorEvent):void{
+			var message:String;
+             
+             if (event.error is Error)
+             {
+                 message = Error(event.error).message;
+             }
+             else if (event.error is ErrorEvent)
+             {
+                 message = ErrorEvent(event.error).text;
+             }
+             else
+             {
+                 message = event.error.toString();
+             }
+			 GameUtils.fatal('Stage Uncaught Errors :', message);
 		}
 		
 		private function parseParams():void{

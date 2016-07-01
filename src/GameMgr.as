@@ -101,7 +101,8 @@ package
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
-					subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
+					if( subTable.visible)
+						subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
 				}
 			}else{
 				if ( currentTable != null){

@@ -147,9 +147,9 @@ package uiimpl
 			poker.targetY = 0;
 			tweening = true;
 			if (poker.value != -1){
-				TweenLite.to(poker, 0.3, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
 			}else{
-				TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
 			}
 			updatePoints();
 		}
@@ -166,7 +166,8 @@ package uiimpl
 		
 		public function traverseTheFakePoker(poker:Poker):void{
 			poker.rotationY = 180;
-			TweenLite.to(poker, 0.1, {rotationY:0});
+			TweenLite.to(poker, 0.2, {rotationY:0});
+			updatePoints();
 		}
 		
 		public function checkTheFakePoker():void{
