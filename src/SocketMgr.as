@@ -40,7 +40,7 @@ package
 				return;
 			}
 			var msg:String = JSON.stringify(data);
-			GameUtils.log('sended: ', msg); 
+			//GameUtils.log('sended: ', msg); 
 			this.socket.sendUTF(msg);
 		}
 		

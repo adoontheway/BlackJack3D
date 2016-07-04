@@ -7,13 +7,16 @@ package
 	import flash.display.BitmapData;
 	import flash.display.DisplayObject;
 	import flash.display.Loader;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.UncaughtErrorEvent;
+	import flash.net.URLRequest;
 	import flash.system.Security;
+	import flash.utils.setTimeout;
 	import morn.core.handlers.Handler;
 	import uiimpl.*;
 	
@@ -29,6 +32,7 @@ package
 			if (stage) init();
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
+		private var openupLoader:Loader;
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
@@ -42,9 +46,21 @@ package
 			Security.allowDomain('*');
 			Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
 			
+			openupLoader = new Loader();
+			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
+			openupLoader.load(new URLRequest("resource/swfs/openup.swf"));
+			
 			App.init(this);
 			
-			App.loader.loadAssets(["assets/bg.swf","assets/chips.swf", "assets/ui.swf", "assets/nums.swf","assets/pokers.swf", "assets/images.swf","assets/comp.swf","resource/swfs/effects.swf"], new Handler(onAssetsLoade));
+			App.loader.loadAssets([
+			"assets/bg.swf",
+			"assets/chips.swf", 
+			"assets/ui.swf", 
+			"assets/nums.swf",
+			"assets/pokers.swf", 
+			"assets/images.swf",
+			"assets/comp.swf",
+			"resource/swfs/effects.swf"], new Handler(onAssetsLoade));
 			//App.loader.loadAssets([], new Handler(bgLoaded));
 			//comman.duke.display.BitmapClipFactory.Instance.loadAnim();
 			
@@ -77,6 +93,29 @@ package
 			PokerGameVars.Model = params.model || 0;//场次
 			PokerGameVars.Desk = params.desk || 0;//桌子id
 		}
+		private var openupLoaded:Boolean;
+		private var othersLoaded:Boolean;
+		private function onOpenUpLoaded(e:Event):void{
+			openupLoaded = true;
+			if ( othersLoaded ){
+				playOpenUp();
+			}
+		}
+		
+		private function playOpenUp():void{
+			openupLoader.x = this.stage.stageWidth >> 1;
+			openupLoader.y = this.stage.stageHeight >> 1;
+			this.stage.addChild(openupLoader);
+			setTimeout(function():void{
+				disposeOpenup();
+			}, 5000);
+		}
+		
+		private function disposeOpenup():void{
+			this.stage.removeChild(openupLoader);
+			openupLoader.unloadAndStop();
+		}
+		
 		private var bg:Bitmap;
 		private var desk:Bitmap;
 		private function bgLoaded():void{
@@ -93,6 +132,10 @@ package
 			bgLoaded();
 			this.stage.addChild(MainViewImpl.Instance);
 			onResize(null);
+			othersLoaded = true;
+			if ( openupLoaded ){
+				playOpenUp();
+			}
 			//this.stage.addChild(LoginImpl.Instance);
 		}
 		

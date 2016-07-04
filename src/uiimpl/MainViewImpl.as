@@ -147,9 +147,9 @@ package uiimpl
 			poker.targetY = 0;
 			tweening = true;
 			if (poker.value != -1){
-				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
 			}else{
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
 			}
 			updatePoints();
 		}

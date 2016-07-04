@@ -1,7 +1,9 @@
 package utils 
 {
 	import com.greensock.TweenLite;
+	import com.greensock.easing.*;
 	import comman.duke.PoolMgr;
+	import consts.PokerGameVars;
 	import flash.display.DisplayObjectContainer;
 	import comman.duke.GameVars;
 	/**
@@ -32,6 +34,41 @@ package utils
 			}
 		}
 		
+		public static function displayChipsToContainer(bet:int, con:DisplayObjectContainer):void{
+			cleanContainer(con);
+			var len:int = PokerGameVars.ALL_CHIP_VALUE.length - 1;
+			var value:int;
+			var chip:Chip;
+			var cnt:int;
+			while (len >= 0 && bet > 0){
+				value = PokerGameVars.ALL_CHIP_VALUE[len];
+				
+				if ( bet >= value ){
+					cnt = bet / value;
+					while (cnt > 0 ){
+						bet -= value;
+						chip = PoolMgr.gain(Chip);
+						chip.value = value;
+						chip.scale = 0.2;
+						con.addChild(chip);
+						chip.y = con.numChildren *-5;
+						chip.x = 0;
+						chip.mouseChildren = chip.mouseEnabled = false;
+						TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut}); 
+						cnt--;
+					}
+				}
+				
+				len--;
+			}
+			
+		}
+		
+		public static function cleanContainer(con:DisplayObjectContainer):void{
+			while (con.numChildren != 0 ){
+				PoolMgr.reclaim(con.removeChildAt(0));
+			}
+		}
 	}
 
 }

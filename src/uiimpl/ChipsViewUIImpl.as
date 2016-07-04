@@ -3,7 +3,11 @@ package uiimpl
 	import com.greensock.TweenLite;
 	import comman.duke.GameUtils;
 	import consts.PokerGameVars;
+	import flash.display.Loader;
+	import flash.display.MovieClip;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.net.URLRequest;
 	import game.ui.mui.ChipsViewUI;
 	import morn.core.components.Image;
 	
@@ -23,7 +27,8 @@ package uiimpl
 			this.y = 625;
 			init();
 		}
-		
+		private var selectEffectLoader:Loader;
+		private var selectEffect:MovieClip;
 		private function init():void{
 			var chip:Chip;
 			for (var i:int = 0; i <= 5; i++){
@@ -33,6 +38,19 @@ package uiimpl
 				chips.push(chip);
 				this.addChild(chip);
 				chip.addEventListener(MouseEvent.CLICK, onChip);
+			}
+			selectEffectLoader = new Loader();
+			selectEffectLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onEffectLoaded);
+			selectEffectLoader.load(new URLRequest("resource/swfs/chip_selected.swf"));
+		}
+		
+		private function onEffectLoaded(e:Event):void{
+			selectEffect = selectEffectLoader.content as MovieClip;
+			selectEffectLoader.unloadAndStop();
+			if ( currentChip != null ){
+				this.addChild(selectEffect);
+				selectEffect.x = currentChip.x;
+				selectEffect.y = currentChip.y;
 			}
 		}
 		
@@ -53,6 +71,11 @@ package uiimpl
 			}
 			currentChip = evt.target as Chip;
 			currentValue = currentChip.value;
+			if ( selectEffect != null ){
+				this.addChild(selectEffect);
+				selectEffect.x = currentChip.x;
+				selectEffect.y = currentChip.y;
+			}
 			TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]-30});
 		}
 		

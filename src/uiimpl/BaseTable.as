@@ -27,8 +27,6 @@ package uiimpl
 	 */
 	public class BaseTable extends TableRightUI  
 	{
-		public var tableData:TableData;
-		public var splitTableData:TableData;
 		public var id:int = -1;
 		//private var frameItem:FrameItem;
 		private var mgr:GameMgr;
@@ -71,17 +69,20 @@ package uiimpl
 		private function betPair(evt:MouseEvent):void{
 			mgr.betPair(id);
 		}
-		
 		public function addPairBet(bet:int):void{
-			var chip:Chip = PoolMgr.gain(Chip);
-			chip.y = pair_con.numChildren * -8;
-			chip.x = 0;
-			chip.value = bet;
-			chip.scaleX = chip.scaleY = 0.5;
-			pair_con.addChild(chip);
-			TweenLite.to(chip, 0.4, {scaleX:1, scaleY:1, ease: Back.easeOut});
+			var tableData:TableData = mgr.getTableDataById(id);
 			if ( pair_con.numChildren > 1){
 				//todo merge chips
+				TableUtil.displayChipsToContainer(tableData.pairBet,pair_con);
+			}else{
+				var chip:Chip = PoolMgr.gain(Chip);
+				chip.value = bet;
+				chip.scale = 0.2;
+				pair_con.addChild(chip);
+				chip.y = 0;
+				chip.x = 0;
+				chip.mouseChildren = chip.mouseEnabled = false;
+				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut}); 
 			}
 		}
 		

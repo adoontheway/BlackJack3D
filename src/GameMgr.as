@@ -52,19 +52,34 @@ package
 			subTableDisplays[id] = table;
 		}
 		
+		public function getTableDataById(id:int):TableData{
+			return tables[id];
+		}
+		
 		private var _currentTable:TableData;
 		public function nextTable():void{
 			if ( this._currentTable != null && this._currentTable.isSplited ){
+				GameUtils.log('nextTable0: ',_currentTable.tableId);
 				this._currentTable = this.tables[this._currentTable.tableId + 3];
-				if ( this._currentTable != null && (this._currentTable.blackjack || this._currentTable.points == 21)){
+				if ( endTables.indexOf( _currentTable.tableId) != -1){
+					_currentTable = null;
+					nextTable();
+				}else if ( this._currentTable != null && (this._currentTable.blackjack || this._currentTable.points == 21)){
 					putToEnd(this._currentTable.tableId);
 				}
 			}else if ( this.currentTables.length != 0 ){
+				GameUtils.log('nextTable1: ');
 				_currentTable = this.tables[this.currentTables[0]];
 			}else{
+				GameUtils.log('nextTable2: ');
 				_currentTable = null;
 			}
-			Buttons.Instance.bindTable(_currentTable);
+			
+			if ( _currentTable != null){
+				GameUtils.log('select table:', _currentTable.tableId);
+			}else{
+				GameUtils.log('select table: null');
+			}
 			checkButtons();
 		}
 		
@@ -106,26 +121,21 @@ package
 				}
 			}else{
 				if ( currentTable != null){
-					var tableId:int = _currentTable.tableId;
 					_currentTable.display.selected = true;	
 				}
-				
 			}
-		}
-		
-		public function doubleBet():void{
-			
 		}
 		
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
 			lastDipenseTime = TickerMgr.SYSTIME;
-			GameUtils.log('mgr->dispenseTo :', tableId, card);
+			//GameUtils.log('mgr->dispenseTo :', tableId, card);
 			
 			var table:TableData = this.tables[tableId];
 			
 			var poker:Poker = PoolMgr.gain(Poker);
 			poker.value = card;
+			poker.rotation = -75;
 			if ( card != -1){
 				starting = false;
 				poker.rotationY = 180 ;
@@ -143,7 +153,8 @@ package
 			if (tableId != 0 &&( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
 				this.putToEnd(tableId);
 			}
-			this.checkButtons();
+			if( dispenseQueue.length == 0)
+				this.checkButtons();
 		}
 		
 		/**
@@ -161,13 +172,10 @@ package
 				table = this.tables[tableId] = new TableData(tableId);
 				table.display = this.subTableDisplays[tableId];
 				table.display.tableData = table;
-			}else{
-				table.reset();
 			}
-			table.display.addChip(bet);
+			table.currentBet += bet;
 			table.actived = true;
-			table.currentBet = bet;
-			
+			table.display.showBet();
 		}
 		/**
 		 * 赌对子
@@ -181,9 +189,9 @@ package
 			}
 			var table:TableData = this.tables[tableId];
 			if ( table != null && table.currentBet != 0 ){
+				table.pairBet += bet;
 				var tableDisplay:BaseTable = this.tableDisplays[tableId];
 				tableDisplay.addPairBet(bet);
-				table.pairBet = bet;
 			}
 		}
 		public var lastBetData:Object;
@@ -228,7 +236,6 @@ package
 			}else{
 				FloatHint.Instance.show('no bet');
 				return false;
-				//mainView.showBtns(MainViewImpl.START);
 			}
 		}
 		
@@ -236,20 +243,28 @@ package
 			//1 播放庄家第二张牌的动画
 			//2 播放筹码得失动画
 			//3 更新余额
-			
-			var result:int = data.result;
+			var table:TableData = tables[0];
+			table.insured = true;
+			var result:Object = data.result;
 			var win:Boolean = data.win;
 			var tableDisplay:SubTable;
 			for (var i:String in subTableDisplays){
 				tableDisplay = subTableDisplays[i];
 				if ( result[i] != null ){
 					tableDisplay.onInsureBack(result[i]);
-				}else{
-					tableDisplay.btn_insurrance.visible = false;
 				}
-				
+				tableDisplay.btn_insurrance.visible = false;
 			}
 			this.money = data.money;
+			//todo select table
+			if ( win ){
+				//结算
+				var fakeCard = data.fakeCard;
+				this.onFakeCard(fakeCard);
+			}else{
+				//选择
+				checkButtons();
+			}
 		}
 		
 		public function onRoundEnd():void{
@@ -349,7 +364,6 @@ package
 		
 		public function onFakeCard(card:int):void{
 			var table:TableData = tables[0];
-			
 			var poker:Poker = this.pokerMap[ -1];
 			poker.value = card;
 			pokerMap[card] = poker;
@@ -383,7 +397,7 @@ package
 			}else if ( data.result == 1){
 				NumDisplay.show( data.gain, pos.x, pos.y);
 			}else{
-				FloatHint.Instance.show('DRAW ROUND!',pos.x, pos.y);
+				FloatHint.Instance.show('PUSH',pos.x, pos.y);
 			}
 			
 		}

@@ -41,12 +41,12 @@ package uiimpl
 			this.btn_ok.addEventListener(MouseEvent.CLICK, this.ok);
 			models = [
 			0,
-			[btn_hit, btn_double,btn_clean],
+			[btn_hit, btn_clean],
 			[btn_skip],
 			[btn_ok],
 			[btn_hit, btn_stand,btn_double],
-			[btn_rebet, btn_double, btn_clean],//btn_clean clean the table btn_rebet rebet and start
-			[btn_rebet, btn_hit, btn_double, btn_clean],
+			[btn_rebet,btn_double, btn_clean],//btn_clean clean the table btn_rebet rebet and start
+			[btn_rebet, btn_hit, btn_double,btn_clean],
 			];
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
@@ -71,20 +71,9 @@ package uiimpl
 				index++;
 				ImageClickCenter.Instance.add(button);
 			}
-			if ( _tableData != null ){
-				btn_double.visible = btn_double.visible &&  !_tableData.doubled;
-			}
 			
 		}
-		private var _tableData:TableData;
-		public function bindTable(tableData:TableData):void{
-			this.hideAll();
-			this._tableData = tableData;
-			if ( _tableData == null ){
-				return;
-			}
-			switchModel(MODEL_NORMAL);
-		}
+
 		
 		public function hideAll():void{
 			btn_clean.visible = btn_skip.visible = btn_ok.visible = this.btn_double.visible = this.btn_hit.visible = this.btn_rebet.visible = this.btn_stand.visible = false;
@@ -96,7 +85,12 @@ package uiimpl
 			ImageClickCenter.Instance.remove(btn_rebet);
 			ImageClickCenter.Instance.remove(btn_stand);
 		}
+		
 		public function rebet(evt:MouseEvent):void{
+			betAndStart();
+		}
+		
+		public function betAndStart(double:Boolean = false):void{
 			hideAll();
 			mgr.reset();
 			var betData:Object  = mgr.lastBetData;
@@ -108,11 +102,11 @@ package uiimpl
 			var chip:Chip;
 			var table:TableData;
 			for (var i in betData){
-				mgr.betToTable(i,betData[i]);
+				mgr.betToTable(i,!double ? betData[i] : betData[i] * 2);
 			}
 			if ( pairBetData != null ){
 				for ( i in pairBetData){
-					mgr.betPair(i,betData[i]);
+					mgr.betPair(i,!double ? betData[i] : betData[i] * 2);
 				}
 			}
 			
@@ -160,12 +154,14 @@ package uiimpl
 			if ( mgr.started){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
-				mgr.doubleBet();
+				betAndStart(true);
 			}
+			
 		}
 		private function stand(evt:MouseEvent):void{
-			if( mgr.started && mgr.currentTable)
+			if( mgr.started && mgr.currentTable){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
+			}
 		}
 		
 		private static var _instance:Buttons;

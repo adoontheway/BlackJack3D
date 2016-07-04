@@ -45,16 +45,19 @@ package uiimpl
 			ImageClickCenter.Instance.add(this.btn_split);
 		}
 		
-		public function addChip(bet:int):void{
-			var chip:Chip = PoolMgr.gain(Chip);
-			chip.y = poker_con.numChildren * -8;
-			chip.x = 0;
-			chip.value = bet;
-			chip.scale = 0.5;
-			chips_con.addChild(chip);
-			TweenLite.to(chip, 0.3, {scale:1, ease: Back.easeOut});
-			if ( chips_con.numChildren > 1){
+		public function showBet():void{
+			if ( chips_con.numChildren == 0){
 				//todo merge chips
+				var chip:Chip = PoolMgr.gain(Chip);
+				chip.y = 0;
+				chip.x = 0;
+				chip.value = tableData.currentBet;
+				chip.scale = 0.2;
+				chip.mouseChildren = chip.mouseEnabled = false;
+				chips_con.addChild(chip);
+				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut});
+			}else{
+				TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
 			}
 		}
 		
@@ -77,7 +80,7 @@ package uiimpl
 			
 			poker.x = dispenseStartPoint.x;
 			poker.y = dispenseStartPoint.y;
-			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationY:0,y:poker.targetY, onComplete:this.onTweenComplete});
+			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
 		}
 		
 		private function onTweenComplete():void{
@@ -219,10 +222,11 @@ package uiimpl
 			if ( val ){
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
-				Buttons.Instance.bindTable(tableData);
+				Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
 			}else{
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
+				Buttons.Instance.hideAll();
 			}
 			if ( id > 3 ){
 				FrameMgr.Instance.add(this.frameItem);
