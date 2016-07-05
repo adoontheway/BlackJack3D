@@ -12,6 +12,7 @@ package game.ui.mui {
 		public var point_display:Box = null;
 		public var img_points_bg:Image = null;
 		public var lab_points:Label = null;
+		public var insure_con:Box = null;
 		protected static var uiXML:XML =
 			<View width="260" height="200">
 			  <Box skin="png.comp.blank" x="43" y="-1" var="poker_con"/>
@@ -24,6 +25,7 @@ package game.ui.mui {
 			    <Image skin="png.images.bust" var="img_points_bg"/>
 			    <Label x="5" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="39" align="center"/>
 			  </Box>
+			  <Box skin="png.comp.blank" x="109" y="65" var="insure_con"/>
 			</View>;
 		public function SubTableUI(){}
 		override protected function createChildren():void {

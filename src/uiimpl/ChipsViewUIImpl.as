@@ -3,11 +3,13 @@ package uiimpl
 	import com.greensock.TweenLite;
 	import comman.duke.GameUtils;
 	import consts.PokerGameVars;
+	import flash.display.BlendMode;
 	import flash.display.Loader;
 	import flash.display.MovieClip;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.net.URLRequest;
+	import flash.utils.getDefinitionByName;
 	import game.ui.mui.ChipsViewUI;
 	import morn.core.components.Image;
 	
@@ -23,11 +25,12 @@ package uiimpl
 		public function ChipsViewUIImpl() 
 		{
 			super();
-			this.x = 156;
-			this.y = 625;
+			this.x = 149;
+			this.y = 623;
+			this.img_cover.visible = false;
 			init();
 		}
-		private var selectEffectLoader:Loader;
+
 		private var selectEffect:MovieClip;
 		private function init():void{
 			var chip:Chip;
@@ -36,22 +39,13 @@ package uiimpl
 				chip.x = rawX[i];
 				chip.y = rawY[i];
 				chips.push(chip);
-				this.addChild(chip);
+				this.chips_con.addChild(chip);
 				chip.addEventListener(MouseEvent.CLICK, onChip);
 			}
-			selectEffectLoader = new Loader();
-			selectEffectLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onEffectLoaded);
-			selectEffectLoader.load(new URLRequest("resource/swfs/chip_selected.swf"));
-		}
-		
-		private function onEffectLoaded(e:Event):void{
-			selectEffect = selectEffectLoader.content as MovieClip;
-			selectEffectLoader.unloadAndStop();
-			if ( currentChip != null ){
-				this.addChild(selectEffect);
-				selectEffect.x = currentChip.x;
-				selectEffect.y = currentChip.y;
-			}
+			var clas:* = getDefinitionByName('SelecteChip');
+			selectEffect = new clas() as MovieClip;
+			selectEffect.blendMode = BlendMode.OVERLAY;
+			selectEffect.filters = [PokerGameVars.YELLOW_Glow_Filter];
 		}
 		
 		public function setupValues(arr:Array):void{
@@ -61,6 +55,20 @@ package uiimpl
 				chip.value = arr[i];
 			}
 		}
+		
+		public function switchCover(flag:Boolean):void{
+			this.img_cover.visible = flag;
+			this.selectEffect.visible = !flag;
+			if ( this.currentChip ){
+				if ( flag ){
+					this.currentChip.y = rawY[chips.indexOf(currentChip)];
+				}else if ( !flag ){
+					this.currentChip.y = rawY[chips.indexOf(currentChip)]-38;
+				}
+			}
+			
+		}
+		
 		public var currentChip:Chip;
 		public var currentValue:uint;
 		private function onChip(evt:MouseEvent):void{
@@ -71,12 +79,12 @@ package uiimpl
 			}
 			currentChip = evt.target as Chip;
 			currentValue = currentChip.value;
-			if ( selectEffect != null ){
-				this.addChild(selectEffect);
-				selectEffect.x = currentChip.x;
-				selectEffect.y = currentChip.y;
+			if ( this.selectEffect.parent == null ){
+				this.addChildAt(selectEffect,0);
 			}
-			TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]-30});
+			selectEffect.x = currentChip.x + 40;
+			selectEffect.y = currentChip.y + -3;
+			TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]-38});
 		}
 		
 		public function updateChips():void{
@@ -87,7 +95,6 @@ package uiimpl
 				(this['chip_' + i] as Image).url = 'png.chips.chip-'+currentChip[i];
 			}
 		}
-		
 		
 		private static var _instance:ChipsViewUIImpl;
 		public static function get Instance():ChipsViewUIImpl{

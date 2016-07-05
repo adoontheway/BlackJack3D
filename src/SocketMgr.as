@@ -107,7 +107,7 @@ package
 		}
 		private var mgr:GameMgr;
 		private function pairBetResult(data:Object):void{
-			mgr.onPairBetResult(data.tabId, data.money, data.gain);
+			mgr.onPairBetResult(data);
 		}
 		private function onFakeCard(data:Object):void{
 			var card:int = data.card;

@@ -58,7 +58,7 @@ package
 		
 		private var _currentTable:TableData;
 		public function nextTable():void{
-			if ( this._currentTable != null && this._currentTable.isSplited ){
+			if ( this._currentTable != null && this._currentTable.isSplited && this._currentTable.tableId <= 3){
 				GameUtils.log('nextTable0: ',_currentTable.tableId);
 				this._currentTable = this.tables[this._currentTable.tableId + 3];
 				if ( endTables.indexOf( _currentTable.tableId) != -1){
@@ -102,7 +102,7 @@ package
 						clearInterval(_instance.dispenseTimer);
 						_instance.dispenseTimer = 0;
 					}
-				}, 300);
+				}, 800);
 			}
 		}
 		
@@ -116,7 +116,7 @@ package
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
-					if( subTable.visible)
+					if( subTable.visible && subTable.tableData != null)
 						subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
 				}
 			}else{
@@ -343,10 +343,18 @@ package
 			}
 		}
 		
-		public function onPairBetResult(tabId:int, money:int, gain:int):void{
-			var table:BaseTable = this.tableDisplays[tabId];
-			table.onPairResult(gain);
-			this.money = money;
+		public function onPairBetResult(data:Object):void{
+			var result:Array = data.result;
+			var table:BaseTable;
+			var tabId:int;
+			var gain:int;
+			while (result.length != 0 ){
+				tabId = result.shift();
+				gain = result.shift();
+				table = this.tableDisplays[tabId];
+				table.onPairResult(gain);
+			}
+			this.money = data.money;
 		}
 		
 		public function onStandBack(data:Object):void{
@@ -399,7 +407,7 @@ package
 			}else{
 				FloatHint.Instance.show('PUSH',pos.x, pos.y);
 			}
-			
+			table.display.end(data.result);
 		}
 		
 		public function getInsuredTables():Array{

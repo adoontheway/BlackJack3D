@@ -1,1 +1,5 @@
-<View width="468" height="69" sceneColor="0x0" layers="1,1,0,0,第 1 层"/>
+<View width="468" height="69" sceneColor="0x0" layers="1,1,0,0,第 1 层">
+  <Image skin="png.chips.chip-shadow" x="-8" y="-4" layer="1"/>
+  <Box skin="png.comp.blank" layer="1" var="chips_con"/>
+  <Image skin="png.images.chips_cover" x="-15" y="-9" layer="1" var="img_cover"/>
+</View>

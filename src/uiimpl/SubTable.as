@@ -26,7 +26,7 @@ package uiimpl
 		{
 			super();
 			this.id = $id;
-			this.x = 35;
+			this.x = $id <= 3 ? 35 : 65;
 			this.y = $id <= 3 ? 40 : -10;
 			this.visible = $id <= 3;
 			this.poker_con.scale = 0.8;
@@ -137,22 +137,29 @@ package uiimpl
 		}
 		
 		public function onInsureBack(bet:int):void{
+			
 			var value:uint = bet > 0 ? bet : -bet;
+			/**
 			var chip:Chip = PoolMgr.gain(Chip);
 			chip.value = value;
 			chip.x = 30;
 			chip.y = 50;
 			this.addChild(chip);
 			this.insurranceChip.push(chip);
+			*/
+			TableUtil.displayChipsToContainer(value, this.insure_con);
 			
 			var targetPos:Point;
 			if ( bet > 0 ){
-				targetPos = this.globalToLocal( new Point(130, 112));
+				targetPos = this.insure_con.globalToLocal( new Point(130, 112));
 			}else{
-				targetPos =  this.globalToLocal(new Point(130, 640));
+				targetPos =  this.insure_con.globalToLocal(new Point(130, 640));
 			}
-			while ( insurranceChip.length != 0 ){
-				chip = insurranceChip.shift();
+			var num:int = this.insure_con.numChildren -1 ;
+			var chip:Chip;
+			while ( num >= 0 ){
+				chip = insure_con.getChildAt(num) as Chip;
+				num--;
 				TweenLite.to(chip, 0.5, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
 			}
 		}
@@ -172,6 +179,7 @@ package uiimpl
 			this.btn_insurrance.visible = false;
 			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
 			
+			/**
 			var bet:int = this.tableData.currentBet;//要组合
 			var chip:Chip = PoolMgr.gain(Chip);
 			chip.value = bet;
@@ -179,8 +187,9 @@ package uiimpl
 			chip.y = 80;
 			this.addChild(chip);
 			this.insurranceChip.push(chip);
+			*/
 		}
-		private var insurranceChip:Array = [];
+		//private var insurranceChip:Array = [];
 		
 		private function onCloseBets(evt:MouseEvent):void{
 			this.bet_display.visible = false;
@@ -197,13 +206,27 @@ package uiimpl
 			}
 		}
 		
+		public function end(result:int):void{
+			if ( result == 0 ) return;
+			var chip:Chip;
+			var num:int = chips_con.numChildren - 1;
+			while ( num >= 0){
+				chip = chips_con.getChildAt(num) as Chip;
+				chip.autoHide(result == -1 ? 0 : 1);
+				num--;
+			}
+		}
+		
 		public function reset():void 
 		{
 			var poker:Poker;
-			while ( poker_con.numChildren != 0){
-				poker = poker_con.removeChildAt(0) as Poker;
-				poker.rotation = 0;//disapear tween
-				PoolMgr.reclaim(poker);
+			var num:int = poker_con.numChildren - 1;
+			while ( num >= 0){
+				poker = poker_con.getChildAt(num) as Poker;
+				//poker.rotation = 0;//disapear tween
+				//PoolMgr.reclaim(poker);
+				poker.autoHide();
+				num--;
 			}
 			
 			var chip:Chip;
@@ -211,13 +234,17 @@ package uiimpl
 				chip = chips_con.removeChildAt(0) as Chip;
 				PoolMgr.reclaim(chip);
 			}
+			
+			while ( chips_con.numChildren != 0){
+				chip = chips_con.removeChildAt(0) as Chip;
+				PoolMgr.reclaim(chip);
+			}
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
 			this.visible = id <= 3;
-			//tweening = false;
 		}
 		
 		public function set selected(val:Boolean):void{
-			if ( _selected == val ) return;
+			//if ( _selected == val ) return;
 			_selected = val;
 			if ( val ){
 				this.btn_split.visible = tableData.canSplit;

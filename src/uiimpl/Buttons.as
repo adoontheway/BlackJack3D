@@ -71,7 +71,6 @@ package uiimpl
 				index++;
 				ImageClickCenter.Instance.add(button);
 			}
-			
 		}
 
 		
@@ -110,11 +109,14 @@ package uiimpl
 				}
 			}
 			
+			mgr.start();
+			/**
 			if (mgr.lastPairBetData == null){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData });
 			}else{
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData, pair:mgr.lastPairBetData });
 			}
+			*/
 		}
 		
 		public function skip(evt:MouseEvent):void{
@@ -139,14 +141,15 @@ package uiimpl
 				var result:Boolean = mgr.start();	
 				if ( result ){
 					hideAll();
-				}else{
-					
+					MainViewImpl.Instance.tween(true);
 				}
+				
 			}
 		}
 
 		private function clean(evt:MouseEvent):void{
 			mgr.reset();
+			MainViewImpl.Instance.tween(false);
 			switchModel(MODEL_CLEAN);
 		}
 		private function double(evt:MouseEvent):void{

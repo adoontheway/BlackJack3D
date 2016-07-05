@@ -7,8 +7,8 @@ package game.ui.mui {
 		public var pair_con:Box = null;
 		protected static var uiXML:XML =
 			<View width="345" height="215">
-			  <Button skin="png.ui.btn_table_right" stateNum="2" var="table"/>
-			  <Button skin="png.ui.btn_pair_right" x="197" stateNum="2" y="11" var="pair"/>
+			  <Button skin="png.images.btn_table_right" stateNum="2" var="table"/>
+			  <Button skin="png.images.btn_pair_right" x="197" stateNum="2" y="11" var="pair"/>
 			  <Box skin="png.comp.blank" x="228" y="14" var="pair_con" width="81" height="33"/>
 			</View>;
 		public function TableRightUI(){}

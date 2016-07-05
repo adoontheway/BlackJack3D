@@ -15,7 +15,7 @@ package utils
 		public static function reOrderContainer(con:DisplayObjectContainer,px:int, py:int, r:int):void{
 			var num:int = con.numChildren;
 			if ( num != 0){
-				var startA:int = 270 - 10 * num;
+				var startA:int = 270 - 8 * num;
 				var radius:Number = 0; 
 				var poker:Poker;
 				var index:int = 0;

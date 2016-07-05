@@ -36,7 +36,7 @@ package uiimpl
 			super();
 			this.init();
 		}
-		private var arrow:MovieClip;
+		//private var arrow:MovieClip;
 		private function init():void{
 			//this.circles = [];
 			socketMgr = SocketMgr.Instance;
@@ -44,21 +44,18 @@ package uiimpl
 			mgr = GameMgr.Instance;
 			mgr.mainView = this;
 			
+			this.addChild(new BaseTable(1));
+			this.addChild(new BaseTable(2));
+			this.addChild(new BaseTable(3));
+			
+			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
+			
+			this.banker_poker_con.scale = 0.8;
+			this.point_display.visible = false;
 			var model:uint = mgr.model;
 			var chipValues:Array = PokerGameVars.Model_Config[model];
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			addChild(ChipsViewUIImpl.Instance);
-
-			this.addChild(new BaseTable(1));
-			this.addChild(new BaseTable(2));
-			this.addChild(new BaseTable(3));
-			this.addChild(Buttons.Instance);
-			
-			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
-			
-			Buttons.Instance.switchModel(Buttons.MODEL_START);
-			this.banker_poker_con.scale = 0.8;
-			this.point_display.visible = false;
 			/*
 			var Arrow:Class = getDefinitionByName('Arrow') as Class;
 			if ( Arrow != null){
@@ -76,10 +73,15 @@ package uiimpl
 			*/
 		}
 		
+		public function afterStart():void{
+			Buttons.Instance.switchModel(Buttons.MODEL_START);
+			this.addChild(Buttons.Instance);
+		}
+		
 		private function onRecharge(evt:MouseEvent):void{
 			
 		}
-		
+		/**
 		private function playArrow(evt:Event):void{
 			this.arrow.play();
 		}
@@ -87,6 +89,7 @@ package uiimpl
 		private function stopArrow(evt:Event):void{
 			this.arrow.stop();
 		}
+		*/
 		public var bankerData:TableData;
 		public function updatePoints(isSettled:Boolean = false):void{
 			this.lab_points.size = 30;
@@ -147,9 +150,9 @@ package uiimpl
 			poker.targetY = 0;
 			tweening = true;
 			if (poker.value != -1){
-				TweenLite.to(poker, 0.5, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.4, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
 			}else{
-				TweenLite.to(poker, 0.5, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
+				TweenLite.to(poker, 0.4, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
 			}
 			updatePoints();
 		}
@@ -203,9 +206,30 @@ package uiimpl
 			//this.totalBet = 0;
 		}
 		private var dispenserPos:Point = new Point(612, 50);
+		private var diapearPos:Point = new Point(50, 80);
+		private var chipLostPos:Point = new Point(350, 70);
+		private var chipGainPos:Point = new Point(850, 70);
 		public function onResize():void{
 			this.x = GameVars.Stage_Width - this.width >> 1;
 			PokerGameVars.DispensePostion = this.localToGlobal(dispenserPos);
+			PokerGameVars.DisaprearPoint = this.localToGlobal(diapearPos);
+			PokerGameVars.ChipLostPos = this.localToGlobal(chipLostPos);
+			PokerGameVars.ChipGainPos = this.localToGlobal(chipGainPos);
+		}
+		/**
+		 * true 弹出并显示筹码盖子
+		 * false 拉上并打开筹码盖子
+		 * */
+		public function tween(flag:Boolean):void{
+			if ( flag ){
+				if ( this.y == 0 ) return;
+				TweenLite.to(this, 0.5, {y:0});
+				ChipsViewUIImpl.Instance.switchCover(true);
+			}else{
+				if ( this.y == -150 ) return;
+				TweenLite.to(this, 0.5, {y:-150});
+				ChipsViewUIImpl.Instance.switchCover(false);
+			}
 		}
 		
 		private static var _instance:MainViewImpl;

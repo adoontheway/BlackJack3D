@@ -40,13 +40,13 @@ package uiimpl
 			}else if ( $id == 2 ){
 				this.x = 270;
 				this.y = 355;
-				this.table.skin = "png.ui.btn_table_middle";
-				this.pair.skin = "png.ui.btn_pair_center";
+				this.table.skin = "png.images.btn_table_middle";
+				this.pair.skin = "png.images.btn_pair_center";
 			}else if ( $id == 3 ){
 				this.x = -85;
 				this.y = 295;
-				this.table.skin = "png.ui.btn_table_left";
-				this.pair.skin = "png.ui.btn_pair_left";
+				this.table.skin = "png.images.btn_table_left";
+				this.pair.skin = "png.images.btn_pair_left";
 			}
 			
 			this.name = 'table_' + $id;
@@ -87,17 +87,17 @@ package uiimpl
 		}
 		
 		public function onPairResult(gain:int):void{
-			if ( gain == 0 ){
-				FloatHint.Instance.show('no pair');
-			}else{
-				var pos:Point = getPairReferPoint();
-				NumDisplay.show(gain, pos.x, pos.y);
-			}
+
+			var pos:Point = getPairReferPoint();
+			NumDisplay.show(gain, pos.x, pos.y);
+			
 			var chip:Chip;
-			while ( this.pair_con.numChildren != 0){
-					chip = this.pair_con.removeChildAt(0) as Chip;
-					PoolMgr.reclaim(chip);
-				}
+			var num:int = pair_con.numChildren - 1;
+			while ( num >= 0){
+				chip = this.pair_con.getChildAt(num) as Chip;
+				chip.autoHide(gain < 0 ? 0 : 1);
+				num--;
+			}
 		}
 		
 		private var _referPairPos:Point;
@@ -111,9 +111,11 @@ package uiimpl
 		public function reset():void 
 		{
 			var chip:Chip;
-			while ( pair_con.numChildren != 0){
-				chip = pair_con.removeChildAt(0) as Chip;
-				PoolMgr.reclaim(chip);
+			var num:int = pair_con.numChildren - 1;
+			while (  num >= 0){
+				chip = pair_con.getChildAt(0) as Chip;
+				//PoolMgr.reclaim(chip);
+				chip.autoHide(0);
 			}
 		}
 	}

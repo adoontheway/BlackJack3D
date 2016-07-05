@@ -24,7 +24,7 @@ package
 	 * ...
 	 * @author jerry.d
 	 */
-	[SWF(width='1897',height='1020',backgroundColor='0x0',frameRate='30')]
+	[SWF(width='1897',height='1020',backgroundColor='0x0')]
 	public class Main extends Sprite 
 	{
 		public function Main() 
@@ -49,7 +49,6 @@ package
 			openupLoader = new Loader();
 			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
 			openupLoader.load(new URLRequest("resource/swfs/openup.swf"));
-			
 			App.init(this);
 			
 			App.loader.loadAssets([
@@ -60,13 +59,17 @@ package
 			"assets/pokers.swf", 
 			"assets/images.swf",
 			"assets/comp.swf",
-			"resource/swfs/effects.swf"], new Handler(onAssetsLoade));
+			"resource/swfs/effects.swf"], 
+			new Handler(onAssetsLoade));
+			
 			//App.loader.loadAssets([], new Handler(bgLoaded));
 			//comman.duke.display.BitmapClipFactory.Instance.loadAnim();
 			
 			GameVars.STAGE = stage;
-			GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
 			
+			stage.frameRate = 30;
+			
+			GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
 			FrameMgr.Instance.init(stage);
 		}
 		
@@ -104,11 +107,13 @@ package
 		
 		private function playOpenUp():void{
 			openupLoader.x = this.stage.stageWidth >> 1;
-			openupLoader.y = this.stage.stageHeight >> 1;
+			openupLoader.y = (this.stage.stageHeight >> 1) - 100;
+			openupLoader.blendMode = 'add';
 			this.stage.addChild(openupLoader);
 			setTimeout(function():void{
 				disposeOpenup();
-			}, 5000);
+				MainViewImpl.Instance.afterStart();
+			}, 3000);
 		}
 		
 		private function disposeOpenup():void{
@@ -117,26 +122,22 @@ package
 		}
 		
 		private var bg:Bitmap;
-		private var desk:Bitmap;
 		private function bgLoaded():void{
-			//var claz:* = App.asset.getAsset('jpg.bg.bg');
-			//this.bg = new Bitmap(claz);
-			var claz:* = App.asset.getAsset('png.bg.desk');
-			this.desk = new Bitmap(claz);
-			//this.addChild(bg);
-			this.addChild(desk);
+			var claz:* = App.asset.getAsset('jpg.bg.bg');
+			this.bg = new Bitmap(claz);
+			this.addChild(bg);
 			
 		}
 		private function onAssetsLoade():void{
 			SocketMgr.Instance.init();
 			bgLoaded();
+			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			onResize(null);
 			othersLoaded = true;
 			if ( openupLoaded ){
 				playOpenUp();
 			}
-			//this.stage.addChild(LoginImpl.Instance);
 		}
 		
 		private function onResize(evt:Event):void{
@@ -145,11 +146,7 @@ package
 			if ( this.bg ){
 				this.bg.x = GameVars.Stage_Width - bg.width >> 1;
 			}
-			if ( this.desk ){
-				this.desk.x = GameVars.Stage_Width - desk.width >> 1;
-			}
 			
-			//OperationViewImpl.Instance.resize();
 			if ( MainViewImpl.Instance.parent ){
 				MainViewImpl.Instance.onResize();
 			}

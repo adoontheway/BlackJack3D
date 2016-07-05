@@ -3,7 +3,6 @@
   <Image skin="png.images.chip-box" x="259" y="-11" layer="1"/>
   <Image skin="png.images.recycle-bin" x="-130" y="-64" layer="1"/>
   <Image skin="png.images.dispenser" x="612" y="-63" layer="1"/>
-  <UIView source="mui/ChipsView.xml" x="156" y="625" layer="1" var="chips_group"/>
   <UIView source="mui/Balance.xml" x="831" y="38" layer="1" var="balance"/>
   <Box skin="png.comp.blank" x="359" y="125" layer="1" var="banker_poker_con" width="81" height="33"/>
   <Box layers="1,1,0,0,第 1 层" layer="1" x="356" y="254" var="point_display">

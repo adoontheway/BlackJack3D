@@ -1,6 +1,10 @@
 package 
 {
+	import com.greensock.TweenLite;
 	import comman.duke.IRecyclable;
+	import comman.duke.PoolMgr;
+	import consts.PokerGameVars;
+	import flash.geom.Point;
 	import morn.core.components.Image;
 	
 	/**
@@ -22,6 +26,7 @@ package
 			if (value != -1){
 				this.value = value;
 			}
+			this.smoothing = true;
 		}
 		
 		public function set value(val:int):void{
@@ -41,6 +46,20 @@ package
 		
 		public function get value():int{
 			return _value;
+		}
+		
+		public function autoHide():void{
+			if ( this.parent != null){
+				var disapearPoint:Point = parent.globalToLocal(PokerGameVars.DisaprearPoint);
+				TweenLite.to(this, 0.5, {rotation:0, x:disapearPoint.x, y:disapearPoint.y, onComplete:hideSelf});
+			}
+		}
+		
+		public function hideSelf():void{
+			if ( this.parent ){
+				this.parent.removeChild(this);
+				PoolMgr.reclaim(this);
+			}
 		}
 		
 		override public function set rotationY(value:Number):void{
