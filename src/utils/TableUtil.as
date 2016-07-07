@@ -19,7 +19,7 @@ package utils
 				var radius:Number = 0; 
 				var poker:Poker;
 				var index:int = 0;
-				var angel:int = 10;
+				var angel:Number = 10;
 				while ( index < num){
 					startA += angel; 
 					radius = startA * GameVars.RADIUS_PER_DEGREE;
@@ -29,7 +29,7 @@ package utils
 					TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, rotation:startA - 270});
 					index++;
 					r += 5;
-					angel--;
+					angel -= 1;
 				}
 			}
 		}

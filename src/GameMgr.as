@@ -4,7 +4,9 @@ package
 	import comman.duke.GameUtils;
 	import comman.duke.PoolMgr;
 	import model.*;
+	import comman.duke.SoundMgr;
 	import comman.duke.TickerMgr;
+	import consts.SoundsEnum;
 	import flash.geom.Point;
 	import flash.utils.*;
 	import uiimpl.Buttons;
@@ -102,7 +104,7 @@ package
 						clearInterval(_instance.dispenseTimer);
 						_instance.dispenseTimer = 0;
 					}
-				}, 800);
+				}, 500);
 			}
 		}
 		
@@ -146,7 +148,8 @@ package
 				if( card != -1 )
 					table.addCard(poker);//fake poker
 				
-				mainView.onDispenseBanker(poker);						
+				mainView.onDispenseBanker(poker);	
+				
 			}
 			
 			pokerMap[card] = poker;
@@ -155,6 +158,8 @@ package
 			}
 			if( dispenseQueue.length == 0)
 				this.checkButtons();
+			if ( this.pairResult != null )
+				this.onPairBetResult(pairResult);
 		}
 		
 		/**
@@ -165,6 +170,7 @@ package
 			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
 			if ( bet == 0 ) {
 				FloatHint.Instance.show('no chips seleted...');
+				ChipsViewUIImpl.Instance.shakeIt();
 				return;
 			}
 			var table:TableData = this.tables[tableId];
@@ -343,18 +349,24 @@ package
 			}
 		}
 		
+		private var pairResult:*;
 		public function onPairBetResult(data:Object):void{
+			if ( this.dispenseQueue.length != 0 ){
+				this.pairResult = data;
+				return;
+			}
+			this.pairResult = null;
 			var result:Array = data.result;
 			var table:BaseTable;
 			var tabId:int;
 			var gain:int;
+			this.money = data.money;
 			while (result.length != 0 ){
 				tabId = result.shift();
 				gain = result.shift();
 				table = this.tableDisplays[tabId];
 				table.onPairResult(gain);
 			}
-			this.money = data.money;
 		}
 		
 		public function onStandBack(data:Object):void{
@@ -367,6 +379,7 @@ package
 			var table:TableData = this.tables[tabId];
 			var moreBet:int = data.bet - table.currentBet;
 			table.currentBet = data.bet;
+			table.display.updateBetinfo();
 			putToEnd(tabId);
 		}
 		

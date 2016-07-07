@@ -4,7 +4,10 @@ package uiimpl
 	import com.greensock.easing.*;
 	import comman.duke.*;
 	import consts.PokerGameVars;
+	import consts.SoundsEnum;
 	import flash.events.MouseEvent;
+	import flash.filters.DropShadowFilter;
+	import flash.filters.GlowFilter;
 	import flash.geom.Point;
 	import game.ui.mui.SubTableUI;
 	import model.ProtocolClientEnum;
@@ -59,6 +62,7 @@ package uiimpl
 			}else{
 				TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
 			}
+			this.updateBetinfo();
 		}
 		
 		public function addCard(poker:Poker):void 
@@ -80,7 +84,8 @@ package uiimpl
 			
 			poker.x = dispenseStartPoint.x;
 			poker.y = dispenseStartPoint.y;
-			TweenLite.to(poker, 0.5, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
+			SoundMgr.Instance.playEffect( SoundsEnum.CARD );
+			TweenLite.to(poker, 0.4, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
 		}
 		
 		private function onTweenComplete():void{
@@ -96,7 +101,6 @@ package uiimpl
 		public function updateBetinfo():void{
 			this.bet_display.visible = true;
 			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
-			//this.tabelRemind(false);//todo cancel table remind
 		}
 		
 		public function updatePoints(isSettled:Boolean = false):void{
@@ -155,26 +159,28 @@ package uiimpl
 			}else{
 				targetPos =  this.insure_con.globalToLocal(new Point(130, 640));
 			}
-			var num:int = this.insure_con.numChildren -1 ;
 			var chip:Chip;
+			var num:int = insure_con.numChildren - 1;
 			while ( num >= 0 ){
 				chip = insure_con.getChildAt(num) as Chip;
+				TweenLite.to(chip, 0.4, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
 				num--;
-				TweenLite.to(chip, 0.5, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
 			}
 		}
 		
 		private function onChipComplete(chip:Chip):void{
-			this.removeChild(chip);
+			chip.parent.removeChild(chip);
 			PoolMgr.reclaim(chip);
 		}
 		
 		private function split(evt:MouseEvent):void{ 
+			SoundMgr.Instance.playEffect( SoundsEnum.SPLIT );
 			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
 			this.btn_split.visible = false;
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
+			SoundMgr.Instance.playEffect( SoundsEnum.INSURRANCE);
 			tableData.insured = true;
 			this.btn_insurrance.visible = false;
 			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
@@ -246,15 +252,26 @@ package uiimpl
 		public function set selected(val:Boolean):void{
 			//if ( _selected == val ) return;
 			_selected = val;
+			this.chips_con.visible = !val;
 			if ( val ){
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
 				Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
+				this.poker_con.filters = [new DropShadowFilter(20,45,0,0.7,40,40,3)];
+				//this.poker_con.filters = [new GlowFilter(0xffd700 ,0.8,15,15,3,2)];
+				//var item:BlinkItem = PoolMgr.gain(BlinkItem);
+				//item.init(this.poker_con, this.name, -1);
+				//BlinkMgr.Instance.add(item);
+				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_UP);
 			}else{
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
 				Buttons.Instance.hideAll();
+				this.poker_con.filters = [];
+				//BlinkMgr.Instance.removeByName(this.name);
+				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_DOWN);
 			}
+			
 			if ( id > 3 ){
 				FrameMgr.Instance.add(this.frameItem);
 			}

@@ -30,11 +30,13 @@ package utils
 				posX += image.width;
 			}else{
 				prefix = "n";
+				/**
 				image = PoolMgr.gain(Image); 
 				image.url = "png.nums.neg";
 				con.addChild(image);
 				image.x = 0;
 				posX += image.width;
+				*/
 			}
 			var char:String;
 			while ( index < str.length){

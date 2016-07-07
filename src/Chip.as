@@ -12,24 +12,16 @@ package
 	 * ...
 	 * @author jerry.d
 	 */
-	public class Chip extends Box 
+	public class Chip extends Image 
 	{
 		private var _value:uint;
-		private var chip:Image;
-		private var shadow:Image;
 		public function Chip() 
 		{
-			this.chip = new Image();
-			this.shadow = new Image();
-			this.shadow.url = "png.chips.chip-shadow";
-			this.addChild(this.shadow);
-			this.addChild(this.chip);
-			this.mouseChildren = false;
 		}
 		public function set value(val:uint):void{
 			if ( this._value == val) return;
 			this._value = val;
-			this.chip.url = 'png.chips.chip-' + val;
+			this.url = 'png.chips.chip-' + val;
 		}
 		
 		public function get value():uint{

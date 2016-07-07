@@ -71,6 +71,7 @@ package
 			
 			GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
 			FrameMgr.Instance.init(stage);
+			SoundMgr.Instance.playBg(SoundsEnum.BG);
 		}
 		
 		private function onUnknownError(event:UncaughtErrorEvent):void{
@@ -107,7 +108,7 @@ package
 		
 		private function playOpenUp():void{
 			openupLoader.x = this.stage.stageWidth >> 1;
-			openupLoader.y = (this.stage.stageHeight >> 1) - 100;
+			openupLoader.y = 170;
 			openupLoader.blendMode = 'add';
 			this.stage.addChild(openupLoader);
 			setTimeout(function():void{

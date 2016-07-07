@@ -3,6 +3,7 @@ package uiimpl
 	import com.greensock.loading.core.DisplayObjectLoader;
 	import comman.duke.display.BitmapClip;
 	import consts.PokerGameVars;
+	import consts.SoundsEnum;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
@@ -55,15 +56,9 @@ package uiimpl
 			var model:uint = mgr.model;
 			var chipValues:Array = PokerGameVars.Model_Config[model];
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
+			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
 			/*
-			var Arrow:Class = getDefinitionByName('Arrow') as Class;
-			if ( Arrow != null){
-				this.arrow = new Arrow() as MovieClip;
-				this.arrow.addEventListener(Event.ADDED_TO_STAGE, playArrow);
-				this.arrow.addEventListener(Event.REMOVED_FROM_STAGE, stopArrow);
-			}
-			
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);
 			
@@ -79,17 +74,9 @@ package uiimpl
 		}
 		
 		private function onRecharge(evt:MouseEvent):void{
-			
-		}
-		/**
-		private function playArrow(evt:Event):void{
-			this.arrow.play();
+			SoundMgr.Instance.playEffect( SoundsEnum.BUTTON ); 
 		}
 		
-		private function stopArrow(evt:Event):void{
-			this.arrow.stop();
-		}
-		*/
 		public var bankerData:TableData;
 		public function updatePoints(isSettled:Boolean = false):void{
 			this.lab_points.size = 30;
@@ -149,6 +136,7 @@ package uiimpl
 			poker.targetX = banker_poker_con.numChildren*20;
 			poker.targetY = 0;
 			tweening = true;
+			SoundMgr.Instance.playEffect( SoundsEnum.CARD ); 
 			if (poker.value != -1){
 				TweenLite.to(poker, 0.4, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
 			}else{

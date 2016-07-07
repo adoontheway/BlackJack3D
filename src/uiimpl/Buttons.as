@@ -3,6 +3,8 @@ package uiimpl
 	import comman.duke.FloatHint;
 	import comman.duke.ImageClickCenter;
 	import comman.duke.PoolMgr;
+	import comman.duke.SoundMgr;
+	import consts.SoundsEnum;
 	import flash.display.DisplayObject;
 	import flash.events.MouseEvent;
 	import game.ui.mui.ButtonGroupUI;
@@ -86,7 +88,12 @@ package uiimpl
 		}
 		
 		public function rebet(evt:MouseEvent):void{
-			betAndStart();
+			if (  mgr.lastBetData != null){
+				betAndStart();
+			}else{
+				clean(null);
+			}
+			
 		}
 		
 		public function betAndStart(double:Boolean = false):void{
@@ -110,6 +117,9 @@ package uiimpl
 			}
 			
 			mgr.start();
+			if ( MainViewImpl.Instance.y != 0){
+				MainViewImpl.Instance.tween(true);
+			}
 			/**
 			if (mgr.lastPairBetData == null){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData });
@@ -134,6 +144,7 @@ package uiimpl
 			
 		}
 		private function hit(evt:MouseEvent):void{ 
+			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			if (mgr.started){
 				//hideAll();
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
@@ -154,6 +165,7 @@ package uiimpl
 		}
 		private function double(evt:MouseEvent):void{
 			//this.hideAllBtns();
+			SoundMgr.Instance.playEffect( SoundsEnum.DOUBLE_DOWN);
 			if ( mgr.started){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
@@ -162,6 +174,7 @@ package uiimpl
 			
 		}
 		private function stand(evt:MouseEvent):void{
+			SoundMgr.Instance.playEffect( SoundsEnum.STAND);
 			if( mgr.started && mgr.currentTable){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 			}

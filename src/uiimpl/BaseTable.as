@@ -50,7 +50,6 @@ package uiimpl
 			}
 			
 			this.name = 'table_' + $id;
-			trace(this.name);
 			mgr = GameMgr.Instance;
 			
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
@@ -113,8 +112,8 @@ package uiimpl
 			var chip:Chip;
 			var num:int = pair_con.numChildren - 1;
 			while (  num >= 0){
-				chip = pair_con.getChildAt(0) as Chip;
-				//PoolMgr.reclaim(chip);
+				chip = pair_con.getChildAt(num) as Chip;
+				num--;
 				chip.autoHide(0);
 			}
 		}
