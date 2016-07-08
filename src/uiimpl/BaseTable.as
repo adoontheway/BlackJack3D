@@ -18,7 +18,7 @@ package uiimpl
 	import model.ProtocolClientEnum;
 	import model.TableData;
 	import morn.core.components.Box;
-	import utils.NumDisplay;
+	import comman.duke.NumDisplay;
 	import utils.TableUtil;
 	
 	/**
@@ -89,7 +89,7 @@ package uiimpl
 		public function onPairResult(gain:int):void{
 
 			var pos:Point = getPairReferPoint();
-			NumDisplay.show(gain, pos.x, pos.y);
+			comman.duke.NumDisplay.show(gain, pos.x, pos.y);
 			
 			var chip:Chip;
 			var num:int = pair_con.numChildren - 1;

@@ -14,7 +14,7 @@ package
 	import uiimpl.MainViewImpl;
 	import uiimpl.BaseTable;
 	import uiimpl.SubTable;
-	import utils.NumDisplay;
+	import comman.duke.NumDisplay;
 	/**
 	 * ...
 	 * @author jerry.d
@@ -118,7 +118,7 @@ package
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
-					if( subTable.visible && subTable.tableData != null)
+					if( subTable.visible && subTable.tableData != null && subTable.tableData.actived)
 						subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
 				}
 			}else{
@@ -386,11 +386,13 @@ package
 		public function onFakeCard(card:int):void{
 			var table:TableData = tables[0];
 			var poker:Poker = this.pokerMap[ -1];
-			poker.value = card;
-			pokerMap[card] = poker;
-			delete pokerMap[ -1];
-			table.addCard(poker);
-			mainView.traverseTheFakePoker(poker);
+			if ( poker != null ){
+				poker.value = card;
+				pokerMap[card] = poker;
+				delete pokerMap[ -1];
+				table.addCard(poker);
+				mainView.traverseTheFakePoker(poker);
+			}
 		}
 		
 		private function putToEnd(tabId:int):void{
@@ -414,9 +416,9 @@ package
 			var startY:int = 50;
 			var pos:Point = table.display.localToGlobal(new Point(100,50))
 			if ( data.result == -1){
-				NumDisplay.show( -data.gain, pos.x,  pos.y);
+				comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
 			}else if ( data.result == 1){
-				NumDisplay.show( data.gain, pos.x, pos.y);
+				comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
 			}else{
 				FloatHint.Instance.show('PUSH',pos.x, pos.y);
 			}

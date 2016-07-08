@@ -20,7 +20,19 @@ package uiimpl
 	{
 		private var mgr:GameMgr;
 		private var socketMgr:SocketMgr;
-		private var poses:Array = [{x:0, y:50}, {x:99, y:25}, {x:198, y: -5}, {x:297, y: -46}];
+		private static const POS_INFO:Array = [{x:0, y:50}, {x:99, y:25}, {x:198, y: -5}, {x:297, y: -46}];
+		private static const BUTTON_INFO = {
+			"clean":3,
+			"double":0,
+			"hit":1,
+			"insurrance":3,
+			"ok":3,
+			"rebet":2,
+			"skip":3,
+			"split":3,
+			"stand":3,
+			"start":0
+		};
 		public static const MODEL_START:uint = 1 ;//hit rebet double
 		public static const MODEL_INSRRUREABLE:uint = 2;//skip --> table insurrance
 		public static const MODEL_INSRRURING:uint = 3;//done 
@@ -29,6 +41,7 @@ package uiimpl
 		public static const MODEL_CLEAN:uint = 6;//hit stand double
 		public static const MODEL_HIDE:uint = 0;
 		private var models:Array;
+		private var buttons:Vector.<BJButton>;
 		public function Buttons() 
 		{
 			super();
@@ -43,13 +56,27 @@ package uiimpl
 			this.btn_ok.addEventListener(MouseEvent.CLICK, this.ok);
 			models = [
 			0,
-			[btn_hit, btn_clean],
-			[btn_skip],
-			[btn_ok],
-			[btn_hit, btn_stand,btn_double],
-			[btn_rebet,btn_double, btn_clean],//btn_clean clean the table btn_rebet rebet and start
-			[btn_rebet, btn_hit, btn_double,btn_clean],
+			["start", "clean"],
+			["skip"],
+			["ok"],
+			["hit", "stand","double"],
+			["rebet","double", "clean"],//btn_clean clean the table btn_rebet rebet and start
+			["rebet", "hit", "double","clean"],
 			];
+			
+			buttons = new Vector.<BJButton>();
+			var button:BJButton;
+			var posInfo:Object;
+			for (var i:int = 0; i < 4; i++){
+				posInfo = POS_INFO[i];
+				button = new BJButton();
+				button.x = posInfo.x;
+				button.y = posInfo.y;
+				this.addChild(button);
+				buttons.push(button);
+				ImageClickCenter.Instance.add(button);
+			}
+			
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
 		}
@@ -63,28 +90,32 @@ package uiimpl
 			var len:uint = btns.length;
 			var index:uint = 0;
 			var pos:Object;
-			var button:Image;
+			var bname:String;
+			var button:BJButton;
 			while (index < len){
-				button = btns[index];
-				pos = poses[index];
-				button.visible = true;
-				button.x = pos.x;
-				button.y = pos.y;
+				bname = btns[index];
+				button = buttons[index];
+				button.setup(bname, BUTTON_INFO[bname]);
 				index++;
-				ImageClickCenter.Instance.add(button);
 			}
 		}
 
 		
 		public function hideAll():void{
-			btn_clean.visible = btn_skip.visible = btn_ok.visible = this.btn_double.visible = this.btn_hit.visible = this.btn_rebet.visible = this.btn_stand.visible = false;
-			ImageClickCenter.Instance.remove(btn_clean);
-			ImageClickCenter.Instance.remove(btn_skip);
-			ImageClickCenter.Instance.remove(btn_ok);
-			ImageClickCenter.Instance.remove(btn_double);
-			ImageClickCenter.Instance.remove(btn_hit);
-			ImageClickCenter.Instance.remove(btn_rebet);
-			ImageClickCenter.Instance.remove(btn_stand);
+			var button:BJButton;
+			for (var i:int = 0; i < 4; i++){
+				button = buttons[i];
+				button.enable = true;
+				button.visible = false;
+			}
+		}
+		
+		public function disableAll():void{
+			var button:BJButton;
+			for (var i:int = 0; i < 4; i++){
+				button = buttons[i];
+				button.enable = false;
+			}
 		}
 		
 		public function rebet(evt:MouseEvent):void{
@@ -97,7 +128,7 @@ package uiimpl
 		}
 		
 		public function betAndStart(double:Boolean = false):void{
-			hideAll();
+			disableAll();
 			mgr.reset();
 			var betData:Object  = mgr.lastBetData;
 			var pairBetData:Object = mgr.lastPairBetData;
@@ -120,21 +151,17 @@ package uiimpl
 			if ( MainViewImpl.Instance.y != 0){
 				MainViewImpl.Instance.tween(true);
 			}
-			/**
-			if (mgr.lastPairBetData == null){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData });
-			}else{
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:mgr.lastBetData, pair:mgr.lastPairBetData });
-			}
-			*/
 		}
 		
 		public function skip(evt:MouseEvent):void{
+			disableAll();
+			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
 		public function ok(evt:MouseEvent):void{
-			this.hideAll();
+			disableAll();
+			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			var tables:Array = mgr.getInsuredTables();
 			if ( tables.length > 0){
 				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
@@ -151,7 +178,7 @@ package uiimpl
 			}else{
 				var result:Boolean = mgr.start();	
 				if ( result ){
-					hideAll();
+					disableAll();
 					MainViewImpl.Instance.tween(true);
 				}
 				
