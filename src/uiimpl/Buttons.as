@@ -47,6 +47,7 @@ package uiimpl
 			super();
 			this.x = 650;
 			this.y = 515;
+			/**
 			this.btn_double.addEventListener(MouseEvent.CLICK, this.double);
 			this.btn_hit.addEventListener(MouseEvent.CLICK, this.hit);
 			this.btn_stand.addEventListener(MouseEvent.CLICK, this.stand);
@@ -54,6 +55,7 @@ package uiimpl
 			this.btn_clean.addEventListener(MouseEvent.CLICK, this.clean);
 			this.btn_skip.addEventListener(MouseEvent.CLICK, this.skip);
 			this.btn_ok.addEventListener(MouseEvent.CLICK, this.ok);
+			*/
 			models = [
 			0,
 			["start", "clean"],
@@ -74,12 +76,45 @@ package uiimpl
 				button.y = posInfo.y;
 				this.addChild(button);
 				buttons.push(button);
+				button.addEventListener(MouseEvent.CLICK, onButton);
 				ImageClickCenter.Instance.add(button);
 			}
 			
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
 		}
+		
+		private function onButton(evt:MouseEvent):void{
+			SoundMgr.Instance.playEffect( SoundsEnum.BUTTON);
+			var bname:String = evt.target.name;
+			switch(bname){
+				case "start":
+					this.start();
+					break;
+				case "clean":
+					this.clean();
+					break;
+				case "skip":
+					this.skip();
+					break;
+				case "ok":
+					this.ok();
+					break;
+				case "hit":
+					this.hit();
+					break;
+				case "stand":
+					this.stand();
+					break;
+				case "double":
+					this.double();
+					break;
+				case "rebet":
+					this.rebet();
+					break;
+			}
+		}
+		
 		private var currentModel:uint = 999;
 		public function switchModel(model:uint):void{
 			//if ( currentModel == model) return;
@@ -95,6 +130,7 @@ package uiimpl
 			while (index < len){
 				bname = btns[index];
 				button = buttons[index];
+				button.visible = true;
 				button.setup(bname, BUTTON_INFO[bname]);
 				index++;
 			}
@@ -118,11 +154,11 @@ package uiimpl
 			}
 		}
 		
-		public function rebet(evt:MouseEvent):void{
+		public function rebet():void{
 			if (  mgr.lastBetData != null){
 				betAndStart();
 			}else{
-				clean(null);
+				clean();
 			}
 			
 		}
@@ -153,15 +189,14 @@ package uiimpl
 			}
 		}
 		
-		public function skip(evt:MouseEvent):void{
+		public function skip():void{
 			disableAll();
 			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
-		public function ok(evt:MouseEvent):void{
+		public function ok():void{
 			disableAll();
-			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			var tables:Array = mgr.getInsuredTables();
 			if ( tables.length > 0){
 				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
@@ -170,27 +205,26 @@ package uiimpl
 			}
 			
 		}
-		private function hit(evt:MouseEvent):void{ 
-			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
-			if (mgr.started){
-				//hideAll();
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
-			}else{
-				var result:Boolean = mgr.start();	
-				if ( result ){
-					disableAll();
-					MainViewImpl.Instance.tween(true);
-				}
-				
+		
+		private function start():void{
+			var result:Boolean = mgr.start();	
+			if ( result ){
+				disableAll();
+				MainViewImpl.Instance.tween(true);
 			}
 		}
+		
+		private function hit():void{ 
+			disableAll();
+			socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
+		}
 
-		private function clean(evt:MouseEvent):void{
+		private function clean():void{
 			mgr.reset();
 			MainViewImpl.Instance.tween(false);
 			switchModel(MODEL_CLEAN);
 		}
-		private function double(evt:MouseEvent):void{
+		private function double():void{
 			//this.hideAllBtns();
 			SoundMgr.Instance.playEffect( SoundsEnum.DOUBLE_DOWN);
 			if ( mgr.started){
@@ -200,7 +234,8 @@ package uiimpl
 			}
 			
 		}
-		private function stand(evt:MouseEvent):void{
+		private function stand():void{
+			disableAll();
 			SoundMgr.Instance.playEffect( SoundsEnum.STAND);
 			if( mgr.started && mgr.currentTable){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});

@@ -16,6 +16,8 @@ package uiimpl
 		}
 		
 		public function setup(name:String, bType:int):void{
+			if ( this.name == name ) return;
+			this.icon.url = "png.images.icon-" + name;
 			this.name = name;
 			this.bgType = bType;
 		}

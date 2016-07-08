@@ -9,6 +9,7 @@ package
 	import consts.SoundsEnum;
 	import flash.geom.Point;
 	import flash.utils.*;
+	import uiimpl.BalanceImpl;
 	import uiimpl.Buttons;
 	import uiimpl.ChipsViewUIImpl;
 	import uiimpl.MainViewImpl;
@@ -444,8 +445,7 @@ package
 		public function set money(_val:Number):void{
 			if ( this._money == _val) return;
 			this._money = _val;
-			if( mainView != null)
-				mainView.updateBalance();
+			BalanceImpl.Instance.balance = _val;
 		}
 		
 		private static var _instance:GameMgr;

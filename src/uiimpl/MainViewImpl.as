@@ -49,8 +49,6 @@ package uiimpl
 			this.addChild(new BaseTable(2));
 			this.addChild(new BaseTable(3));
 			
-			balance.btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
-			
 			this.banker_poker_con.scale = 0.8;
 			this.point_display.visible = false;
 			var model:uint = mgr.model;
@@ -58,23 +56,16 @@ package uiimpl
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
+			addChild(BalanceImpl.Instance);
 			/*
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);
-			
-			var clip:BitmapClip = new BitmapClip('anims', 'anim_dispense');
-			clip.play( -1);
-			this.addChild(clip);
 			*/
 		}
 		
 		public function afterStart():void{
 			Buttons.Instance.switchModel(Buttons.MODEL_START);
 			this.addChild(Buttons.Instance);
-		}
-		
-		private function onRecharge(evt:MouseEvent):void{
-			SoundMgr.Instance.playEffect( SoundsEnum.BUTTON ); 
 		}
 		
 		public var bankerData:TableData;
@@ -107,12 +98,6 @@ package uiimpl
 			}
 			this.point_display.visible = true;
 		}
-		//private var totalBet:int = 0;
-		private var currentTable:TableData;
-		public function updateBalance():void{
-			this.balance.lab_0.text = GameUtils.NumberToString(mgr.money);
-		}
-
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
 		private var startPos:Point;

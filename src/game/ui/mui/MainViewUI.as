@@ -1,9 +1,7 @@
 /**Created by the Morn,do not modify.*/
 package game.ui.mui {
 	import morn.core.components.*;
-	import game.ui.mui.BalanceUI;
 	public class MainViewUI extends View {
-		public var balance:BalanceUI = null;
 		public var banker_poker_con:Box = null;
 		public var point_display:Box = null;
 		public var img_points_bg:Image = null;
@@ -14,7 +12,6 @@ package game.ui.mui {
 			  <Image skin="png.images.chip-box" x="259" y="-11"/>
 			  <Image skin="png.images.recycle-bin" x="-130" y="-64"/>
 			  <Image skin="png.images.dispenser" x="612" y="-63"/>
-			  <Balance x="831" y="38" var="balance" runtime="game.ui.mui.BalanceUI"/>
 			  <Box skin="png.comp.blank" x="359" y="125" var="banker_poker_con" width="81" height="33"/>
 			  <Box x="356" y="254" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
@@ -23,7 +20,6 @@ package game.ui.mui {
 			</View>;
 		public function MainViewUI(){}
 		override protected function createChildren():void {
-			viewClassMap["game.ui.mui.BalanceUI"] = BalanceUI;
 			super.createChildren();
 			createView(uiXML);
 		}
