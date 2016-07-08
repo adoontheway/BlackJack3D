@@ -153,7 +153,7 @@ package
 			}
 			
 			pokerMap[card] = poker;
-			if (tableId != 0 &&( table.bust || table.fiveDragon || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
+			if (tableId != 0 &&( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
 				this.putToEnd(tableId);
 			}
 			if( dispenseQueue.length == 0)
@@ -256,7 +256,7 @@ package
 			var tableDisplay:SubTable;
 			for (var i:String in subTableDisplays){
 				tableDisplay = subTableDisplays[i];
-				if ( result[i] != null ){
+				if ( result != null && result[i] != null ){
 					tableDisplay.onInsureBack(result[i]);
 				}
 				tableDisplay.btn_insurrance.visible = false;

@@ -29,7 +29,7 @@ package utils
 					TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, rotation:startA - 270});
 					index++;
 					r += 5;
-					angel -= 1;
+					//angel -= 1;
 				}
 			}
 		}

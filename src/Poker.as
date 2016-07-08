@@ -35,11 +35,10 @@ package
 			if ( val == -1 ){
 				this.url = 'png.pokers.back';
 			}else{
-				
 				this.realValue = (val-1)%13+1;
 				this.compareValue = this.realValue < 10 ? this.realValue : 10;
 				this.type = Math.ceil(val / 13);
-				this.url = 'png.pokers.' + realValue;
+				this.url = 'png.pokers.' + val;
 				this.name = 'poker_' + val;
 			}	
 		}
@@ -69,8 +68,8 @@ package
 					this.url = 'png.pokers.back';
 				}
 			}else{
-				if ( this.url != 'png.pokers.' + realValue){
-					this.url = 'png.pokers.' + realValue
+				if ( this.url != 'png.pokers.' + _value){
+					this.url = 'png.pokers.' + _value
 				}
 			}
 		}

@@ -23,7 +23,6 @@ package model
 		/*** switched ***/
 		public var hasA:Boolean;//got a
 		public var blackjack:Boolean;//got blackjack
-		public var fiveDragon:Boolean;//got five dragon
 		public var bust:Boolean;//bust
 		public var doubled:Boolean;//already doubled
 		public var standing:Boolean;//stand or not
@@ -58,7 +57,6 @@ package model
 			if ( this.hasA && this.points == 11) this.points = 21;
 			this.canSplit = !this.isSplited && this.tableId <= 3 && numCards == 2 && cards[0].realValue == cards[1].realValue;
 			this.blackjack =  numCards == 2 && this.hasA && this.points == 21 && !isSplited  && this.tableId <= 3;
-			this.fiveDragon =  numCards == 5 && this.points <= 21;
 			this.bust = points > 21;
 		}
 
@@ -68,7 +66,6 @@ package model
 			this.blackjack = false;
 			this.canSplit = false;
 			this.doubled = false;
-			this.fiveDragon = false;
 			this.bust = false;
 			this.actived = false;
 			this.hasA = false;

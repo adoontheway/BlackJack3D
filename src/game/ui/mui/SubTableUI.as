@@ -20,7 +20,7 @@ package game.ui.mui {
 			  <Image skin="png.images.btn-split" x="25" y="20" stateNum="1" var="btn_split"/>
 			  <Image skin="png.images.btn-insurrance" x="25" y="20" stateNum="1" var="btn_insurrance"/>
 			  <Image skin="png.images.blackjack" x="-5" y="50" var="mark_blackjack"/>
-			  <MyBet x="134" y="132" var="bet_display" runtime="game.ui.mui.MyBetUI"/>
+			  <MyBet x="179" y="84" var="bet_display" runtime="game.ui.mui.MyBetUI"/>
 			  <Box x="134" y="-27" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
 			    <Label x="5" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="39" align="center"/>

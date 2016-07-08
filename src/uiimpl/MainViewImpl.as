@@ -92,16 +92,9 @@ package uiimpl
 							this.lab_points.text =  bankerData.points+"";
 						}
 					}else{
-						if ( !isSettled ){
-							this.img_points_bg.url = 'png.images.soft';
-							this.lab_points.size = 20;
-							this.lab_points.y = 22;
-							this.lab_points.text =  bankerData.points+"/"+(bankerData.points+10);
-						}else{
-							this.img_points_bg.url = 'png.images.green';
-							this.lab_points.size = 30;
-							this.lab_points.text =  (bankerData.points + 10) + "";
-						}
+						this.img_points_bg.url = 'png.images.green';
+						this.lab_points.size = 30;
+						this.lab_points.text =  (bankerData.points + 10) + "";
 					}
 					
 				}else{

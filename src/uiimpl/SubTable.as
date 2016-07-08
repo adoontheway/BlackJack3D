@@ -46,6 +46,7 @@ package uiimpl
 			mgr.registerSubTableDisplay( $id, this);
 			ImageClickCenter.Instance.add(this.btn_insurrance);
 			ImageClickCenter.Instance.add(this.btn_split);
+			chips_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
 		}
 		
 		public function showBet():void{
@@ -250,25 +251,19 @@ package uiimpl
 		}
 		
 		public function set selected(val:Boolean):void{
-			//if ( _selected == val ) return;
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
 				Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
-				this.poker_con.filters = [new DropShadowFilter(20,45,0,0.7,40,40,3)];
-				//this.poker_con.filters = [new GlowFilter(0xffd700 ,0.8,15,15,3,2)];
-				//var item:BlinkItem = PoolMgr.gain(BlinkItem);
-				//item.init(this.poker_con, this.name, -1);
-				//BlinkMgr.Instance.add(item);
+				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
 				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_UP);
 			}else{
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
 				Buttons.Instance.hideAll();
 				this.poker_con.filters = [];
-				//BlinkMgr.Instance.removeByName(this.name);
 				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_DOWN);
 			}
 			

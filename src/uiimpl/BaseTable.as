@@ -59,6 +59,7 @@ package uiimpl
 			
 			this.addChild(new SubTable(this.id + 3));
 			this.addChild(new SubTable(this.id));
+			pair_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
 		}
 		
 		private function betTable(evt:MouseEvent):void{
