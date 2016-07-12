@@ -50,7 +50,7 @@ package
 		public function autoHide():void{
 			if ( this.parent != null){
 				var disapearPoint:Point = parent.globalToLocal(PokerGameVars.DisaprearPoint);
-				TweenLite.to(this, 0.5, {rotation:0, x:disapearPoint.x, y:disapearPoint.y, onComplete:hideSelf});
+				TweenLite.to(this, 0.4, {rotation:0, x:disapearPoint.x, y:disapearPoint.y, onComplete:hideSelf});
 			}
 		}
 		

@@ -17,7 +17,7 @@ package consts
 		public static var Desk:uint = 0;
 		
 		public static var ChipLostPos:Point = new Point(350, 70);
-		public static var ChipGainPos:Point = new Point(850, 70);
+		public static var ChipGainPos:Point = new Point(850, 100);
 		public static var DispensePostion:Point = new Point(612, 50);
 		public static var DisaprearPoint:Point = new Point(50, 80);
 		public static var Glow_Filter:GlowFilter = new GlowFilter(0xcccccc, 0.5);

@@ -32,6 +32,7 @@ package uiimpl
 		public function ChipsViewUIImpl() 
 		{
 			super();
+			this.img_mask.cacheAsBitmap = this.img_cover.cacheAsBitmap = true;
 			this.img_cover.mask = this.img_mask;
 			this.x = 149;
 			this.y = 623;

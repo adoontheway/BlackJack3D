@@ -71,10 +71,10 @@ package
 					putToEnd(this._currentTable.tableId);
 				}
 			}else if ( this.currentTables.length != 0 ){
-				GameUtils.log('nextTable1: ');
+				GameUtils.log('nextTable 1 ');
 				_currentTable = this.tables[this.currentTables[0]];
 			}else{
-				GameUtils.log('nextTable2: ');
+				GameUtils.log('nextTable 2 ');
 				_currentTable = null;
 			}
 			
@@ -276,6 +276,10 @@ package
 		
 		public function onRoundEnd():void{
 			this.started = false;
+			if ( _currentTable != null ){
+				_currentTable.display.selected = false;
+				_currentTable = null;
+			}
 			Buttons.Instance.switchModel(Buttons.MODEL_END);
 		}
 		
@@ -413,17 +417,8 @@ package
 		
 		public function onTableEnd(data:Object):void{
 			var table:TableData = this.tables[data.tabId];
-			var startX:int = 100;
-			var startY:int = 50;
-			var pos:Point = table.display.localToGlobal(new Point(100,50))
-			if ( data.result == -1){
-				comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
-			}else if ( data.result == 1){
-				comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
-			}else{
-				FloatHint.Instance.show('PUSH',pos.x, pos.y);
-			}
-			table.display.end(data.result);
+			
+			table.display.end(data);
 		}
 		
 		public function getInsuredTables():Array{

@@ -6,6 +6,7 @@ package utils
 	import consts.PokerGameVars;
 	import flash.display.DisplayObjectContainer;
 	import comman.duke.GameVars;
+	import flash.display.Sprite;
 	/**
 	 * ...
 	 * @author jerry.d
@@ -62,6 +63,34 @@ package utils
 				len--;
 			}
 			
+		}
+		
+		public static function getChipStack(bet:Number):Sprite{
+			var con:Sprite = PoolMgr.gain(Sprite);
+			var len:int = PokerGameVars.ALL_CHIP_VALUE.length - 1;
+			var value:int;
+			var chip:Chip;
+			var cnt:int;
+			while (len >= 0 && bet > 0){
+				value = PokerGameVars.ALL_CHIP_VALUE[len];
+				
+				if ( bet >= value ){
+					cnt = bet / value;
+					while (cnt > 0 ){
+						bet -= value;
+						chip = PoolMgr.gain(Chip);
+						chip.value = value;
+						con.addChild(chip);
+						chip.y = con.numChildren *-5;
+						chip.x = 0;
+						chip.mouseChildren = chip.mouseEnabled = false;
+						cnt--;
+					}
+				}
+				
+				len--;
+			}
+			return con;
 		}
 		
 		public static function cleanContainer(con:DisplayObjectContainer):void{

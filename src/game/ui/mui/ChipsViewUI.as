@@ -20,8 +20,8 @@ package game.ui.mui {
 			  <Image skin="png.chips.chip-shadow" x="303" y="4" var="shadow_4" name="shadow_4" alpha="0.7"/>
 			  <Image skin="png.chips.chip-shadow" x="379" y="0" var="shadow_5" name="shadow_5" alpha="0.7"/>
 			  <Box skin="png.comp.blank" var="chips_con" x="6"/>
-			  <Image skin="png.images.chips_cover" x="-15" y="-2" var="img_cover"/>
-			  <Image skin="png.images.chips_cover" x="-15" y="-2" var="img_mask"/>
+			  <Image skin="png.images.chips_cover" x="-15" y="-9" var="img_cover"/>
+			  <Image skin="png.images.mask1" x="-15" y="-9" var="img_mask"/>
 			</View>;
 		public function ChipsViewUI(){}
 		override protected function createChildren():void {

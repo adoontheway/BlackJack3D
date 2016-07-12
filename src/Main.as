@@ -10,6 +10,7 @@ package
 	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
+	import flash.display.StageQuality;
 	import flash.display.StageScaleMode;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
@@ -68,6 +69,7 @@ package
 			GameVars.STAGE = stage;
 			
 			stage.frameRate = 30;
+			//stage.quality = StageQuality.HIGH_16X16;
 			
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			FrameMgr.Instance.init(stage);

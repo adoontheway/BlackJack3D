@@ -138,7 +138,6 @@ package
 		
 		private function onDoubleBack(data:*):void{
 			mgr.onDoubleBack(data);
-			
 		}
 		
 		private function onStarted(data:*):void{

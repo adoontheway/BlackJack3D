@@ -63,7 +63,7 @@ package uiimpl
 			["ok"],
 			["hit", "stand","double"],
 			["rebet","double", "clean"],//btn_clean clean the table btn_rebet rebet and start
-			["rebet", "hit", "double","clean"],
+			["rebet", "start", "double","clean"],
 			];
 			
 			buttons = new Vector.<BJButton>();

@@ -5,6 +5,8 @@ package uiimpl
 	import comman.duke.*;
 	import consts.PokerGameVars;
 	import consts.SoundsEnum;
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Sprite;
 	import flash.events.MouseEvent;
 	import flash.filters.DropShadowFilter;
 	import flash.filters.GlowFilter;
@@ -30,7 +32,7 @@ package uiimpl
 			super();
 			this.id = $id;
 			this.x = $id <= 3 ? 35 : 65;
-			this.y = $id <= 3 ? 40 : -10;
+			this.y = $id <= 3 ? 40 : -20;
 			this.visible = $id <= 3;
 			this.poker_con.scale = 0.8;
 			this.name = 'subtable' + $id;
@@ -213,15 +215,51 @@ package uiimpl
 			}
 		}
 		
-		public function end(result:int):void{
-			if ( result == 0 ) return;
-			var chip:Chip;
-			var num:int = chips_con.numChildren - 1;
-			while ( num >= 0){
-				chip = chips_con.getChildAt(num) as Chip;
-				chip.autoHide(result == -1 ? 0 : 1);
-				num--;
+		public function end(data:Object):void{
+			var pos:Point = localToGlobal(new Point(100,50))
+			if ( data.result == -1){
+				comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
+				removeAllBet( -1, chips_con,114,96);
+			}else if ( data.result == 1){
+				comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
+				var sp:Sprite = TableUtil.getChipStack(data.gain);
+				var pos:Point = this.globalToLocal(PokerGameVars.ChipLostPos);
+				sp.x = pos.x;
+				sp.y = pos.y;
+				this.addChild(sp);
+				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
+			}else{
+				comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
 			}
+		}
+		
+		private function onGainComplete(sp:Sprite):void{
+			removeAllBet(1, chips_con,114,96);
+			removeAllBet(1, sp,0,0,true);
+			
+		}
+		
+		public function removeAllBet(type:int,con:DisplayObjectContainer, rawX:int, rawY:int,reclamContainer:Boolean=false):void{
+			var point:Point = con.parent.globalToLocal(type == -1 ? PokerGameVars.ChipLostPos : PokerGameVars.ChipGainPos );
+			TweenLite.to(con, 0.8, {x:point.x, y:point.y, onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
+		}
+		
+		public function removeAllChip(con:DisplayObjectContainer,rawX:int,rawY:int,reclamContainer:Boolean):void{
+			var chip:Chip;
+			while ( con.numChildren != 0){
+				chip = con.removeChildAt(0) as Chip;
+				PoolMgr.reclaim(chip);
+			}
+			if ( !reclamContainer){
+				con.x = 114;
+				con.y = 96;
+			}else{
+				if ( con.parent ){
+					con.parent.removeChild(con);
+				}
+				PoolMgr.reclaim(con);
+			}
+			
 		}
 		
 		public function reset():void 

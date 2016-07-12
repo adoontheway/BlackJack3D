@@ -154,15 +154,6 @@ package uiimpl
 		}
 		
 		public function onRoundEnd():void{
-			/**
-			for each(var mc:MovieClip in this.circles){
-				mc.mouseChildren = mc.mouseEnabled = true;
-			}
-			if( this.arrow && this.arrow.parent != null)
-				this.stage.removeChild(this.arrow);
-			this.arrow.stop();
-			this.showBtns(START);
-			*/
 			var poker:Poker;
 			while ( banker_poker_con.numChildren != 0){
 				poker = banker_poker_con.removeChildAt(0) as Poker;
@@ -173,14 +164,18 @@ package uiimpl
 		}
 		private var dispenserPos:Point = new Point(612, 50);
 		private var diapearPos:Point = new Point(50, 80);
-		private var chipLostPos:Point = new Point(350, 70);
-		private var chipGainPos:Point = new Point(850, 70);
+		private var chipLostPos:Point = new Point(350, 50);
+		private var chipGainPos:Point = new Point(850, 50);
 		public function onResize():void{
 			this.x = GameVars.Stage_Width - this.width >> 1;
 			PokerGameVars.DispensePostion = this.localToGlobal(dispenserPos);
+			PokerGameVars.DispensePostion.y -= this.y;
 			PokerGameVars.DisaprearPoint = this.localToGlobal(diapearPos);
+			PokerGameVars.DisaprearPoint.y -= this.y;
 			PokerGameVars.ChipLostPos = this.localToGlobal(chipLostPos);
+			PokerGameVars.ChipLostPos.y -= this.y;
 			PokerGameVars.ChipGainPos = this.localToGlobal(chipGainPos);
+			PokerGameVars.ChipGainPos.y -= this.y;
 		}
 		/**
 		 * true 弹出并显示筹码盖子
