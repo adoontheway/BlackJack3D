@@ -9,5 +9,5 @@
     <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
     <Label styleSkin="png.comp.label" x="5" y="12" layer="1" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="39" align="center"/>
   </Box>
-  <Box skin="png.comp.blank" x="109" y="65" layer="1" var="insure_con"/>
+  <Box skin="png.comp.blank" x="79" y="116" layer="1" var="insure_con"/>
 </View>

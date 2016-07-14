@@ -27,12 +27,18 @@ package uiimpl
 		private var _selected:Boolean;
 		private var frameItem:FrameItem;
 		private var mgr:GameMgr;
+		private var dispenseTime:Number = 0.4;
 		public function SubTable($id:int) 
 		{
 			super();
 			this.id = $id;
 			this.x = $id <= 3 ? 35 : 65;
 			this.y = $id <= 3 ? 40 : -20;
+			if ( $id % 3 == 2){
+				this.dispenseTime = 0.5;
+			}else if ( $id % 3 == 0 ){
+				this.dispenseTime = 0.6;
+			}
 			this.visible = $id <= 3;
 			this.poker_con.scale = 0.8;
 			this.name = 'subtable' + $id;
@@ -48,10 +54,11 @@ package uiimpl
 			mgr.registerSubTableDisplay( $id, this);
 			ImageClickCenter.Instance.add(this.btn_insurrance);
 			ImageClickCenter.Instance.add(this.btn_split);
-			chips_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
+			insure_con.filters = chips_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
 		}
 		
 		public function showBet():void{
+			/**
 			if ( chips_con.numChildren == 0){
 				//todo merge chips
 				var chip:Chip = PoolMgr.gain(Chip);
@@ -63,8 +70,9 @@ package uiimpl
 				chips_con.addChild(chip);
 				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut});
 			}else{
+			*/
 				TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
-			}
+			//}
 			this.updateBetinfo();
 		}
 		
@@ -88,7 +96,7 @@ package uiimpl
 			poker.x = dispenseStartPoint.x;
 			poker.y = dispenseStartPoint.y;
 			SoundMgr.Instance.playEffect( SoundsEnum.CARD );
-			TweenLite.to(poker, 0.4, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
+			TweenLite.to(poker, this.dispenseTime, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
 		}
 		
 		private function onTweenComplete():void{
@@ -154,13 +162,12 @@ package uiimpl
 			this.addChild(chip);
 			this.insurranceChip.push(chip);
 			*/
-			TableUtil.displayChipsToContainer(value, this.insure_con);
 			
 			var targetPos:Point;
 			if ( bet > 0 ){
-				targetPos = this.insure_con.globalToLocal( new Point(130, 112));
+				targetPos = this.insure_con.globalToLocal( PokerGameVars.ChipGainPos);
 			}else{
-				targetPos =  this.insure_con.globalToLocal(new Point(130, 640));
+				targetPos =  this.insure_con.globalToLocal(PokerGameVars.ChipLostPos);
 			}
 			var chip:Chip;
 			var num:int = insure_con.numChildren - 1;
@@ -185,6 +192,7 @@ package uiimpl
 		private function insurrance(evt:MouseEvent):void{
 			SoundMgr.Instance.playEffect( SoundsEnum.INSURRANCE);
 			tableData.insured = true;
+			TableUtil.displayChipsToContainer(tableData.currentBet*0.5, this.insure_con);
 			this.btn_insurrance.visible = false;
 			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
 			
@@ -230,7 +238,9 @@ package uiimpl
 				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
 			}else{
 				comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
+				removeAllBet(1, chips_con,114,96);
 			}
+			this.bet_display.visible = false;
 		}
 		
 		private function onGainComplete(sp:Sprite):void{
@@ -294,7 +304,12 @@ package uiimpl
 			if ( val ){
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
-				Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
+				if (tableData.numCards != 2){
+					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
+				}else{
+					Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);
+				}
+				
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
 				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_UP);
 			}else{

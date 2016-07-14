@@ -56,7 +56,7 @@ package uiimpl
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
-			addChild(BalanceImpl.Instance);
+			
 			/*
 			frameItem = new FrameItem('mainView', this.update);
 			FrameMgr.Instance.add(frameItem);

@@ -39,7 +39,7 @@ package
 				this.x = point.x;
 				this.y = point.y;
 				GameVars.STAGE.addChild(this);
-				TweenLite.to(this, 0.5, {x:targetPosition.x, y:targetPosition.y, onComplete:removeSelf});
+				TweenLite.to(this, 0.6, {x:targetPosition.x, y:targetPosition.y, onComplete:removeSelf});
 			}
 		}
 		

@@ -39,6 +39,7 @@ package uiimpl
 		public static const MODEL_NORMAL:uint = 4;//hit stand double
 		public static const MODEL_END:uint = 5;//hit stand double
 		public static const MODEL_CLEAN:uint = 6;//hit stand double
+		public static const MODEL_DOUBLE:uint = 7;//hit stand double
 		public static const MODEL_HIDE:uint = 0;
 		private var models:Array;
 		private var buttons:Vector.<BJButton>;
@@ -61,9 +62,10 @@ package uiimpl
 			["start", "clean"],
 			["skip"],
 			["ok"],
-			["hit", "stand","double"],
+			["hit", "stand"],
 			["rebet","double", "clean"],//btn_clean clean the table btn_rebet rebet and start
-			["rebet", "start", "double","clean"],
+			["rebet", "start", "double", "clean"],
+			["hit", "stand","double"],
 			];
 			
 			buttons = new Vector.<BJButton>();
@@ -179,7 +181,7 @@ package uiimpl
 			}
 			if ( pairBetData != null ){
 				for ( i in pairBetData){
-					mgr.betPair(i,!double ? betData[i] : betData[i] * 2);
+					mgr.betPair(i,!double ? pairBetData[i] : pairBetData[i] * 2);
 				}
 			}
 			

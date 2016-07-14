@@ -134,8 +134,10 @@ package
 		private function onAssetsLoade():void{
 			SocketMgr.Instance.init();
 			bgLoaded();
+			
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
+			this.stage.addChild(BalanceImpl.Instance);
 			onResize(null);
 			othersLoaded = true;
 			if ( openupLoaded ){
@@ -153,6 +155,8 @@ package
 			if ( MainViewImpl.Instance.parent ){
 				MainViewImpl.Instance.onResize();
 			}
+			if( BalanceImpl.Instance.parent)
+				BalanceImpl.Instance.onResize();
 		}
 	}
 	

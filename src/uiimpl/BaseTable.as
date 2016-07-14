@@ -71,9 +71,10 @@ package uiimpl
 		}
 		public function addPairBet(bet:int):void{
 			var tableData:TableData = mgr.getTableDataById(id);
-			if ( pair_con.numChildren > 1){
-				//todo merge chips
-				TableUtil.displayChipsToContainer(tableData.pairBet,pair_con);
+			
+			//if ( pair_con.numChildren > 1){
+				TableUtil.displayChipsToContainer(tableData.pairBet, pair_con);
+				/**
 			}else{
 				var chip:Chip = PoolMgr.gain(Chip);
 				chip.value = bet;
@@ -83,7 +84,7 @@ package uiimpl
 				chip.x = 0;
 				chip.mouseChildren = chip.mouseEnabled = false;
 				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut}); 
-			}
+			}*/
 		}
 		
 		public function onPairResult(gain:int):void{

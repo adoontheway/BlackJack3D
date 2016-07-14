@@ -19,8 +19,7 @@ package uiimpl
 		{
 			super();
 			this.name = 'balanceui';
-			this.y = 38;
-			this.x = 835;
+			this.y = 40;
 			frameItem = new FrameItem(name, update);
 			btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
 		}
@@ -57,6 +56,10 @@ package uiimpl
 		
 		public function get balance():Number{
 			return _blance;
+		}
+		
+		public function onResize():void{
+			this.x = MainViewImpl.Instance.x + 800;
 		}
 		
 		private static var _instance:BalanceImpl;

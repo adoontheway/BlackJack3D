@@ -25,7 +25,7 @@ package game.ui.mui {
 			    <Image skin="png.images.bust" var="img_points_bg"/>
 			    <Label x="5" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="39" align="center"/>
 			  </Box>
-			  <Box skin="png.comp.blank" x="109" y="65" var="insure_con"/>
+			  <Box skin="png.comp.blank" x="79" y="116" var="insure_con"/>
 			</View>;
 		public function SubTableUI(){}
 		override protected function createChildren():void {

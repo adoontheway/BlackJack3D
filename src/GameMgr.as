@@ -266,8 +266,8 @@ package
 			//todo select table
 			if ( win ){
 				//结算
-				var fakeCard = data.fakeCard;
-				this.onFakeCard(fakeCard);
+				//var fakeCard = data.card;
+				//this.onFakeCard(fakeCard);
 			}else{
 				//选择
 				checkButtons();
