@@ -58,21 +58,7 @@ package uiimpl
 		}
 		
 		public function showBet():void{
-			/**
-			if ( chips_con.numChildren == 0){
-				//todo merge chips
-				var chip:Chip = PoolMgr.gain(Chip);
-				chip.y = 0;
-				chip.x = 0;
-				chip.value = tableData.currentBet;
-				chip.scale = 0.2;
-				chip.mouseChildren = chip.mouseEnabled = false;
-				chips_con.addChild(chip);
-				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut});
-			}else{
-			*/
-				TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
-			//}
+			TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
 			this.updateBetinfo();
 		}
 		
@@ -81,6 +67,7 @@ package uiimpl
 			tableData.addCard(poker);
 			updatePoints();
 			mark_blackjack.visible = tableData.blackjack;
+			bet_display.visible = false;
 			doTween(poker);
 		}
 		private var dispenseStartPoint:Point;
@@ -135,7 +122,6 @@ package uiimpl
 							this.lab_points.text =  tableData.points+"/"+(tableData.points+10);
 						}else{
 							this.img_points_bg.url = 'png.images.green';
-							this.lab_points.size = 30;
 							this.lab_points.text =  (tableData.points + 10) + "";
 						}
 					}
@@ -153,29 +139,24 @@ package uiimpl
 		
 		public function onInsureBack(bet:int):void{
 			
-			var value:uint = bet > 0 ? bet : -bet;
-			/**
-			var chip:Chip = PoolMgr.gain(Chip);
-			chip.value = value;
-			chip.x = 30;
-			chip.y = 50;
-			this.addChild(chip);
-			this.insurranceChip.push(chip);
-			*/
-			
+			var value:uint = bet > 0 ? bet : -bet;			
 			var targetPos:Point;
 			if ( bet > 0 ){
-				targetPos = this.insure_con.globalToLocal( PokerGameVars.ChipGainPos);
+				var sp:Sprite = TableUtil.getChipStack(value);
+				var pos:Point = this.globalToLocal(PokerGameVars.ChipLostPos);
+				sp.x = pos.x;
+				sp.y = pos.y;
+				this.addChild(sp);
+				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainSure, onCompleteParams:[sp]});
 			}else{
-				targetPos =  this.insure_con.globalToLocal(PokerGameVars.ChipLostPos);
+				removeAllBet(1, insure_con,79,116,true);
 			}
-			var chip:Chip;
-			var num:int = insure_con.numChildren - 1;
-			while ( num >= 0 ){
-				chip = insure_con.getChildAt(num) as Chip;
-				TweenLite.to(chip, 0.4, {x:targetPos.x, y:targetPos.y, onComplete:onChipComplete, onCompleteParams:[chip]});
-				num--;
-			}
+
+		}
+		
+		private function onGainSure(sp:Sprite):void{
+			removeAllBet(1, insure_con,79,116);
+			removeAllBet(1, sp,0,0,true);
 		}
 		
 		private function onChipComplete(chip:Chip):void{
@@ -195,21 +176,10 @@ package uiimpl
 			TableUtil.displayChipsToContainer(tableData.currentBet*0.5, this.insure_con);
 			this.btn_insurrance.visible = false;
 			Buttons.Instance.switchModel(Buttons.MODEL_INSRRURING);
-			
-			/**
-			var bet:int = this.tableData.currentBet;//要组合
-			var chip:Chip = PoolMgr.gain(Chip);
-			chip.value = bet;
-			chip.x = 80;
-			chip.y = 80;
-			this.addChild(chip);
-			this.insurranceChip.push(chip);
-			*/
 		}
-		//private var insurranceChip:Array = [];
 		
 		private function onCloseBets(evt:MouseEvent):void{
-			this.bet_display.visible = false;
+			mgr.resetTable(id);
 		}
 		
 		public function update(delta:int):void{
@@ -224,7 +194,7 @@ package uiimpl
 		}
 		
 		public function end(data:Object):void{
-			var pos:Point = localToGlobal(new Point(100,50))
+			var pos:Point = localToGlobal(new Point(40,10))
 			if ( data.result == -1){
 				comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
 				removeAllBet( -1, chips_con,114,96);
@@ -269,7 +239,6 @@ package uiimpl
 				}
 				PoolMgr.reclaim(con);
 			}
-			
 		}
 		
 		public function reset():void 
@@ -278,8 +247,6 @@ package uiimpl
 			var num:int = poker_con.numChildren - 1;
 			while ( num >= 0){
 				poker = poker_con.getChildAt(num) as Poker;
-				//poker.rotation = 0;//disapear tween
-				//PoolMgr.reclaim(poker);
 				poker.autoHide();
 				num--;
 			}
@@ -302,6 +269,9 @@ package uiimpl
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
+				if ( this.tableData.numCards == 1 ){
+					SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:id});
+				}
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
 				if (tableData.numCards != 2){

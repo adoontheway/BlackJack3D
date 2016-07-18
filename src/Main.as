@@ -16,7 +16,10 @@ package
 	import flash.events.Event;
 	import flash.events.UncaughtErrorEvent;
 	import flash.net.URLRequest;
+	import flash.system.ApplicationDomain;
 	import flash.system.Security;
+	import flash.text.Font;
+	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
 	import morn.core.handlers.Handler;
 	import uiimpl.*;
@@ -41,6 +44,8 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.addEventListener(Event.RESIZE, onResize);
+			
+			trace(Font.enumerateFonts(false));
 			
 			
 			parseParams();
@@ -107,16 +112,16 @@ package
 				playOpenUp();
 			}
 		}
-		
 		private function playOpenUp():void{
 			openupLoader.x = this.stage.stageWidth >> 1;
 			openupLoader.y = 170;
 			openupLoader.blendMode = 'add';
 			this.stage.addChild(openupLoader);
+			var stopTime:uint = Math.floor(1000*140 / 30);
 			setTimeout(function():void{
 				disposeOpenup();
 				MainViewImpl.Instance.afterStart();
-			}, 3000);
+			}, stopTime);
 		}
 		
 		private function disposeOpenup():void{
@@ -134,7 +139,11 @@ package
 		private function onAssetsLoade():void{
 			SocketMgr.Instance.init();
 			bgLoaded();
-			
+			if ( ApplicationDomain.currentDomain.hasDefinition('DinBold')){
+				GameUtils.log('register the font');
+				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
+				Font.registerFont(FontClass);
+			}
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			this.stage.addChild(BalanceImpl.Instance);

@@ -71,20 +71,7 @@ package uiimpl
 		}
 		public function addPairBet(bet:int):void{
 			var tableData:TableData = mgr.getTableDataById(id);
-			
-			//if ( pair_con.numChildren > 1){
-				TableUtil.displayChipsToContainer(tableData.pairBet, pair_con);
-				/**
-			}else{
-				var chip:Chip = PoolMgr.gain(Chip);
-				chip.value = bet;
-				chip.scale = 0.2;
-				pair_con.addChild(chip);
-				chip.y = 0;
-				chip.x = 0;
-				chip.mouseChildren = chip.mouseEnabled = false;
-				TweenLite.to(chip, 0.2, {scale:1, ease: Back.easeOut}); 
-			}*/
+			TableUtil.displayChipsToContainer(tableData.pairBet, pair_con);
 		}
 		
 		public function onPairResult(gain:int):void{
@@ -109,15 +96,24 @@ package uiimpl
 			return _referPairPos;
 		}
 		
-		public function reset():void 
+		public function reset(force:Boolean=false):void 
 		{
 			var chip:Chip;
-			var num:int = pair_con.numChildren - 1;
-			while (  num >= 0){
-				chip = pair_con.getChildAt(num) as Chip;
-				num--;
-				chip.autoHide(0);
+			
+			if (!force){
+				var num:int = pair_con.numChildren - 1;
+				while (  num >= 0){
+					chip = pair_con.getChildAt(num) as Chip;
+					num--;
+					chip.autoHide(0);
+				}
+			}else{
+				while ( pair_con.numChildren != 0 ){
+					chip = pair_con.removeChildAt(0) as Chip;
+					PoolMgr.reclaim(chip);
+				}
 			}
+			
 		}
 	}
 

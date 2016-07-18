@@ -36,10 +36,10 @@ package
 			if ( val == -1 ){
 				this.url = 'png.pokers.back';
 			}else{
-				this.realValue = (val-1)%13+1;
+				this.realValue = (val%100-1)%13+1;
 				this.compareValue = this.realValue < 10 ? this.realValue : 10;
-				this.type = Math.ceil(val / 13);
-				this.url = 'png.pokers.' + val;
+				this.type = int(val / 100);
+				this.url = 'png.pokers.'  + val;
 				this.name = 'poker_' + val;
 			}	
 		}

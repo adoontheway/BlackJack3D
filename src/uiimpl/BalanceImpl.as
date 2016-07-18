@@ -21,6 +21,7 @@ package uiimpl
 			this.name = 'balanceui';
 			this.y = 40;
 			frameItem = new FrameItem(name, update);
+			this.lab_0.font = 'Din';
 			btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
 		}
 		

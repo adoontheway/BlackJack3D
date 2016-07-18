@@ -23,7 +23,7 @@ package game.ui.mui {
 			  <MyBet x="179" y="84" var="bet_display" runtime="game.ui.mui.MyBetUI"/>
 			  <Box x="134" y="-27" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
-			    <Label x="5" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="39" align="center"/>
+			    <Label x="6" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="34" align="center" font="Din"/>
 			  </Box>
 			  <Box skin="png.comp.blank" x="79" y="116" var="insure_con"/>
 			</View>;

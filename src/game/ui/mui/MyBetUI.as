@@ -7,7 +7,7 @@ package game.ui.mui {
 		protected static var uiXML:XML =
 			<View width="106" height="41">
 			  <Image skin="png.images.betMoney" x="0" y="0"/>
-			  <Label text="100.00" x="6" y="7" width="87" height="29" color="0xffffff" size="18" var="lab" align="center"/>
+			  <Label text="100.00" x="6" y="5" width="87" height="29" color="0xffffff" size="20" var="lab" align="center" font="Din" bold="false"/>
 			  <Button skin="png.images.btn_close" x="87" y="-3" stateNum="1" var="btn_close"/>
 			</View>;
 		public function MyBetUI(){}

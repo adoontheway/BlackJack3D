@@ -1,9 +1,12 @@
 package 
 {
+	import com.greensock.TweenLite;
 	import comman.duke.FloatHint;
 	import comman.duke.GameUtils;
 	import comman.duke.PoolMgr;
 	import model.*;
+	import comman.duke.ShakeItem;
+	import comman.duke.ShakeMgr;
 	import comman.duke.SoundMgr;
 	import comman.duke.TickerMgr;
 	import consts.SoundsEnum;
@@ -253,7 +256,7 @@ package
 			var table:TableData = tables[0];
 			table.insured = true;
 			var result:Object = data.result;
-			var win:Boolean = data.win;
+			bankerBJ = data.isbj;
 			var tableDisplay:SubTable;
 			for (var i:String in subTableDisplays){
 				tableDisplay = subTableDisplays[i];
@@ -264,14 +267,42 @@ package
 			}
 			this.money = data.money;
 			//todo select table
-			if ( win ){
-				//结算
-				//var fakeCard = data.card;
-				//this.onFakeCard(fakeCard);
-			}else{
-				//选择
-				checkButtons();
+			playCheck();
+			if ( !bankerBJ ){
+				fakeCard = data.card;
+				setTimeout(function():void{
+					checkButtons();
+				}, 1500);
 			}
+		}
+		private var fakeCard:int = -1;
+		private var bankerBJ:Boolean;
+		public function playCheck():void{
+			var poker:Poker = pokerMap[ -1];
+			if ( poker != null ){
+				TweenLite.to(poker, 0.5, {scale:1.2, onComplete:onCheckPhase1,onCompleteParams:[poker]});
+			}
+		}
+		
+		public function onCheckPhase1(poker):void{
+			var item:ShakeItem = PoolMgr.gain(ShakeItem);
+			item.callBack = onCheckPhase2;
+			item.init('check', poker, 3, 3, ShakeMgr.SHAKE_TWIST);
+			ShakeMgr.Instance.addShakeItem(item);
+		}
+		
+		public function onCheckPhase2():void{
+			var poker:Poker = pokerMap[ -1];
+			if ( bankerBJ ){
+				TweenLite.to(poker, 0.5, {scale:1, onComplete:onCheckPhase3});
+			}else{
+				TweenLite.to(poker, 0.5, {scale:1});
+			}
+		}
+		
+		public function onCheckPhase3():void{
+			this.onFakeCard(this.fakeCard);
+			this.fakeCard = -1;
 		}
 		
 		public function onRoundEnd():void{
@@ -281,6 +312,17 @@ package
 				_currentTable = null;
 			}
 			Buttons.Instance.switchModel(Buttons.MODEL_END);
+		}
+		
+		
+		public function resetTable(tabId:int):void{
+			var subTable:SubTable = this.subTableDisplays[tabId];
+			subTable.reset();
+			var baseTable:BaseTable = this.tableDisplays[tabId];
+			baseTable.reset(true);
+			var tableData:TableData = this.tables[tabId];
+			if( tableData != null)
+				tableData.reset();
 		}
 		
 		public function reset():void{
@@ -298,6 +340,8 @@ package
 			this.endTables = [];
 			mainView.onRoundEnd();
 			enableDisplayMouse(true);
+			this.fakeCard = -1;
+			this.bankerBJ = false;
 		}
 		
 		public function enableDisplayMouse(value:Boolean):void{

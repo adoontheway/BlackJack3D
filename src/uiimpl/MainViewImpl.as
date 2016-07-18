@@ -138,7 +138,7 @@ package uiimpl
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
 		}
-		
+		/**
 		public function checkTheFakePoker():void{
 			var index:int = 0;
 			var num:int = this.banker_poker_con.numChildren;
@@ -152,6 +152,7 @@ package uiimpl
 				index++;
 			}
 		}
+		*/
 		
 		public function onRoundEnd():void{
 			var poker:Poker;
