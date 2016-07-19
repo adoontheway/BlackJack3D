@@ -11,6 +11,8 @@ package uiimpl
 	import flash.filters.DropShadowFilter;
 	import flash.filters.GlowFilter;
 	import flash.geom.Point;
+	import flash.geom.Rectangle;
+	import flash.utils.setTimeout;
 	import game.ui.mui.SubTableUI;
 	import model.ProtocolClientEnum;
 	import model.TableData;
@@ -42,6 +44,10 @@ package uiimpl
 			this.visible = $id <= 3;
 			this.poker_con.scale = 0.8;
 			this.name = 'subtable' + $id;
+			
+			this.img_result_0.mask = this.img_result_1;
+			this.bet_display.bet_bg.scale9Grid = new Rectangle(22, 18, 2, 2);
+			
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
 			btn_insurrance.addEventListener(MouseEvent.CLICK, this.insurrance);
 			btn_split.addEventListener(MouseEvent.CLICK, this.split);
@@ -99,6 +105,9 @@ package uiimpl
 		public function updateBetinfo():void{
 			this.bet_display.visible = true;
 			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
+			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 20;
+			this.bet_display.bet_bg.width = 20 + this.bet_display.lab.width;
+			this.bet_display.btn_close.x = this.bet_display.bet_bg.width - 20;
 		}
 		
 		public function updatePoints(isSettled:Boolean = false):void{
@@ -194,23 +203,41 @@ package uiimpl
 		}
 		
 		public function end(data:Object):void{
-			var pos:Point = localToGlobal(new Point(40,10))
-			if ( data.result == -1){
-				comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
-				removeAllBet( -1, chips_con,114,96);
-			}else if ( data.result == 1){
-				comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
-				var sp:Sprite = TableUtil.getChipStack(data.gain);
-				var pos:Point = this.globalToLocal(PokerGameVars.ChipLostPos);
-				sp.x = pos.x;
-				sp.y = pos.y;
-				this.addChild(sp);
-				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
-			}else{
-				comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
-				removeAllBet(1, chips_con,114,96);
+			setTimeout(function(){
+				var pos:Point = localToGlobal(new Point(40,10))
+				if ( data.result == -1){
+					comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
+					removeAllBet( -1, chips_con, 114, 96);
+					img_result_0.url = 'png.images.result_lose';
+				}else if ( data.result == 1){
+					comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
+					var sp:Sprite = TableUtil.getChipStack(data.gain);
+					var pos:Point = globalToLocal(PokerGameVars.ChipLostPos);
+					sp.x = pos.x;
+					sp.y = pos.y;
+					addChild(sp);
+					TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
+					img_result_0.url = 'png.images.result_win';
+				}else{
+					comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
+					removeAllBet(1, chips_con, 114, 96);
+					img_result_0.url = 'png.images.result_push';
+				}
+				bet_display.visible = false;
+				showResultLab(true);
+			}, 1000);
+		}
+		
+		private function showResultLab(flag:Boolean):void{
+			if ( this.img_result_0.x == 165 && flag ){
+				TweenLite.to(img_result_0, 0.3, {x:65});
+			}else if ( this.img_result_0.x == 65 && !flag){
+				TweenLite.to(img_result_0, 0.3, {x:165, onComplete:onFold});
 			}
-			this.bet_display.visible = false;
+		}
+		
+		private function onFold():void{
+			point_display.visible = false;
 		}
 		
 		private function onGainComplete(sp:Sprite):void{
@@ -243,6 +270,7 @@ package uiimpl
 		
 		public function reset():void 
 		{
+			secondRequest = false;
 			var poker:Poker;
 			var num:int = poker_con.numChildren - 1;
 			while ( num >= 0){
@@ -261,19 +289,21 @@ package uiimpl
 				chip = chips_con.removeChildAt(0) as Chip;
 				PoolMgr.reclaim(chip);
 			}
-			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
+			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = bet_display.visible = false;
 			this.visible = id <= 3;
+			showResultLab(false);
 		}
-		
+		private var secondRequest:Boolean = false;
 		public function set selected(val:Boolean):void{
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
-				if ( this.tableData.numCards == 1 ){
+				if ( this.tableData.numCards == 1 && !secondRequest){
+					secondRequest = true;
 					SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:id});
 				}
 				this.btn_split.visible = tableData.canSplit;
-				TweenLite.to(poker_con, 0.2, {scale:1, ease:Bounce.easeInOut});
+				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut});
 				if (tableData.numCards != 2){
 					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
 				}else{

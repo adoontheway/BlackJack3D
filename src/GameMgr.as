@@ -392,7 +392,7 @@ package
 				if (currentTables.indexOf(tablId) == -1){
 					this.currentTables.push(tablId);
 				}
-				table.display.poker_con.addChild(poker);
+				table.display.poker_con.addChild(poker);//todo tweent to table2
 				table.display.visible = true;
 				table.addCard(poker);
 			}

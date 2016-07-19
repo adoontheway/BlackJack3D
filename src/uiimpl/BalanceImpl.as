@@ -6,6 +6,7 @@ package uiimpl
 	import comman.duke.SoundMgr;
 	import consts.SoundsEnum;
 	import flash.events.MouseEvent;
+	import flash.utils.setTimeout;
 	import game.ui.mui.BalanceUI;
 	
 	/**
@@ -42,6 +43,7 @@ package uiimpl
 		
 		private var _blance:Number = 0;
 		private var current:Number = 0;
+		private var timeout:int = -1;
 		public function set balance(val:Number):void{
 			if ( _blance == val ) return;
 			current = _blance;
@@ -50,8 +52,11 @@ package uiimpl
 			}
 			this._blance = val;
 			
-			if ( current != 0 && !FrameMgr.Instance.has(name) ){
-				FrameMgr.Instance.add(frameItem);
+			if ( current != 0 && !FrameMgr.Instance.has(name) && timeout == -1){
+				timeout = setTimeout(function(){
+					FrameMgr.Instance.add(frameItem);
+					timeout = -1;
+				}, 1000);
 			}
 		}
 		
