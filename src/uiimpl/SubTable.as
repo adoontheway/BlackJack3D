@@ -46,7 +46,7 @@ package uiimpl
 			this.name = 'subtable' + $id;
 			
 			this.img_result_0.mask = this.img_result_1;
-			this.bet_display.bet_bg.scale9Grid = new Rectangle(22, 18, 2, 2);
+			this.bet_display.bet_bg.sizeGrid = '20,18,22,20,1';
 			
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = point_display.visible = bet_display.visible = false;
 			btn_insurrance.addEventListener(MouseEvent.CLICK, this.insurrance);
@@ -105,9 +105,9 @@ package uiimpl
 		public function updateBetinfo():void{
 			this.bet_display.visible = true;
 			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
-			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 20;
-			this.bet_display.bet_bg.width = 20 + this.bet_display.lab.width;
-			this.bet_display.btn_close.x = this.bet_display.bet_bg.width - 20;
+			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 10;
+			this.bet_display.bet_bg.width =  15 + this.bet_display.lab.width;
+			this.bet_display.btn_close.x = this.bet_display.bet_bg.width - 12;
 		}
 		
 		public function updatePoints(isSettled:Boolean = false):void{
@@ -217,7 +217,12 @@ package uiimpl
 					sp.y = pos.y;
 					addChild(sp);
 					TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
-					img_result_0.url = 'png.images.result_win';
+					if ( !tableData.blackjack){
+						img_result_0.url = 'png.images.result_win_1';
+					}else{
+						img_result_0.url = 'png.images.result_win';
+					}
+					
 				}else{
 					comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
 					removeAllBet(1, chips_con, 114, 96);
@@ -285,8 +290,8 @@ package uiimpl
 				PoolMgr.reclaim(chip);
 			}
 			
-			while ( chips_con.numChildren != 0){
-				chip = chips_con.removeChildAt(0) as Chip;
+			while ( insure_con.numChildren != 0){
+				chip = insure_con.removeChildAt(0) as Chip;
 				PoolMgr.reclaim(chip);
 			}
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = bet_display.visible = false;

@@ -21,7 +21,7 @@ package uiimpl
 		private var mgr:GameMgr;
 		private var socketMgr:SocketMgr;
 		private static const POS_INFO:Array = [{x:0, y:50}, {x:99, y:25}, {x:198, y: -5}, {x:297, y: -46}];
-		private static const BUTTON_INFO = {
+		private static const BUTTON_INFO:Object = {
 			"clean":3,
 			"double":0,
 			"hit":1,

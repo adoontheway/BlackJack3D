@@ -51,7 +51,7 @@ package uiimpl
 			
 			this.banker_poker_con.scale = 0.8;
 			this.point_display.visible = false;
-			var model:uint = mgr.model;
+			var model:uint = mgr.currentModel;
 			var chipValues:Array = PokerGameVars.Model_Config[model];
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);

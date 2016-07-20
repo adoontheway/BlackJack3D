@@ -28,7 +28,7 @@ package game.ui.mui {
 			  <Image skin="png.images.result_lose" x="60" y="-5" var="img_result_1"/>
 			  <Box x="144" y="-17" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
-			    <Label x="6" y="12" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="34" align="center" font="Din"/>
+			    <Label x="6" y="8" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="38" align="center" font="Din" multiline="true"/>
 			  </Box>
 			</View>;
 		public function SubTableUI(){}

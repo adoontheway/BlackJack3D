@@ -26,7 +26,7 @@ package
 	public class GameMgr 
 	{
 		public var desk:uint = 0;//0 单桌 1 三桌
-		public var model:uint = 0;//0,1,2筹码大小
+		public var currentModel:uint = 0;//0,1,2筹码大小
 		public var started:Boolean = false;
 		public var ME:uint = 1;
 		private var _money:Number = 0;
@@ -113,6 +113,7 @@ package
 		}
 		
 		public function checkButtons():void{
+			GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
 			if ( starting || this.dispenseQueue.length != 0 ){
 				return;
 			}
@@ -280,7 +281,7 @@ package
 		public function playCheck():void{
 			var poker:Poker = pokerMap[ -1];
 			if ( poker != null ){
-				TweenLite.to(poker, 0.5, {scale:1.2, onComplete:onCheckPhase1,onCompleteParams:[poker]});
+				TweenLite.to(poker, 0.5, {scale:1.2, y:poker.y - 20, onComplete:onCheckPhase1, onCompleteParams:[poker]});
 			}
 		}
 		
@@ -294,9 +295,9 @@ package
 		public function onCheckPhase2():void{
 			var poker:Poker = pokerMap[ -1];
 			if ( bankerBJ ){
-				TweenLite.to(poker, 0.5, {scale:1, onComplete:onCheckPhase3});
+				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase3});
 			}else{
-				TweenLite.to(poker, 0.5, {scale:1});
+				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20});
 			}
 		}
 		
@@ -392,10 +393,18 @@ package
 				if (currentTables.indexOf(tablId) == -1){
 					this.currentTables.push(tablId);
 				}
+				var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
 				table.display.poker_con.addChild(poker);//todo tweent to table2
 				table.display.visible = true;
-				table.addCard(poker);
+				poker.x = targetPoint.x;
+				poker.y = targetPoint.y;
+				TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 			}
+		}
+		
+		public function onSplitComplete(poker:Poker, table:TableData):void{
+			//table.display.poker_con.addChild(poker);
+			table.addCard(poker);
 		}
 		
 		private var pairResult:*;
