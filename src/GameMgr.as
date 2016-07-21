@@ -285,7 +285,7 @@ package
 			}
 		}
 		
-		public function onCheckPhase1(poker):void{
+		public function onCheckPhase1(poker:Poker):void{
 			var item:ShakeItem = PoolMgr.gain(ShakeItem);
 			item.callBack = onCheckPhase2;
 			item.init('check', poker, 3, 3, ShakeMgr.SHAKE_TWIST);

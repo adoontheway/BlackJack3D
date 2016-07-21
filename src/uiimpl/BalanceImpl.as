@@ -27,7 +27,7 @@ package uiimpl
 		}
 		
 		private function onRecharge(evt:MouseEvent):void{
-			SoundMgr.Instance.playEffect( SoundsEnum.BUTTON ); 
+			
 		}
 		
 		public function update(delta:int):void{

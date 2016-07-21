@@ -13,6 +13,8 @@ package consts
 	public class PokerGameVars 
 	{
 		
+		public static const VERSION:String = "v0-20160721-1624";
+		
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
 		

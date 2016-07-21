@@ -9,7 +9,9 @@ package uiimpl
 	import comman.duke.GameVars;
 	import comman.duke.ImageClickCenter;
 	import comman.duke.PoolMgr;
+	import comman.duke.SoundMgr;
 	import consts.PokerGameVars;
+	import consts.SoundsEnum;
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
@@ -71,6 +73,7 @@ package uiimpl
 		}
 		public function addPairBet(bet:int):void{
 			var tableData:TableData = mgr.getTableDataById(id);
+			SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
 			TableUtil.displayChipsToContainer(tableData.pairBet, pair_con);
 		}
 		

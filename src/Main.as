@@ -77,6 +77,7 @@ package
 			//stage.quality = StageQuality.HIGH_16X16;
 			
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
+			GameUtils.log(PokerGameVars.VERSION);
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
 		}
@@ -144,6 +145,7 @@ package
 				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
 				Font.registerFont(FontClass);
 			}
+			SoundsEnum.InitSounds();
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			this.stage.addChild(BalanceImpl.Instance);

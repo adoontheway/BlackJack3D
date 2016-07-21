@@ -87,7 +87,6 @@ package uiimpl
 		}
 		
 		private function onButton(evt:MouseEvent):void{
-			SoundMgr.Instance.playEffect( SoundsEnum.BUTTON);
 			var bname:String = evt.target.name;
 			switch(bname){
 				case "start":
@@ -193,7 +192,6 @@ package uiimpl
 		
 		public function skip():void{
 			disableAll();
-			SoundMgr.Instance.playEffect( SoundsEnum.HIT);
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
@@ -228,7 +226,6 @@ package uiimpl
 		}
 		private function double():void{
 			//this.hideAllBtns();
-			SoundMgr.Instance.playEffect( SoundsEnum.DOUBLE_DOWN);
 			if ( mgr.started){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
@@ -238,7 +235,6 @@ package uiimpl
 		}
 		private function stand():void{
 			disableAll();
-			SoundMgr.Instance.playEffect( SoundsEnum.STAND);
 			if( mgr.started && mgr.currentTable){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 			}

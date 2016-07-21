@@ -64,6 +64,7 @@ package uiimpl
 		}
 		
 		public function showBet():void{
+			SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
 			TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
 			this.updateBetinfo();
 		}
@@ -174,13 +175,11 @@ package uiimpl
 		}
 		
 		private function split(evt:MouseEvent):void{ 
-			SoundMgr.Instance.playEffect( SoundsEnum.SPLIT );
 			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
 			this.btn_split.visible = false;
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
-			SoundMgr.Instance.playEffect( SoundsEnum.INSURRANCE);
 			tableData.insured = true;
 			TableUtil.displayChipsToContainer(tableData.currentBet*0.5, this.insure_con);
 			this.btn_insurrance.visible = false;
@@ -316,13 +315,11 @@ package uiimpl
 				}
 				
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
-				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_UP);
 			}else{
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
 				Buttons.Instance.hideAll();
 				this.poker_con.filters = [];
-				SoundMgr.Instance.playEffect( SoundsEnum.SELECT_DOWN);
 			}
 			
 			if ( id > 3 ){

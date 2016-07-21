@@ -134,6 +134,7 @@ package uiimpl
 		}
 		
 		public function traverseTheFakePoker(poker:Poker):void{
+			SoundMgr.Instance.playEffect(SoundsEnum.REVERSE);
 			poker.rotationY = 180;
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
