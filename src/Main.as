@@ -15,7 +15,9 @@ package
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
 	import flash.events.UncaughtErrorEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
 	import flash.system.ApplicationDomain;
 	import flash.system.Security;
 	import flash.text.Font;
@@ -47,10 +49,9 @@ package
 			
 			trace(Font.enumerateFonts(false));
 			
-			
 			parseParams();
 			Security.allowDomain('*');
-			Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
+			//Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
 			
 			openupLoader = new Loader();
 			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
@@ -102,8 +103,19 @@ package
 		
 		private function parseParams():void{
 			var params:Object = stage.loaderInfo.parameters;
+			
 			PokerGameVars.Model = params.model || 0;//场次
 			PokerGameVars.Desk = params.desk || 0;//桌子id
+			if ( ExternalInterface.available){
+				HttpComunicator._token = params._token;
+				HttpComunicator.is_agent = params.is_agent;
+				HttpComunicator.submitUrl = params.submitUrl;
+				HttpComunicator.loaddataUrl = params.loaddataUrl;
+				HttpComunicator.cookieHeader = new URLRequestHeader("Cookie",params.cookie);
+			}
+			
+			//GameUtils.log('model and desk:', params.model, params.desk);
+			
 		}
 		private var openupLoaded:Boolean;
 		private var othersLoaded:Boolean;

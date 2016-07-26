@@ -236,7 +236,11 @@ package uiimpl
 		private function stand():void{
 			disableAll();
 			if( mgr.started && mgr.currentTable){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
+				//socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
+				var obj:Object = {};
+				obj.wayId = HttpComunicator.STOP;
+				obj.stage = [mgr.currentTable.tableId];
+				HttpComunicator.Instance.send(obj);
 			}
 		}
 		

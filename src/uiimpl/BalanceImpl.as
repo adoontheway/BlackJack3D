@@ -5,6 +5,7 @@ package uiimpl
 	import comman.duke.GameUtils;
 	import comman.duke.SoundMgr;
 	import consts.SoundsEnum;
+	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.utils.setTimeout;
 	import game.ui.mui.BalanceUI;
@@ -22,8 +23,15 @@ package uiimpl
 			this.name = 'balanceui';
 			this.y = 40;
 			frameItem = new FrameItem(name, update);
-			this.lab_0.font = 'Din';
+			
+			this.addEventListener(Event.ADDED_TO_STAGE, onAdded);
 			btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
+		}
+		
+		private function onAdded(e:Event):void{
+			this.lab_0.font = 'Din';
+			this.balance = GameMgr.Instance.money;
+			this.removeEventListener(Event.ADDED_TO_STAGE, onAdded);
 		}
 		
 		private function onRecharge(evt:MouseEvent):void{
@@ -39,25 +47,26 @@ package uiimpl
 				current += gap * 0.25;
 				this.lab_0.text = GameUtils.NumberToString(current);
 			}
+			//GameUtils.log("balance update",current);
+		}
+		
+		public function rockAndRoll():void{
+			//GameUtils.log("rock and roll",current);
+			if( current!= -99999 && !FrameMgr.Instance.has(name) )
+				FrameMgr.Instance.add(frameItem);
 		}
 		
 		private var _blance:Number = 0;
-		private var current:Number = 0;
+		private var current:Number = -99999;
 		private var timeout:int = -1;
 		public function set balance(val:Number):void{
+			//GameUtils.log("set balance",val);
 			if ( _blance == val ) return;
 			current = _blance;
 			if ( _blance == 0 ){
 				this.lab_0.text = GameUtils.NumberToString(_blance);
 			}
 			this._blance = val;
-			
-			if ( current != 0 && !FrameMgr.Instance.has(name) && timeout == -1){
-				timeout = setTimeout(function(){
-					FrameMgr.Instance.add(frameItem);
-					timeout = -1;
-				}, 1000);
-			}
 		}
 		
 		public function get balance():Number{

@@ -268,8 +268,10 @@ package uiimpl
 				if ( con.parent ){
 					con.parent.removeChild(con);
 				}
-				PoolMgr.reclaim(con);
+				if( con is Sprite)
+					PoolMgr.reclaim(con);
 			}
+			BalanceImpl.Instance.rockAndRoll();
 		}
 		
 		public function reset():void 

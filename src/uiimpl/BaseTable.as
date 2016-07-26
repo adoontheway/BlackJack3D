@@ -12,10 +12,15 @@ package uiimpl
 	import comman.duke.SoundMgr;
 	import consts.PokerGameVars;
 	import consts.SoundsEnum;
+	import flash.display.BlendMode;
 	import flash.display.DisplayObjectContainer;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.events.MouseEvent;
+	import flash.geom.Matrix3D;
+	import flash.geom.PerspectiveProjection;
 	import flash.geom.Point;
+	import flash.system.ApplicationDomain;
 	import game.ui.mui.TableRightUI;
 	import model.ProtocolClientEnum;
 	import model.TableData;
@@ -32,23 +37,47 @@ package uiimpl
 		public var id:int = -1;
 		//private var frameItem:FrameItem;
 		private var mgr:GameMgr;
+		private var reminder:MovieClip;
+		
 		public function BaseTable($id:int) 
 		{
 			super();
 			this.id = $id;
+			var claz:Class;
 			if ( $id == 1 ){
 				this.x = 625;
 				this.y = 290;
+				claz = ApplicationDomain.currentDomain.getDefinition('RingSide') as Class;
 			}else if ( $id == 2 ){
 				this.x = 270;
 				this.y = 355;
 				this.table.skin = "png.images.btn_table_middle";
 				this.pair.skin = "png.images.btn_pair_center";
+				claz = ApplicationDomain.currentDomain.getDefinition('RingCenter') as Class;
 			}else if ( $id == 3 ){
 				this.x = -85;
 				this.y = 295;
 				this.table.skin = "png.images.btn_table_left";
 				this.pair.skin = "png.images.btn_pair_left";
+				claz = ApplicationDomain.currentDomain.getDefinition('RingSide') as Class;
+			}
+			
+			if ( false ){// claz != null ){
+				reminder = new claz() as MovieClip;
+				reminder.blendMode = BlendMode.ADD;
+				if ($id == 2){
+					reminder.alpha = 0.2;
+				}
+				reminder.x = 118;
+				reminder.y = 114;
+				if ( PokerGameVars.Reminder_Perspective == null ){
+					PokerGameVars.Reminder_Perspective = new PerspectiveProjection();
+					PokerGameVars.Reminder_Perspective.fieldOfView = 120;
+					PokerGameVars.Reminder_Perspective.projectionCenter = new Point(275,200);
+				}
+				reminder.transform.perspectiveProjection = PokerGameVars.Reminder_Perspective;
+				reminder.filters = [PokerGameVars.Reminder_Filter];
+				this.addChild(reminder);
 			}
 			
 			this.name = 'table_' + $id;
@@ -78,7 +107,6 @@ package uiimpl
 		}
 		
 		public function onPairResult(gain:int):void{
-
 			var pos:Point = getPairReferPoint();
 			comman.duke.NumDisplay.show(gain, pos.x, pos.y);
 			

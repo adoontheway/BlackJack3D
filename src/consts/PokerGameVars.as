@@ -1,10 +1,12 @@
 package consts 
 {
 	import flash.display.Stage;
+	import flash.filters.BlurFilter;
 	import flash.filters.ColorMatrixFilter;
 	import flash.filters.DropShadowFilter;
 	import flash.filters.GlowFilter;
 	import flash.geom.Matrix;
+	import flash.geom.PerspectiveProjection;
 	import flash.geom.Point;
 	/**
 	 * ...
@@ -26,6 +28,8 @@ package consts
 		public static var YELLOW_Glow_Filter:GlowFilter = new GlowFilter(0xffff00, 1, 8, 8, 1, 2);
 		public static var Drop_Shadow_Filter_LONGWAY:DropShadowFilter = new DropShadowFilter(40, 100, 0, 0.4, 40, 40, 3);
 		public static var Drop_Shadow_Filter_SHORTWAY:DropShadowFilter = new DropShadowFilter(5, 75, 0, 0.7, 10, 10, 2);
+		public static const Reminder_Filter:BlurFilter = new BlurFilter(4, 4, 2);
+		public static var Reminder_Perspective:PerspectiveProjection ;
 		
 		public static var Gray_Filter:ColorMatrixFilter = new ColorMatrixFilter(
 		[0.3086, 0.6094, 0.0820, 0, 0,

@@ -46,7 +46,10 @@ package
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
-			socketMgr = SocketMgr.Instance;
+			//socketMgr = SocketMgr.Instance;
+			
+			HttpComunicator.Instance.requesAccount();
+			HttpComunicator.Instance.requestGameData();
 		}
 		
 		public var tableDisplays:Object = {};
@@ -211,6 +214,10 @@ package
 		 * 开始游戏
 		 * */
 		public function start():Boolean{
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.START;
+			obj.stage = {};
+			
 			var betObj:Object = {};
 			var pairBet:Object = {};
 			var table:TableData;
@@ -221,10 +228,14 @@ package
 				if ( table.currentBet != 0){
 					got = true;
 					betObj[table.tableId] = table.currentBet;
+					
+					obj.stage[table.tableId] = {};
+					obj.stage[table.tableId][HttpComunicator.START] = table.currentBet;
 				}
 				if ( table.pairBet != 0 && table.currentBet != 0 ){
 					gotPair = true;
 					pairBet[table.tableId] = table.pairBet;
+					obj.stage[table.tableId][HttpComunicator.PAIR] = table.pairBet;
 				}
 			}
 			if (got){
@@ -243,6 +254,9 @@ package
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj, pair:pairBet });
 				}
 				starting = true;
+				
+				HttpComunicator.Instance.send(obj);
+				
 				return true;
 			}else{
 				FloatHint.Instance.show('no bet');
@@ -269,7 +283,7 @@ package
 			this.money = data.money;
 			//todo select table
 			playCheck();
-			if ( !bankerBJ ){
+			if ( bankerBJ ){
 				fakeCard = data.card;
 				setTimeout(function():void{
 					checkButtons();
@@ -297,7 +311,7 @@ package
 			if ( bankerBJ ){
 				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase3});
 			}else{
-				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20});
+				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:checkButtons});
 			}
 		}
 		
@@ -450,6 +464,9 @@ package
 				delete pokerMap[ -1];
 				table.addCard(poker);
 				mainView.traverseTheFakePoker(poker);
+			}else{
+				mainView.showFakeCardAfterTween = true;
+				GameUtils.log('no traverse poker');//check the dispose list
 			}
 		}
 		
@@ -493,7 +510,8 @@ package
 		public function set money(_val:Number):void{
 			if ( this._money == _val) return;
 			this._money = _val;
-			BalanceImpl.Instance.balance = _val;
+			if( BalanceImpl.Instance.parent != null)
+				BalanceImpl.Instance.balance = _val;
 		}
 		
 		private static var _instance:GameMgr;

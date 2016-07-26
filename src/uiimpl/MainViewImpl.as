@@ -122,14 +122,24 @@ package uiimpl
 			}
 			updatePoints();
 		}
-		
+		public var showFakeCardAfterTween:Boolean;
 		private function reOrderBankerContaner():void{
 			tweening = false;
 			TableUtil.reOrderContainer(banker_poker_con, 0, 200, 200);
 			if ( tweenQueue.length != 0 ){
 				var poker:Poker = tweenQueue.shift();
 				onDispenseBanker(poker);
-				return;
+			}else if (showFakeCardAfterTween){
+				var index:int = 0;
+				var num:int = this.banker_poker_con.numChildren;
+				while ( index < num){
+					poker = banker_poker_con.getChildAt(index) as Poker;
+					if ( poker.value == -1){
+						this.traverseTheFakePoker(poker);
+						break;
+					}
+					index++;
+				}
 			}
 		}
 		
@@ -139,21 +149,6 @@ package uiimpl
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
 		}
-		/**
-		public function checkTheFakePoker():void{
-			var index:int = 0;
-			var num:int = this.banker_poker_con.numChildren;
-			var poker:Poker;
-			while (index < num){
-				poker = this.banker_poker_con.getChildAt(index) as Poker;
-				if ( poker.value == -1){
-					//todo popup and shake it
-					break;
-				}
-				index++;
-			}
-		}
-		*/
 		
 		public function onRoundEnd():void{
 			var poker:Poker;
@@ -162,7 +157,7 @@ package uiimpl
 				PoolMgr.reclaim(poker);
 			}
 			this.point_display.visible = false;
-			//this.totalBet = 0;
+			this.showFakeCardAfterTween = false;
 		}
 		private var dispenserPos:Point = new Point(612, 50);
 		private var diapearPos:Point = new Point(50, 80);

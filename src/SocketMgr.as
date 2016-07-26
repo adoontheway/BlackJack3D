@@ -171,7 +171,7 @@ package
 		}
 		
 		private function onMessage(evt:WebSocketEvent):void{
-			GameUtils.log('recieve message:', evt.message.utf8Data);
+			GameUtils.info('recieve message:', evt.message.utf8Data);
 			var data:Object = JSON.parse(evt.message.utf8Data);
 			TickerMgr.SYSTIME = data.time;
 			this.parseData(data);

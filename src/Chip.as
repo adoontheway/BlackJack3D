@@ -7,6 +7,7 @@ package
 	import flash.geom.Point;
 	import morn.core.components.Box;
 	import morn.core.components.Image;
+	import uiimpl.BalanceImpl;
 	
 	/**
 	 * ...
@@ -48,6 +49,7 @@ package
 				this.parent.removeChild(this);
 				this.scale = 1;
 			}
+			BalanceImpl.Instance.rockAndRoll();
 			PoolMgr.reclaim(this);
 		}
 	}
