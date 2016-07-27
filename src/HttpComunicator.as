@@ -34,48 +34,69 @@ package
 		public static var currentTime:Number = 1469425223;
 		public static var _token:String = "EyBkMMA9prt7GN1IAaSqLXr1FmueWjvsbHoIm0Ys";
 		public static var is_agent:int = 1;
-		public static var cookieHeader:URLRequestHeader = new URLRequestHeader('Cookie', 'laravel_session=eyJpdiI6Ik9jckpTVEJLblNwNmNDaHJ0ZlhrRU5Eb2VFV01McHRxNGJ6TXA3TGljVEk9IiwidmFsdWUiOiJYWHJ6d3hUMjZyK3lcL1FValcxaE5KUXdad1NNUlZselhDZTc3YVNXWFJpblVkazQxRWF2SVZFOUlmazBHYkUwbDRDUUFjU1Q1bUlTWGtyanhZK0NRUEE9PSIsIm1hYyI6ImQ1NGNkYTE5MDEyOWZhZTJiNGM4YTg3YWRjZmE2YzlmNzkyYjliOTdkNmJiODc2MGQzZDY2MWU0YjU3YzEzNjkifQ%3D%3D');
+		public static var cookieHeader:URLRequestHeader = new URLRequestHeader('Cookie', 'laravel_session=eyJpdiI6IllCK3g0MSsyVU9PWEtVdmw4WkJ1VjQzVVVZRHZOQjdlZEFNYXdLMmJQYnM9IiwidmFsdWUiOiJZM2tqeWxIQis0dUoyNnJzSHpWODJKZHNReGFEM2xHNjc3bTk5NE14NTU2d0s0RnV0MDlrdWhUUml0UHZNSXpvNkhRZFwvUDluV21RTVVjZlFQZ1piclE9PSIsIm1hYyI6IjY1OTdkMGNkZDM4MTliYmUxZmIzMzg0MWFjYWZmNDY1MDFkOWM4YTJiNzI4M2RhOGNhMTBlMDZjYzVmOGE1ZWMifQ%3D%3D');
+		
+		public var mgr:GameMgr;
 		public function HttpComunicator() 
 		{
 			
 		}
 		
-		public function send(data:*):void{
+		public function send1(wayId:int, stage:int):void{
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
 			request.method = URLRequestMethod.POST;
-			//loader.dataFormat = URLLoaderDataFormat.TEXT;
-			//loader.addEventListener(Event.COMPLETE, onComplete);
-			//loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
-			
+			var vars:URLVariables = new URLVariables();
+			vars.wayId = wayId;
+			vars._token = _token;
+			vars.stage = stage;
+			request.data = vars;
+			loader.load(wayId,request,onComplete,onError);
+		}
+		
+		public function send(wayId:int, data:*):void{
+			GameUtils.log(wayId, JSON.stringify(data));
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(submitUrl);
+			request.method = URLRequestMethod.POST;
 			var vars:URLVariables = new URLVariables();
 			vars._token = _token;
-			vars.betdata = JSON.stringify(data);
+			vars.betdata =  JSON.stringify(data);
 			request.data = vars;
 			loader.load(data.wayId,request,onComplete,onError);
 		}
 		
 		public function requesAccount():void{
+			//return;
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(pollUserAccountUrl);
 			request.method = URLRequestMethod.POST;
-			//loader.dataFormat = URLLoaderDataFormat.TEXT;
-			//loader.addEventListener(Event.COMPLETE, onAccountInfo);
-			//loader.addEventListener(IOErrorEvent.IO_ERROR, onError);
 			loader.load(0,request,onAccountInfo,onError);
 		}
 		
 		public function requestGameData():void{
-			var obj:Object = {};
-			obj.wayId = HttpComunicator.GAME_DATA;
-			obj.stage = {};
-			send(obj);
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(submitUrl);
+			request.method = URLRequestMethod.POST;
+			
+			var vars:URLVariables = new URLVariables();
+			vars.betdata = JSON.stringify({ stage:0, wayId:9 });
+			vars._token = _token;
+			
+			request.data = vars;
+			loader.load(HttpComunicator.GAME_DATA,request,onComplete,onError);
+			
+			/**
+			var aa:String = '{"iSuccess":1,"msg":"\u6295\u6ce8\u6210\u529f","data":{"banker":{"cards":["405"]},"player":{"1":{"cards":"212,409","amount":{"6":100,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10},"2":{"cards":"201,307","amount":{"6":50,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":1,"hitAbleCount":10},"3":{"cards":"312,108","amount":{"6":100,"7":200},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10}},"gameInfo":{"position":7,"jacpotPrize":82.463,"iRequestPrize":550,"jacpotEnough":0,"projectIds":[1398,1399,1400,1401,1402,1403],"manProjectId":189}}}';
+			var result:* = JSON.parse(aa);
+			this.onGameData(result.data);
+			*/
 		}
 		
-		private function onAccountInfo(e:Event):void{
-			var loader:URLLoader = e.target as URLLoader;
+		private function onAccountInfo(proto:int,str:String):void{
 			//GameUtils.log(loader.data);
-			var result:* = JSON.parse(loader.data);
+			//return;
+			var result:* = JSON.parse(str);
 			if ( result.isSuccess == 1){
 				var data:Object =  result.data[0].data[0];
 				if ( data.type == "balance"){
@@ -88,13 +109,15 @@ package
 		}
 		
 		private function onComplete(proto:int, data:String):void{
-			GameUtils.log('proto back:', proto, data);
+			//GameUtils.log('proto back:', proto, data);
 			var result:* = JSON.parse(data);
 			if ( result.iSuccess == 1){
+				GameUtils.log('proto :', proto);
 				switch(proto){
 					case SPLIT:
 						break;
 					case HIT:
+						onHitBack(result.data);
 						break;
 					case STOP:
 						break;
@@ -103,6 +126,7 @@ package
 					case INSURE:
 						break;
 					case START:
+						onStart(result.data);
 						break;
 					case PAIR:
 						break;
@@ -117,14 +141,66 @@ package
 			}
 		}
 		
-		private function onGameData(data:Object):void{
+		private function onHitBack(data:Object):void{
+			GameUtils.log('onHit ', data.banker,  data.player);
+			var stage:Object = data.stage;
+			mgr.dispense(data.stageId,int(data.newCard));
+		}
+		
+		private function onStart(data:Object):void{
+			GameUtils.log('onStart ', data.banker,  data.player);
 			if ( data.banker != null && data.player != null ){
 				initDispatch(data);
 			}
 		}
 		
-		private function initDispatch(){
-			var arr = [];
+		private function onGameData(data:Object):void{
+			GameUtils.log('onGameData ', data.banker,  data.player);
+			if ( data.banker != null && data.player != null ){
+				FloatHint.Instance.show("Request game data finished");
+				initDispatch(data);
+			}
+		}
+		
+		private function initDispatch(data:Object):void{
+			var arr:Array = [];
+			var tempArr:Array;
+			var maxLen:int = 0;
+			var len:int = 0;
+			var cardsMap:Object = {};
+			//GameUtils.log('initDispatch');
+			for (var i:String in data.player){
+				arr.push(int(i));
+				tempArr =  data.player[i].cards.split(",");
+				len = tempArr.length;
+				maxLen = len < maxLen ? maxLen : len;
+				cardsMap[i] = tempArr;
+			}
+			cardsMap[0] = data.banker.cards;
+			arr.sort();
+			mgr.onStarted(data.player, 0);			
+			arr.push(0);
+			len = arr.length;
+			var tabId:int;
+			//GameUtils.log('arr:',arr.join(','));
+			for (var j:int = 0; j < len; j++){
+				tabId = arr[j];
+				tempArr = cardsMap[tabId];
+				//GameUtils.log('loop:',j,' tabld:'+tabId,' tempArr:'+tempArr,' arrLen:'+len,' repeat:'+maxLen);
+				if ( tempArr.length != 0){
+					mgr.dispense(tabId, int(tempArr.pop()));
+				}
+				
+				if ( j == len -1 ){
+					maxLen--;
+					if ( maxLen <= 0 ){
+						//GameUtils.log(j,maxLen);
+						break;
+					}else{
+						j = -1;
+					}
+				}
+			}
 		}
 		
 		

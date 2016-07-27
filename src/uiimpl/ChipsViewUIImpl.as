@@ -118,6 +118,7 @@ package uiimpl
 				(this['chip_' + i] as Image).url = 'png.chips.chip-'+currentChip[i];
 			}
 		}
+		/**
 		private var shakeInterval:int = -1;
 		private var currentShakeIndex:int = -1;
 		public function shakeIt():void{
@@ -139,7 +140,7 @@ package uiimpl
 				this.shakeInterval = -1;
 			}
 		}
-		
+		*/
 		private static var _instance:ChipsViewUIImpl;
 		public static function get Instance():ChipsViewUIImpl{
 			if ( ChipsViewUIImpl._instance == null){

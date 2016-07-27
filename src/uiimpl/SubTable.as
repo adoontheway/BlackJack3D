@@ -61,6 +61,7 @@ package uiimpl
 			ImageClickCenter.Instance.add(this.btn_insurrance);
 			ImageClickCenter.Instance.add(this.btn_split);
 			insure_con.filters = chips_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
+			GameUtils.log('SubTable init : '+this.name);
 		}
 		
 		public function showBet():void{

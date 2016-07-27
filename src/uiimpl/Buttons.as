@@ -216,6 +216,12 @@ package uiimpl
 		
 		private function hit():void{ 
 			disableAll();
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.HIT;
+			obj.stage = {};
+			obj.stage[mgr.currentTable.tableId] = [];
+			HttpComunicator.Instance.send(HttpComunicator.HIT,obj);
+				
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
 		}
 
@@ -237,10 +243,17 @@ package uiimpl
 			disableAll();
 			if( mgr.started && mgr.currentTable){
 				//socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
+				/**
 				var obj:Object = {};
 				obj.wayId = HttpComunicator.STOP;
-				obj.stage = [mgr.currentTable.tableId];
-				HttpComunicator.Instance.send(obj);
+				obj.stage = {}; 
+				obj.stage[mgr.currentTable.tableId] = 0;
+				*/
+				var obj:Object = {};
+				obj.wayId = HttpComunicator.STOP;
+				obj.stage = {};
+				obj.stage[mgr.currentTable.tableId] = 0;
+				HttpComunicator.Instance.send(HttpComunicator.STOP,obj);
 			}
 		}
 		

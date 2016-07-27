@@ -47,9 +47,8 @@ package
 		{
 			this.pokerMap = {};
 			//socketMgr = SocketMgr.Instance;
-			
+			HttpComunicator.Instance.mgr = this;
 			HttpComunicator.Instance.requesAccount();
-			HttpComunicator.Instance.requestGameData();
 		}
 		
 		public var tableDisplays:Object = {};
@@ -87,6 +86,10 @@ package
 			if ( _currentTable != null){
 				GameUtils.log('select table:', _currentTable.tableId);
 			}else{
+				var obj:Object = {};
+				obj.wayId = HttpComunicator.BANKER_TURN;
+				obj.stage = {};
+				HttpComunicator.Instance.send(HttpComunicator.BANKER_TURN,obj);
 				GameUtils.log('select table: null');
 			}
 			checkButtons();
@@ -100,7 +103,9 @@ package
 		private var lastDipenseTime:Number = 0;
 		private var dispenseQueue:Array = [];
 		public function dispense(tableId:uint, card:int):void{
+			GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
 			dispenseQueue.push(tableId, card);
+			
 			if ( dispenseTimer == 0){
 				dispenseTimer = setInterval(function():void{
 					var tabId:uint = _instance.dispenseQueue.shift();
@@ -116,7 +121,7 @@ package
 		}
 		
 		public function checkButtons():void{
-			GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
+			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
 			if ( starting || this.dispenseQueue.length != 0 ){
 				return;
 			}
@@ -139,7 +144,7 @@ package
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
 			lastDipenseTime = TickerMgr.SYSTIME;
-			//GameUtils.log('mgr->dispenseTo :', tableId, card);
+			GameUtils.log('mgr->dispenseTo :', tableId, card);
 			
 			var table:TableData = this.tables[tableId];
 			
@@ -157,7 +162,6 @@ package
 					table.addCard(poker);//fake poker
 				
 				mainView.onDispenseBanker(poker);	
-				
 			}
 			
 			pokerMap[card] = poker;
@@ -178,7 +182,7 @@ package
 			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
 			if ( bet == 0 ) {
 				FloatHint.Instance.show('no chips seleted...');
-				ChipsViewUIImpl.Instance.shakeIt();
+				//ChipsViewUIImpl.Instance.shakeIt();
 				return;
 			}
 			var table:TableData = this.tables[tableId];
@@ -214,9 +218,10 @@ package
 		 * 开始游戏
 		 * */
 		public function start():Boolean{
+			GameUtils.log('mgr.start');
 			var obj:Object = {};
-			obj.wayId = HttpComunicator.START;
 			obj.stage = {};
+			obj.wayId = HttpComunicator.START;
 			
 			var betObj:Object = {};
 			var pairBet:Object = {};
@@ -239,6 +244,8 @@ package
 				}
 			}
 			if (got){
+				GameUtils.log('mgr.start :', JSON.stringify(obj));
+				HttpComunicator.Instance.send(HttpComunicator.START,obj);
 				table = this.tables[0];
 				if ( table == null ){
 					mainView.bankerData = table = this.tables[0] = new TableData(0);
@@ -248,15 +255,14 @@ package
 				table.actived = true;
 				lastBetData = betObj;
 				lastPairBetData = pairBet;
+				
 				if (!gotPair){
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
 				}else{
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj, pair:pairBet });
 				}
+				
 				starting = true;
-				
-				HttpComunicator.Instance.send(obj);
-				
 				return true;
 			}else{
 				FloatHint.Instance.show('no bet');
@@ -367,21 +373,49 @@ package
 			}
 		}
 		
-		public function onStarted(tabelIds:Array, money:int):void{
+		public function onStarted(players:Object, money:int):void{
 			this.started = true;
 			var table:TableData ;
-			this.currentTables = tabelIds;
-			for each(var tableId:int in tables){
-				table = tables[tableId];
-				table.actived = true;
+			if ( mainView.y != 0){
+				mainView.tween(true);
 			}
+			//GameUtils.log('onStarted');
+			Buttons.Instance.disableAll();
+			if( this.tables[0] == null)
+				mainView.bankerData = this.tables[0] = new TableData(0);
+			
+			var table:TableData;
+			var tableId:int;
+			var player:Object;
+
+			for (var i:String in players){
+				player = players[i];
+				tableId = int(i);
+				this.currentTables.push(tableId);
+				table = this.tables[tableId];
+				if ( table == null ){
+					table = this.tables[tableId] = new TableData(tableId);
+					table.display = this.subTableDisplays[tableId];
+					table.display.tableData = table;
+				}
+				table.blackjack = player.blackJack == 1;
+				table.bust = player.bust == 1;
+				table.insureBet = player.insurance;
+				table.actived = player.stop == 1;
+				table.currentBet = player.amount[HttpComunicator.START];
+				table.pairBet = player.amount[HttpComunicator.PAIR];
+				//table.actived = true;
+				table.display.showBet();
+			}
+			
 			enableDisplayMouse(false);
+			
 			if ( this.currentTables.length > 1){
 				this.currentTables.sort(Array.NUMERIC);
 				GameUtils.log('sort tables:', this.currentTables.join('.'));
 			}
 			this._currentTable = this.tables[this.currentTables[0]];
-			this.money = money;
+			//this.money = money;
 		}
 		
 		public function onSplitBack(data:Object):void{

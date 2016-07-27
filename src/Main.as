@@ -134,6 +134,7 @@ package
 			setTimeout(function():void{
 				disposeOpenup();
 				MainViewImpl.Instance.afterStart();
+				HttpComunicator.Instance.requestGameData();
 			}, stopTime);
 		}
 		
@@ -150,10 +151,10 @@ package
 			
 		}
 		private function onAssetsLoade():void{
-			SocketMgr.Instance.init();
+			//SocketMgr.Instance.init();
 			bgLoaded();
 			if ( ApplicationDomain.currentDomain.hasDefinition('DinBold')){
-				GameUtils.log('register the font');
+				//GameUtils.log('register the font');
 				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
 				Font.registerFont(FontClass);
 			}
