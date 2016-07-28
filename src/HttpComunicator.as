@@ -57,12 +57,10 @@ package
 		
 		public function requesAccount():void{
 			//return;
-			setInterval(function():void{
-				var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
-				var request:URLRequest = new URLRequest(pollUserAccountUrl);
-				request.method = URLRequestMethod.POST;
-				loader.load(0,0,request,onAccountInfo,onError);
-			}, 3000);
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(pollUserAccountUrl);
+			request.method = URLRequestMethod.POST;
+			loader.load(0,0,request,onAccountInfo,onError);
 			
 		}
 		

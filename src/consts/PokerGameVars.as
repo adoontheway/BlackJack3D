@@ -15,10 +15,12 @@ package consts
 	public class PokerGameVars 
 	{
 		
-		public static const VERSION:String = "beta:v201607271539";
+		public static const VERSION:String = "V201607281619-beta";
 		
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
+		
+		public static var resRoot:String = '';
 		
 		public static var ChipLostPos:Point = new Point(350, 70);
 		public static var ChipGainPos:Point = new Point(850, 100);

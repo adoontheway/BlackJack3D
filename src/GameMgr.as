@@ -406,6 +406,7 @@ package
 					table = this.tables[tableId] = new TableData(tableId);
 					table.display = this.subTableDisplays[tableId];
 					table.display.tableData = table;
+					table.display.visible = true;
 				}
 				table.isSplited = player.split_table_id != 0;
 				table.blackjack = player.blackJack == 1;
@@ -419,7 +420,7 @@ package
 				if ( table.actived){
 					this.currentTables.push(tableId);
 				}else{
-					this.putToEnd(tableId);
+					this.putToEnd(tableId,false);
 				}
 					
 			}
@@ -488,7 +489,7 @@ package
 			
 			var table:TableData = this.tables[father_id];
 			var bet:int = table.currentBet;
-			
+			table.reset();
 			table.actived = true;
 			table.isSplited = true;
 
@@ -591,7 +592,7 @@ package
 			}
 		}
 		
-		private function putToEnd(tabId:int):void{
+		private function putToEnd(tabId:int,check:Boolean = true):void{
 			GameUtils.log('Before put ', tabId, 'to the end', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			var index:int = this.currentTables.indexOf(tabId);
 			if ( index != -1){
@@ -603,7 +604,8 @@ package
 			this.endTables.push(tabId);
 			
 			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
-			this.nextTable();
+			if( check )
+				this.nextTable();
 		}
 		
 		public function onTableEnd(data:Object):void{
@@ -621,10 +623,10 @@ package
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
 				
-				obj.stage[table.tableId] = 0;
-				
 				if ( table.insured){
 					result.push(i);
+					obj.stage[i] = {};
+					obj.stage[i][HttpComunicator.INSURE] = table.currentBet * 0.5;
 				}
 			}
 			

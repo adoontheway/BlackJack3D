@@ -55,18 +55,18 @@ package
 			
 			openupLoader = new Loader();
 			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
-			openupLoader.load(new URLRequest("resource/swfs/openup.swf"));
+			openupLoader.load(new URLRequest(PokerGameVars.resRoot+"swfs/openup.swf"));
 			App.init(this);
 			
 			App.loader.loadAssets([
-			"assets/bg.swf",
-			"assets/chips.swf", 
-			"assets/ui.swf", 
-			"assets/nums.swf",
-			"assets/pokers.swf", 
-			"assets/images.swf",
-			"assets/comp.swf",
-			"resource/swfs/effects.swf"], 
+			PokerGameVars.resRoot+"assets/bg.swf",
+			PokerGameVars.resRoot+"assets/chips.swf", 
+			PokerGameVars.resRoot+"assets/ui.swf", 
+			PokerGameVars.resRoot+"assets/nums.swf",
+			PokerGameVars.resRoot+"assets/pokers.swf", 
+			PokerGameVars.resRoot+"assets/images.swf",
+			PokerGameVars.resRoot+"assets/comp.swf",
+			PokerGameVars.resRoot+"swfs/effects.swf"], 
 			new Handler(onAssetsLoade));
 			
 			//App.loader.loadAssets([], new Handler(bgLoaded));
@@ -107,6 +107,7 @@ package
 			PokerGameVars.Model = params.model || 0;//场次
 			PokerGameVars.Desk = params.desk || 0;//桌子id
 			if ( ExternalInterface.available){
+				PokerGameVars.resRoot = params.resRoot;
 				HttpComunicator._token = params._token;
 				HttpComunicator.is_agent = params.is_agent;
 				HttpComunicator.submitUrl = params.submitUrl;

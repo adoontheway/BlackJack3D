@@ -315,6 +315,12 @@ package uiimpl
 			if ( val ){
 				if ( this.tableData.numCards == 1 && !secondRequest){
 					secondRequest = true;
+					var obj:Object = {};
+					obj.wayId = HttpComunicator.HIT;
+					obj.stage = {};
+					obj.stage[id] = [];
+					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id);
+			
 					SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:id});
 				}
 				this.btn_split.visible = tableData.canSplit;
