@@ -61,7 +61,7 @@ package uiimpl
 			ImageClickCenter.Instance.add(this.btn_insurrance);
 			ImageClickCenter.Instance.add(this.btn_split);
 			insure_con.filters = chips_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
-			GameUtils.log('SubTable init : '+this.name);
+			//GameUtils.log('SubTable init : '+this.name);
 		}
 		
 		public function showBet():void{
@@ -176,8 +176,16 @@ package uiimpl
 		}
 		
 		private function split(evt:MouseEvent):void{ 
-			SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
+			//SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
 			this.btn_split.visible = false;
+			
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.SPLIT;
+			obj.stage = {};
+			obj.stage[id] = {};
+			obj.stage[id][HttpComunicator.SPLIT] = this.tableData.currentBet;
+			HttpComunicator.Instance.send(HttpComunicator.SPLIT, obj, id);
+			Buttons.Instance.disableAll();
 		}
 		
 		private function insurrance(evt:MouseEvent):void{

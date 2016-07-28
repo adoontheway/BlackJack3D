@@ -88,8 +88,8 @@ package
 			}else{
 				var obj:Object = {};
 				obj.wayId = HttpComunicator.BANKER_TURN;
-				obj.stage = {};
-				HttpComunicator.Instance.send(HttpComunicator.BANKER_TURN,obj);
+				obj.stage = [];
+				HttpComunicator.Instance.send(HttpComunicator.BANKER_TURN,obj,0);
 				GameUtils.log('select table: null');
 			}
 			checkButtons();
@@ -168,10 +168,19 @@ package
 			if (tableId != 0 &&( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
 				this.putToEnd(tableId);
 			}
-			if( dispenseQueue.length == 0)
-				this.checkButtons();
-			if ( this.pairResult != null )
+			
+			if ( dispenseQueue.length == 0)
+			{
+				if ( !started ){
+					this.onRoundEnd();
+				}else{
+					this.checkButtons();
+				}
+				
+			}
+			if ( this.pairResult != null ){
 				this.onPairBetResult(pairResult);
+			}
 		}
 		
 		/**
@@ -245,7 +254,7 @@ package
 			}
 			if (got){
 				GameUtils.log('mgr.start :', JSON.stringify(obj));
-				HttpComunicator.Instance.send(HttpComunicator.START,obj);
+				HttpComunicator.Instance.send(HttpComunicator.START,obj,0);
 				table = this.tables[0];
 				if ( table == null ){
 					mainView.bankerData = table = this.tables[0] = new TableData(0);
@@ -391,31 +400,56 @@ package
 			for (var i:String in players){
 				player = players[i];
 				tableId = int(i);
-				this.currentTables.push(tableId);
+				
 				table = this.tables[tableId];
 				if ( table == null ){
 					table = this.tables[tableId] = new TableData(tableId);
 					table.display = this.subTableDisplays[tableId];
 					table.display.tableData = table;
 				}
+				table.isSplited = player.split_table_id != 0;
 				table.blackjack = player.blackJack == 1;
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
-				table.actived = player.stop == 1;
+				table.actived = player.stop == 0;
 				table.currentBet = player.amount[HttpComunicator.START];
 				table.pairBet = player.amount[HttpComunicator.PAIR];
 				//table.actived = true;
 				table.display.showBet();
+				if ( table.actived){
+					this.currentTables.push(tableId);
+				}else{
+					this.putToEnd(tableId);
+				}
+					
 			}
 			
 			enableDisplayMouse(false);
 			
-			if ( this.currentTables.length > 1){
+			if ( this.currentTables.length >= 1){
 				this.currentTables.sort(Array.NUMERIC);
 				GameUtils.log('sort tables:', this.currentTables.join('.'));
+				this._currentTable = this.tables[this.currentTables[0]];
 			}
-			this._currentTable = this.tables[this.currentTables[0]];
+			
 			//this.money = money;
+		}
+		
+		
+		public function onBankerTurn(cards:Array):void{
+			var table:TableData = tables[0];
+			var len:int = cards.length;
+			var card:int;
+			//GameUtils.log('Banker card check :', table.cards.join(','),' vs', cards.join(','));
+			for (var i:int = 1 ;  i < len; i++){
+				card = int(cards[i]);
+				
+				//if ( table.cards.indexOf(card) == -1){
+					this.dispense(0, card);
+				//}
+			}
+			this.started = false;
+			//todo 服务端不想结算，我也就不结算，直接结束了
 		}
 		
 		public function onSplitBack(data:Object):void{
@@ -448,6 +482,59 @@ package
 				poker.y = targetPoint.y;
 				TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 			}
+		}
+		
+		public function onSplited(father_id:int,father_card:Array,new_stage:Object):void{
+			
+			var table:TableData = this.tables[father_id];
+			var bet:int = table.currentBet;
+			
+			table.actived = true;
+			table.isSplited = true;
+
+			var poker:Poker;
+			poker = pokerMap[father_card[0]];
+			poker.x = 0 ;
+			poker.y = 0;
+			poker.rotation = 0;
+			var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
+			table.display.poker_con.addChild(poker);//todo tweent to table2
+			table.display.visible = true;
+			poker.x = targetPoint.x;
+			poker.y = targetPoint.y;
+			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
+				
+			dispense(father_id, int(father_card[1]));
+			
+			
+			
+			var son_id:int = father_id + 3;
+			
+			table = this.tables[son_id];
+			if ( table != null ){
+					table.reset();
+					table.actived = true;
+					table.isSplited = true;
+			}else{
+				betToTable(son_id, bet);
+				table = this.tables[son_id];
+			}
+			table.display.visible = true;
+			if (currentTables.indexOf(son_id) == -1){
+				this.currentTables.push(son_id);
+			}
+			
+			poker = pokerMap[father_card[int(new_stage.cards)]];
+			poker.x = 0 ;
+			poker.y = 0;
+			poker.rotation = 0;
+			
+			targetPoint = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
+			table.display.poker_con.addChild(poker);//todo tweent to table2
+			table.display.visible = true;
+			poker.x = targetPoint.x;
+			poker.y = targetPoint.y;
+			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 		}
 		
 		public function onSplitComplete(poker:Poker, table:TableData):void{
@@ -521,19 +608,28 @@ package
 		
 		public function onTableEnd(data:Object):void{
 			var table:TableData = this.tables[data.tabId];
-			
 			table.display.end(data);
 		}
 		
 		public function getInsuredTables():Array{
-			var result:Array = []
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.INSURE;
+			obj.stage = {};
+			
+			var result:Array = [];
 			var table:TableData;
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
+				
+				obj.stage[table.tableId] = 0;
+				
 				if ( table.insured){
 					result.push(i);
 				}
 			}
+			
+			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
+			
 			return result;
 		}
 		

@@ -10,6 +10,7 @@ package
 	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	import flash.utils.setInterval;
 	import uiimpl.BalanceImpl;
 	/**
 	 * ...
@@ -42,19 +43,7 @@ package
 			
 		}
 		
-		public function send1(wayId:int, stage:int):void{
-			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
-			var request:URLRequest = new URLRequest(submitUrl);
-			request.method = URLRequestMethod.POST;
-			var vars:URLVariables = new URLVariables();
-			vars.wayId = wayId;
-			vars._token = _token;
-			vars.stage = stage;
-			request.data = vars;
-			loader.load(wayId,request,onComplete,onError);
-		}
-		
-		public function send(wayId:int, data:*):void{
+		public function send(wayId:int, data:*, tableId:int):void{
 			GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
@@ -63,15 +52,18 @@ package
 			vars._token = _token;
 			vars.betdata =  JSON.stringify(data);
 			request.data = vars;
-			loader.load(data.wayId,request,onComplete,onError);
+			loader.load(data.wayId, tableId, request,onComplete,onError);
 		}
 		
 		public function requesAccount():void{
 			//return;
-			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
-			var request:URLRequest = new URLRequest(pollUserAccountUrl);
-			request.method = URLRequestMethod.POST;
-			loader.load(0,request,onAccountInfo,onError);
+			setInterval(function():void{
+				var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+				var request:URLRequest = new URLRequest(pollUserAccountUrl);
+				request.method = URLRequestMethod.POST;
+				loader.load(0,0,request,onAccountInfo,onError);
+			}, 3000);
+			
 		}
 		
 		public function requestGameData():void{
@@ -84,7 +76,7 @@ package
 			vars._token = _token;
 			
 			request.data = vars;
-			loader.load(HttpComunicator.GAME_DATA,request,onComplete,onError);
+			loader.load(HttpComunicator.GAME_DATA,0,request,onComplete,onError);
 			
 			/**
 			var aa:String = '{"iSuccess":1,"msg":"\u6295\u6ce8\u6210\u529f","data":{"banker":{"cards":["405"]},"player":{"1":{"cards":"212,409","amount":{"6":100,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10},"2":{"cards":"201,307","amount":{"6":50,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":1,"hitAbleCount":10},"3":{"cards":"312,108","amount":{"6":100,"7":200},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10}},"gameInfo":{"position":7,"jacpotPrize":82.463,"iRequestPrize":550,"jacpotEnough":0,"projectIds":[1398,1399,1400,1401,1402,1403],"manProjectId":189}}}';
@@ -93,7 +85,7 @@ package
 			*/
 		}
 		
-		private function onAccountInfo(proto:int,str:String):void{
+		private function onAccountInfo(proto:int,tabldId:int,str:String):void{
 			//GameUtils.log(loader.data);
 			//return;
 			var result:* = JSON.parse(str);
@@ -101,25 +93,27 @@ package
 				var data:Object =  result.data[0].data[0];
 				if ( data.type == "balance"){
 					var balance = parseFloat(data.data);
-					GameUtils.log("balance:",balance);
+					//GameUtils.log("balance:",balance);
 					GameMgr.Instance.money = balance;
 					BalanceImpl.Instance.rockAndRoll();
 				}
 			}
 		}
 		
-		private function onComplete(proto:int, data:String):void{
+		private function onComplete(proto:int, tabId:int, data:String):void{
 			//GameUtils.log('proto back:', proto, data);
 			var result:* = JSON.parse(data);
 			if ( result.iSuccess == 1){
 				GameUtils.log('proto :', proto);
 				switch(proto){
 					case SPLIT:
+						onSplitBack(result.data,tabId);
 						break;
 					case HIT:
 						onHitBack(result.data);
 						break;
 					case STOP:
+						onStopBack(result.data, tabId);
 						break;
 					case DOUBLE:
 						break;
@@ -131,6 +125,7 @@ package
 					case PAIR:
 						break;
 					case BANKER_TURN:
+						onBankerTurn(result.data);
 						break;
 					case GAME_DATA:
 						onGameData(result.data);
@@ -139,6 +134,19 @@ package
 			}else{
 				FloatHint.Instance.show(result.msg);
 			}
+		}
+		
+		private function onSplitBack(data:Object,tableId:int):void{
+			mgr.onSplited(tableId, data.father_card, data.newCards);
+		}
+		
+		private function onBankerTurn(data:Object):void{
+			var cards:Array = data.banker.cards;
+			mgr.onBankerTurn(cards);
+		}
+		
+		private function onStopBack(data:*, tableId:int):void{
+			mgr.onStandBack({tabId:tableId});
 		}
 		
 		private function onHitBack(data:Object):void{
@@ -155,7 +163,7 @@ package
 		}
 		
 		private function onGameData(data:Object):void{
-			GameUtils.log('onGameData ', data.banker,  data.player);
+			GameUtils.log('onGameData ');
 			if ( data.banker != null && data.player != null ){
 				FloatHint.Instance.show("Request game data finished");
 				initDispatch(data);

@@ -118,7 +118,6 @@ package uiimpl
 		
 		private var currentModel:uint = 999;
 		public function switchModel(model:uint):void{
-			//if ( currentModel == model) return;
 			this.currentModel = model;
 			this.hideAll();
 			if ( model == 0 ) return;
@@ -192,12 +191,19 @@ package uiimpl
 		
 		public function skip():void{
 			disableAll();
+			
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.INSURE;
+			obj.stage = {};
+			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj,0);
+			
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
 		public function ok():void{
 			disableAll();
 			var tables:Array = mgr.getInsuredTables();
+			
 			if ( tables.length > 0){
 				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
 			}else{
@@ -220,7 +226,7 @@ package uiimpl
 			obj.wayId = HttpComunicator.HIT;
 			obj.stage = {};
 			obj.stage[mgr.currentTable.tableId] = [];
-			HttpComunicator.Instance.send(HttpComunicator.HIT,obj);
+			HttpComunicator.Instance.send(HttpComunicator.HIT,obj,mgr.currentTable.tableId);
 				
 			socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
 		}
@@ -232,6 +238,12 @@ package uiimpl
 		}
 		private function double():void{
 			//this.hideAllBtns();
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.DOUBLE;
+			obj.stage = {};
+			obj.stage[mgr.currentTable.tableId] = [];
+			HttpComunicator.Instance.send(HttpComunicator.DOUBLE, obj,mgr.currentTable.tableId);
+			
 			if ( mgr.started){
 				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
@@ -241,6 +253,13 @@ package uiimpl
 		}
 		private function stand():void{
 			disableAll();
+			
+			var obj:Object = {};
+			obj.wayId = HttpComunicator.STOP;
+			obj.stage = {};
+			obj.stage[mgr.currentTable.tableId] = [];
+			HttpComunicator.Instance.send(HttpComunicator.STOP, obj,mgr.currentTable.tableId);
+				
 			if( mgr.started && mgr.currentTable){
 				//socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 				/**
@@ -249,11 +268,7 @@ package uiimpl
 				obj.stage = {}; 
 				obj.stage[mgr.currentTable.tableId] = 0;
 				*/
-				var obj:Object = {};
-				obj.wayId = HttpComunicator.STOP;
-				obj.stage = {};
-				obj.stage[mgr.currentTable.tableId] = 0;
-				HttpComunicator.Instance.send(HttpComunicator.STOP,obj);
+				
 			}
 		}
 		

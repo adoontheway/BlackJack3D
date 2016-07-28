@@ -11,7 +11,7 @@ package model
 		/** 前后端通用的id **/
 		public var tableId:int;
 		public var display:SubTable;
-		private var cards:Vector.<Poker>;
+		public var cards:Vector.<Poker>;
 		public var numCards:int = 0;
 		public var points:int = 0;
 		public var currentBet:int;
@@ -59,7 +59,6 @@ package model
 			this.canSplit = !this.isSplited && this.tableId <= 3 && numCards == 2 && cards[0].compareValue == cards[1].compareValue;
 			this.blackjack =  numCards == 2 && this.hasA && this.points == 21 && !isSplited  && this.tableId <= 3;
 			this.bust = points > 21;
-			
 		}
 
 		public function reset():void{
