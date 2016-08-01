@@ -112,6 +112,7 @@ package
 				HttpComunicator.is_agent = params.is_agent;
 				HttpComunicator.submitUrl = params.submitUrl;
 				HttpComunicator.loaddataUrl = params.loaddataUrl;
+				HttpComunicator.pollUserAccountUrl = params.pollUserAccountUrl;
 				HttpComunicator.cookieHeader = new URLRequestHeader("Cookie",params.cookie);
 			}
 			

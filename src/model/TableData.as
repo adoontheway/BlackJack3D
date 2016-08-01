@@ -34,6 +34,7 @@ package model
 		public var pairBet:int;
 		/** 保险花费 */
 		public var insureBet:int;
+		public var prize:int;
 		public function TableData(tabId:int) 
 		{
 			this.cards = new Vector.<Poker>();
@@ -72,6 +73,7 @@ package model
 			this.hasA = false;
 			this.pairBet = 0;
 			this.insureBet = 0;
+			this.prize = 0;
 			this.insured = false;
 			if ( this.tableId <= 3){
 				this.isSplited = false;

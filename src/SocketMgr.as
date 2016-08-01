@@ -36,6 +36,7 @@ package
 		}
 		
 		public function send(data:*):void{
+			return;
 			if (!this.socket.connected){
 				FloatHint.Instance.show('服务器已经断开连接，请重新进入游戏');
 				return;

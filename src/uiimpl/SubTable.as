@@ -149,7 +149,6 @@ package uiimpl
 		}
 		
 		public function onInsureBack(bet:int):void{
-			
 			var value:uint = bet > 0 ? bet : -bet;			
 			var targetPos:Point;
 			if ( bet > 0 ){
@@ -210,9 +209,40 @@ package uiimpl
 			}
 		}
 		
-		public function end(data:Object):void{
+		public function end():void{
+			var gain:int = tableData.prize - tableData.currentBet;
+			GameUtils.log('Check Gain of ', this.id, ' --> ',tableData.prize, tableData.currentBet);
+			var pos:Point = localToGlobal(new Point(40, 10));
+			if ( gain < 0){
+				comman.duke.NumDisplay.show( gain, pos.x,  pos.y);
+				removeAllBet( -1, chips_con, 114, 96);
+				img_result_0.url = 'png.images.result_lose';
+			}else if (gain > 0){
+				comman.duke.NumDisplay.show( gain, pos.x, pos.y);
+				var sp:Sprite = TableUtil.getChipStack(gain);
+				pos = globalToLocal(PokerGameVars.ChipLostPos);
+				sp.x = pos.x;
+				sp.y = pos.y;
+				addChild(sp);
+				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
+				if ( !tableData.blackjack){
+					img_result_0.url = 'png.images.result_win_1';
+				}else{
+					img_result_0.url = 'png.images.result_win';
+				}
+				
+			}else{
+				comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
+				removeAllBet(1, chips_con, 114, 96);
+				img_result_0.url = 'png.images.result_push';
+			}
+			bet_display.visible = false;
+			showResultLab(true);
+		
+			/**
 			setTimeout(function(){
-				var pos:Point = localToGlobal(new Point(40,10))
+				var pos:Point = localToGlobal(new Point(40, 10));
+				
 				if ( data.result == -1){
 					comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
 					removeAllBet( -1, chips_con, 114, 96);
@@ -239,6 +269,7 @@ package uiimpl
 				bet_display.visible = false;
 				showResultLab(true);
 			}, 1000);
+			*/
 		}
 		
 		private function showResultLab(flag:Boolean):void{

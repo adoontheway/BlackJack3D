@@ -44,7 +44,7 @@ package
 		}
 		
 		public function send(wayId:int, data:*, tableId:int):void{
-			GameUtils.log(wayId, JSON.stringify(data));
+			//GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
 			request.method = URLRequestMethod.POST;
@@ -122,6 +122,7 @@ package
 						onDoubleBack(int(result.data.newCard),result.data.stageId,result.data.stage);
 						break;
 					case INSURE:
+						onInsure(result.data);
 						break;
 					case START:
 						onStart(result.data);
@@ -143,9 +144,14 @@ package
 			}
 		}
 		
+		private function onInsure(data:Object):void{
+			//GameUtils.log('onInsureBack:');
+			var bankerNewCard:int = int( data.bankerNewCard);
+			mgr.onInsured(bankerNewCard);
+		}
 		
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
-			GameUtils.log('onDoubleBack:',newCard,tableId);
+			//GameUtils.log('onDoubleBack:',newCard,tableId);
 			mgr.onDoubled(newCard, tableId, tableData);
 		}
 		
@@ -155,7 +161,7 @@ package
 		
 		private function onBankerTurn(data:Object):void{
 			var cards:Array = data.banker.cards;
-			mgr.onBankerTurn(cards);
+			mgr.onBankerTurn(cards,data.player);
 		}
 		
 		private function onStopBack(data:*, tableId:int):void{
@@ -169,14 +175,14 @@ package
 		}
 		
 		private function onStart(data:Object):void{
-			GameUtils.log('onStart ', data.banker,  data.player);
+			//GameUtils.log('onStart ', data.banker,  data.player);
 			if ( data.banker != null && data.player != null ){
 				initDispatch(data,true);
 			}
 		}
 		
 		private function onGameData(data:Object, isStart:Boolean):void{
-			GameUtils.log('onGameData ');
+			//GameUtils.log('onGameData ');
 			if ( data.banker != null && data.player != null ){
 				FloatHint.Instance.show("Request game data finished");
 				initDispatch(data,isStart);

@@ -129,7 +129,11 @@ package uiimpl
 			if ( tweenQueue.length != 0 ){
 				var poker:Poker = tweenQueue.shift();
 				onDispenseBanker(poker);
-			}else if (showFakeCardAfterTween){
+			}else {
+				mgr.onBankerDispense();
+			}
+			/**
+			if (showFakeCardAfterTween){
 				var index:int = 0;
 				var num:int = this.banker_poker_con.numChildren;
 				while ( index < num){
@@ -140,7 +144,7 @@ package uiimpl
 					}
 					index++;
 				}
-			}
+			}*/
 		}
 		
 		public function traverseTheFakePoker(poker:Poker):void{
