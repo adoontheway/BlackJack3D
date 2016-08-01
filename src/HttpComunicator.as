@@ -86,16 +86,21 @@ package
 		private function onAccountInfo(proto:int,tabldId:int,str:String):void{
 			//GameUtils.log(loader.data);
 			//return;
-			var result:* = JSON.parse(str);
-			if ( result.isSuccess == 1){
-				var data:Object =  result.data[0].data[0];
-				if ( data.type == "balance"){
-					var balance = parseFloat(data.data);
-					//GameUtils.log("balance:",balance);
-					GameMgr.Instance.money = balance;
-					BalanceImpl.Instance.rockAndRoll();
+			try{
+				var result:* = JSON.parse(str);
+				if ( result.isSuccess == 1){
+					var data:Object =  result.data[0].data[0];
+					if ( data.type == "balance"){
+						var balance = parseFloat(data.data);
+						//GameUtils.log("balance:",balance);
+						GameMgr.Instance.money = balance;
+						BalanceImpl.Instance.rockAndRoll();
+					}
 				}
+			}catch (e:Error){
+				GameUtils.fatal('error when parse accountinfo:',e.message);
 			}
+			
 		}
 		
 		private function onComplete(proto:int, tabId:int, data:String):void{
@@ -114,6 +119,7 @@ package
 						onStopBack(result.data, tabId);
 						break;
 					case DOUBLE:
+						onDoubleBack(int(result.data.newCard),result.data.stageId,result.data.stage);
 						break;
 					case INSURE:
 						break;
@@ -126,12 +132,21 @@ package
 						onBankerTurn(result.data);
 						break;
 					case GAME_DATA:
-						onGameData(result.data);
+						onGameData(result.data, false);
+						break;
+					default:
+						GameUtils.log('unknown proto', proto);
 						break;
 				}
 			}else{
 				FloatHint.Instance.show(result.msg);
 			}
+		}
+		
+		
+		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
+			GameUtils.log('onDoubleBack:',newCard,tableId);
+			mgr.onDoubled(newCard, tableId, tableData);
 		}
 		
 		private function onSplitBack(data:Object,tableId:int):void{
@@ -156,19 +171,19 @@ package
 		private function onStart(data:Object):void{
 			GameUtils.log('onStart ', data.banker,  data.player);
 			if ( data.banker != null && data.player != null ){
-				initDispatch(data);
+				initDispatch(data,true);
 			}
 		}
 		
-		private function onGameData(data:Object):void{
+		private function onGameData(data:Object, isStart:Boolean):void{
 			GameUtils.log('onGameData ');
 			if ( data.banker != null && data.player != null ){
 				FloatHint.Instance.show("Request game data finished");
-				initDispatch(data);
+				initDispatch(data,isStart);
 			}
 		}
 		
-		private function initDispatch(data:Object):void{
+		private function initDispatch(data:Object, isStart:Boolean):void{
 			var arr:Array = [];
 			var tempArr:Array;
 			var maxLen:int = 0;
@@ -184,7 +199,7 @@ package
 			}
 			cardsMap[0] = data.banker.cards;
 			arr.sort();
-			mgr.onStarted(data.player, 0);			
+			mgr.onStarted(data.player, 0,isStart);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;

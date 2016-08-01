@@ -241,7 +241,8 @@ package uiimpl
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.DOUBLE;
 			obj.stage = {};
-			obj.stage[mgr.currentTable.tableId] = [];
+			obj.stage[mgr.currentTable.tableId] = {};
+			obj.stage[mgr.currentTable.tableId][HttpComunicator.DOUBLE] = mgr.currentTable.currentBet*2;
 			HttpComunicator.Instance.send(HttpComunicator.DOUBLE, obj,mgr.currentTable.tableId);
 			
 			if ( mgr.started){

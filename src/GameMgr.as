@@ -103,7 +103,7 @@ package
 		private var lastDipenseTime:Number = 0;
 		private var dispenseQueue:Array = [];
 		public function dispense(tableId:uint, card:int):void{
-			GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
+			//GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
 			dispenseQueue.push(tableId, card);
 			
 			if ( dispenseTimer == 0){
@@ -165,7 +165,7 @@ package
 			}
 			
 			pokerMap[card] = poker;
-			if (tableId != 0 &&( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11))){
+			if (tableId != 0 &&( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
 				this.putToEnd(tableId);
 			}
 			
@@ -179,7 +179,7 @@ package
 				
 			}
 			if ( this.pairResult != null ){
-				this.onPairBetResult(pairResult);
+				this.onPairBetResult();
 			}
 		}
 		
@@ -382,7 +382,7 @@ package
 			}
 		}
 		
-		public function onStarted(players:Object, money:int):void{
+		public function onStarted(players:Object, money:int, isStart:Boolean):void{
 			this.started = true;
 			var table:TableData ;
 			if ( mainView.y != 0){
@@ -396,7 +396,7 @@ package
 			var table:TableData;
 			var tableId:int;
 			var player:Object;
-
+			var pairArr:Array;
 			for (var i:String in players){
 				player = players[i];
 				tableId = int(i);
@@ -422,10 +422,17 @@ package
 				}else{
 					this.putToEnd(tableId,false);
 				}
-					
+				if ( isStart && table.pairBet != 0){
+					if ( pairArr == null){
+						pairArr = [];
+					}
+					pairArr.push(i, player.is_pair);
+				}
 			}
 			
 			enableDisplayMouse(false);
+			
+			pairResult = pairArr;
 			
 			if ( this.currentTables.length >= 1){
 				this.currentTables.sort(Array.NUMERIC);
@@ -436,6 +443,28 @@ package
 			//this.money = money;
 		}
 		
+		private var pairResult:Array;
+		public function onPairBetResult():void{//data:Object):void{
+			/**
+			if ( this.dispenseQueue.length != 0 ){
+				this.pairResult = data;
+				return;
+			}
+			this.pairResult = null;
+			var result:Array = data.result;
+			*/
+			if ( pairResult == null ) return;
+			var table:BaseTable;
+			var tabId:int;
+			var gain:int;
+			//this.money = data.money;
+			while (pairResult.length != 0 ){
+				tabId = pairResult.shift();
+				gain = pairResult.shift();
+				table = this.tableDisplays[tabId];
+				table.onPairResult(gain);
+			}
+		}
 		
 		public function onBankerTurn(cards:Array):void{
 			var table:TableData = tables[0];
@@ -486,6 +515,34 @@ package
 		}
 		
 		public function onSplited(father_id:int,father_card:Array,new_stage:Object):void{
+			var son_id:int = father_id + 3;
+			
+			table = this.tables[son_id];
+			if ( table != null ){
+					table.reset();
+					table.actived = true;
+					table.isSplited = true;
+			}else{
+				betToTable(son_id, bet);
+				table = this.tables[son_id];
+			}
+			table.display.visible = true;
+			if (currentTables.indexOf(son_id) == -1){
+				this.currentTables.push(son_id);
+			}
+			
+			poker = pokerMap[int(new_stage.cards)];
+			poker.x = 0 ;
+			poker.y = 0;
+			poker.rotation = 0;
+			
+			targetPoint = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
+			table.display.poker_con.addChild(poker);//todo tweent to table2
+			table.display.visible = true;
+			poker.x = targetPoint.x;
+			poker.y = targetPoint.y;
+			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
+			
 			
 			var table:TableData = this.tables[father_id];
 			var bet:int = table.currentBet;
@@ -506,36 +563,6 @@ package
 			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 				
 			dispense(father_id, int(father_card[1]));
-			
-			
-			
-			var son_id:int = father_id + 3;
-			
-			table = this.tables[son_id];
-			if ( table != null ){
-					table.reset();
-					table.actived = true;
-					table.isSplited = true;
-			}else{
-				betToTable(son_id, bet);
-				table = this.tables[son_id];
-			}
-			table.display.visible = true;
-			if (currentTables.indexOf(son_id) == -1){
-				this.currentTables.push(son_id);
-			}
-			
-			poker = pokerMap[father_card[int(new_stage.cards)]];
-			poker.x = 0 ;
-			poker.y = 0;
-			poker.rotation = 0;
-			
-			targetPoint = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
-			table.display.poker_con.addChild(poker);//todo tweent to table2
-			table.display.visible = true;
-			poker.x = targetPoint.x;
-			poker.y = targetPoint.y;
-			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 		}
 		
 		public function onSplitComplete(poker:Poker, table:TableData):void{
@@ -543,28 +570,19 @@ package
 			table.addCard(poker);
 		}
 		
-		private var pairResult:*;
-		public function onPairBetResult(data:Object):void{
-			if ( this.dispenseQueue.length != 0 ){
-				this.pairResult = data;
-				return;
-			}
-			this.pairResult = null;
-			var result:Array = data.result;
-			var table:BaseTable;
-			var tabId:int;
-			var gain:int;
-			this.money = data.money;
-			while (result.length != 0 ){
-				tabId = result.shift();
-				gain = result.shift();
-				table = this.tableDisplays[tabId];
-				table.onPairResult(gain);
-			}
-		}
+		
 		
 		public function onStandBack(data:Object):void{
 			var tabId:int = data.tabId;
+			putToEnd(tabId);
+		}
+		
+		public function onDoubled(newCard:int, tabId:int, tableData:Object):void{
+			var table:TableData = this.tables[tabId];
+			table.currentBet = tableData.amount[HttpComunicator.START] + tableData.amount[HttpComunicator.DOUBLE];
+			table.display.updateBetinfo();
+			table.doubled = true;
+			dispense(tabId, newCard);
 			putToEnd(tabId);
 		}
 		
