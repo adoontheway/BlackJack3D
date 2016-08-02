@@ -26,7 +26,7 @@ package consts
 		public static const REVERSE:String = "sounds/ShowCards.mp3";
 
 		public static function InitSounds():void{
-			GameUtils.log('init sounds');
+			//GameUtils.log('init sounds');
 		}
 	}
 

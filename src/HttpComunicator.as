@@ -75,17 +75,10 @@ package
 			
 			request.data = vars;
 			loader.load(HttpComunicator.GAME_DATA,0,request,onComplete,onError);
-			
-			/**
-			var aa:String = '{"iSuccess":1,"msg":"\u6295\u6ce8\u6210\u529f","data":{"banker":{"cards":["405"]},"player":{"1":{"cards":"212,409","amount":{"6":100,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10},"2":{"cards":"201,307","amount":{"6":50,"7":50},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":1,"hitAbleCount":10},"3":{"cards":"312,108","amount":{"6":100,"7":200},"is_pair":0,"father_table_id":0,"double":0,"split_table_id":0,"stop":0,"bust":0,"blackJack":0,"insurance":0,"hitAbleCount":10}},"gameInfo":{"position":7,"jacpotPrize":82.463,"iRequestPrize":550,"jacpotEnough":0,"projectIds":[1398,1399,1400,1401,1402,1403],"manProjectId":189}}}';
-			var result:* = JSON.parse(aa);
-			this.onGameData(result.data);
-			*/
 		}
 		
 		private function onAccountInfo(proto:int,tabldId:int,str:String):void{
 			//GameUtils.log(loader.data);
-			//return;
 			try{
 				var result:* = JSON.parse(str);
 				if ( result.isSuccess == 1){
@@ -146,8 +139,12 @@ package
 		
 		private function onInsure(data:Object):void{
 			//GameUtils.log('onInsureBack:');
-			var bankerNewCard:int = int( data.bankerNewCard);
-			mgr.onInsured(bankerNewCard);
+			if (data.banker != null){
+				mgr.onInsured(data.banker.cards,data.player);
+			}else if ( data.bankerNewCard != null){
+				mgr.onInsured(data.bankerNewCard,data.player);
+			}
+			
 		}
 		
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
@@ -169,8 +166,11 @@ package
 		}
 		
 		private function onHitBack(data:Object):void{
-			GameUtils.log('onHit ', data.banker,  data.player);
+			//GameUtils.log('onHit ', data.newCard,  data.stageId);
 			var stage:Object = data.stage;
+			if ( stage.stop == 1 && stage.prize != null){
+				mgr.onTableEnd(data.stageId,stage);
+			}
 			mgr.dispense(data.stageId,int(data.newCard));
 		}
 		
@@ -228,6 +228,8 @@ package
 					}
 				}
 			}
+			if( isStart )
+				mgr.dispense(0, -1);
 		}
 		
 		

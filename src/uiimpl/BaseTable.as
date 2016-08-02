@@ -115,7 +115,7 @@ package uiimpl
 			var num:int = pair_con.numChildren - 1;
 			while ( num >= 0){
 				chip = this.pair_con.getChildAt(num) as Chip;
-				chip.autoHide(gain < 0 ? 0 : 1);
+				chip.autoHide(gain == 0 ? 0 : 1);
 				num--;
 			}
 		}

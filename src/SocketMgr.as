@@ -120,8 +120,7 @@ package
 			if (data.hasOwnProperty('money')){
 				mgr.money = data.money;
 			}
-			mgr.onTableEnd(data);
-			
+			//mgr.onTableEnd(data);
 		}
 		
 		private function onRoundEnd(data:*):void{

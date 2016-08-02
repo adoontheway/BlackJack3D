@@ -130,6 +130,7 @@ package uiimpl
 				var poker:Poker = tweenQueue.shift();
 				onDispenseBanker(poker);
 			}else {
+				//GameUtils.log('Banker dipense complete..');
 				mgr.onBankerDispense();
 			}
 			/**
@@ -152,6 +153,8 @@ package uiimpl
 			poker.rotationY = 180;
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
+			//GameUtils.log('Fake card reverse complete..');
+			mgr.onBankerDispense();
 		}
 		
 		public function onRoundEnd():void{

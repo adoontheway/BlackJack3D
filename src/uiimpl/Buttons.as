@@ -48,15 +48,6 @@ package uiimpl
 			super();
 			this.x = 650;
 			this.y = 515;
-			/**
-			this.btn_double.addEventListener(MouseEvent.CLICK, this.double);
-			this.btn_hit.addEventListener(MouseEvent.CLICK, this.hit);
-			this.btn_stand.addEventListener(MouseEvent.CLICK, this.stand);
-			this.btn_rebet.addEventListener(MouseEvent.CLICK, this.rebet);
-			this.btn_clean.addEventListener(MouseEvent.CLICK, this.clean);
-			this.btn_skip.addEventListener(MouseEvent.CLICK, this.skip);
-			this.btn_ok.addEventListener(MouseEvent.CLICK, this.ok);
-			*/
 			models = [
 			0,
 			["start", "clean"],
@@ -64,7 +55,7 @@ package uiimpl
 			["ok"],
 			["hit", "stand"],
 			["rebet","double", "clean"],//btn_clean clean the table btn_rebet rebet and start
-			["rebet", "start", "double", "clean"],
+			[ "start", "rebet", "double", "clean"],
 			["hit", "stand","double"],
 			];
 			
@@ -238,6 +229,7 @@ package uiimpl
 		}
 		private function double():void{
 			//this.hideAllBtns();
+			if ( mgr.currentTable == null) return;
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.DOUBLE;
 			obj.stage = {};
