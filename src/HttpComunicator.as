@@ -113,7 +113,9 @@ package
 						onStopBack(result.data, tabId);
 						break;
 					case DOUBLE:
-						onDoubleBack(int(result.data.newCard),result.data.stageId,result.data.stage);
+						onDoubleBack(int(result.data.newCard), result.data.stageId, result.data.stage);
+						mgr.money = Number(result.data.account);
+						BalanceImpl.Instance.rockAndRoll();
 						break;
 					case INSURE:
 						onInsure(result.data);
@@ -146,6 +148,7 @@ package
 				mgr.onInsured(data.bankerNewCard,data.player);
 			}
 			mgr.money = Number(data.account);
+			BalanceImpl.Instance.rockAndRoll();
 		}
 		
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
@@ -155,11 +158,13 @@ package
 		
 		private function onSplitBack(data:Object,tableId:int):void{
 			mgr.onSplited(tableId, data.father_card, data.newCards);
+			mgr.money = Number(data.account);
+			BalanceImpl.Instance.rockAndRoll();
 		}
 		
 		private function onBankerTurn(data:Object):void{
-			var cards:Array = data.banker.cards;
 			mgr.onBankerTurn(data);
+			mgr.money = Number(data.account);
 		}
 		
 		private function onStopBack(data:*, tableId:int):void{
@@ -175,7 +180,6 @@ package
 				}, 500);
 			}
 			mgr.dispense(data.stageId, int(data.newCard));
-			mgr.money = Number(data.account);
 		}
 		
 		private function onStart(data:Object):void{

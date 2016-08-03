@@ -212,7 +212,7 @@ package uiimpl
 		public function end():void{
 			if ( !tableData.actived && !tableData.blackjack ) return;
 			var gain:int = tableData.prize - tableData.currentBet ;
-			GameUtils.log('Check Gain of ', this.id, ' --> ',tableData.prize, tableData.currentBet,tableData.actived);
+			//GameUtils.log('Check Gain of ', this.id, ' --> ',tableData.prize, tableData.currentBet,tableData.actived);
 			var pos:Point = localToGlobal(new Point(40, 10));
 			if ( gain < 0){
 				comman.duke.NumDisplay.show( gain, pos.x,  pos.y);

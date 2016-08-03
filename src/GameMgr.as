@@ -213,14 +213,14 @@ package
 		}
 		
 		public function x2Bet():void{
-			reset();
+			//reset();
 			var table:TableData;
 			for (var i:String in tables){
 				table = tables[i];
 				if ( table.currentBet != 0){
-					betToTable(int(i), table.currentBet * 2);
+					betToTable(int(i), table.currentBet );
 					if ( table.pairBet != 0 ){
-						betPair(int(i), table.pairBet * 2);
+						betPair(int(i), table.pairBet);
 					}
 				}
 			}
@@ -502,6 +502,7 @@ package
 			var insured:Boolean = false;
 			lastBetData = {};
 			lastPairBetData = {};
+			var noPairBets:Boolean = true;
 			for (var i:String in players){
 				player = players[i];
 				tableId = int(i);
@@ -524,11 +525,18 @@ package
 				}
 				table.actived = player.stop == 0;
 				table.currentBet = player.amount[HttpComunicator.START];
+				
+				if ( table.tableId > 3 ){
+					table.currentBet = player.amount[HttpComunicator.SPLIT];
+				}
+				
 				table.pairBet = player.amount[HttpComunicator.PAIR];
 				if( table.currentBet != 0)
 					lastBetData[i] = table.currentBet;
-				if( table.pairBet != 0)
+				if ( table.pairBet != 0){
+					noPairBets = false;
 					lastPairBetData[i] = table.pairBet;
+				}
 				
 				
 				if( !isStart )
@@ -558,6 +566,8 @@ package
 			}
 			
 			this.money = money;
+			BalanceImpl.Instance.rockAndRoll();
+	
 		}
 		
 		private var pairResult:Array;
@@ -585,7 +595,7 @@ package
 		
 		public function onBankerTurn(data:Object):void{
 			var cards:Array = data.banker.cards;
-			var players:Object = data.banker.player;
+			var players:Object = data.player;
 			
 			var table:TableData;
 			var player:*;
@@ -599,6 +609,7 @@ package
 				if ( player.prize[HttpComunicator.SPLIT]){
 					table.prize += player.prize[HttpComunicator.SPLIT];
 				}
+				GameUtils.log('table:', j, '==== prize : ', table.prize);
 			}
 			
 			//table = tables[0];

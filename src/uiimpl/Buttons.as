@@ -160,7 +160,7 @@ package uiimpl
 		
 		
 		public function repeat():void{
-			mgr.x2Bet();
+			mgr.repeatBet();
 		}
 		
 		public function rebet():void{
