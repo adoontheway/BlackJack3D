@@ -31,7 +31,10 @@ package uiimpl
 			"skip":3,
 			"split":3,
 			"stand":3,
-			"start":0
+			"start":0,
+			"x2":2,
+			"repeat":1,
+			"dispense":2
 		};
 		public static const MODEL_START:uint = 1 ;//hit rebet double
 		public static const MODEL_INSRRUREABLE:uint = 2;//skip --> table insurrance
@@ -55,7 +58,7 @@ package uiimpl
 			["ok"],
 			["hit", "stand"],
 			["rebet","double", "clean"],//btn_clean clean the table btn_rebet rebet and start
-			[ "start", "rebet", "double", "clean"],
+			[ "start", "repeat", "x2", "clean"],
 			["hit", "stand","double"],
 			];
 			
@@ -104,6 +107,12 @@ package uiimpl
 				case "rebet":
 					this.rebet();
 					break;
+				case "x2":
+					this.x2();
+					break;
+				case "repeat":
+					this.repeat();
+					break;
 			}
 		}
 		
@@ -143,6 +152,15 @@ package uiimpl
 				button = buttons[i];
 				button.enable = false;
 			}
+		}
+		
+		public function x2():void{
+			mgr.x2Bet();
+		}
+		
+		
+		public function repeat():void{
+			mgr.x2Bet();
 		}
 		
 		public function rebet():void{
@@ -225,7 +243,9 @@ package uiimpl
 		private function clean():void{
 			mgr.reset();
 			MainViewImpl.Instance.tween(false);
-			switchModel(MODEL_CLEAN);
+			if ( mgr.lastBetData != null ){
+				switchModel(MODEL_CLEAN);
+			}
 		}
 		private function double():void{
 			//this.hideAllBtns();

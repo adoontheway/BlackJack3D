@@ -11,6 +11,7 @@ package
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
 	import flash.utils.setInterval;
+	import flash.utils.setTimeout;
 	import uiimpl.BalanceImpl;
 	/**
 	 * ...
@@ -144,7 +145,7 @@ package
 			}else if ( data.bankerNewCard != null){
 				mgr.onInsured(data.bankerNewCard,data.player);
 			}
-			
+			mgr.money = Number(data.account);
 		}
 		
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
@@ -158,7 +159,7 @@ package
 		
 		private function onBankerTurn(data:Object):void{
 			var cards:Array = data.banker.cards;
-			mgr.onBankerTurn(cards,data.player);
+			mgr.onBankerTurn(data);
 		}
 		
 		private function onStopBack(data:*, tableId:int):void{
@@ -169,9 +170,12 @@ package
 			//GameUtils.log('onHit ', data.newCard,  data.stageId);
 			var stage:Object = data.stage;
 			if ( stage.stop == 1 && stage.prize != null){
-				mgr.onTableEnd(data.stageId,stage);
+				setTimeout(function():void{
+					mgr.onTableEnd(data.stageId,stage);
+				}, 500);
 			}
-			mgr.dispense(data.stageId,int(data.newCard));
+			mgr.dispense(data.stageId, int(data.newCard));
+			mgr.money = Number(data.account);
 		}
 		
 		private function onStart(data:Object):void{
@@ -204,8 +208,9 @@ package
 				cardsMap[i] = tempArr;
 			}
 			cardsMap[0] = data.banker.cards;
+			var needFakeCard:Boolean = cardsMap[0].length == 1;
 			arr.sort();
-			mgr.onStarted(data.player, 0,isStart);			
+			mgr.onStarted(data.player,  Number(data.account),isStart);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
@@ -215,7 +220,7 @@ package
 				tempArr = cardsMap[tabId];
 				//GameUtils.log('loop:',j,' tabld:'+tabId,' tempArr:'+tempArr,' arrLen:'+len,' repeat:'+maxLen);
 				if ( tempArr.length != 0){
-					mgr.dispense(tabId, int(tempArr.pop()));
+					mgr.dispense(tabId, int(tempArr.shift()));
 				}
 				
 				if ( j == len -1 ){
@@ -228,7 +233,7 @@ package
 					}
 				}
 			}
-			if( isStart )
+			if( isStart && needFakeCard )
 				mgr.dispense(0, -1);
 		}
 		

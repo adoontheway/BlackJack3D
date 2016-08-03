@@ -210,8 +210,8 @@ package uiimpl
 		}
 		
 		public function end():void{
-			if ( !tableData.actived ) return;
-			var gain:int = tableData.prize - tableData.currentBet;
+			if ( !tableData.actived && !tableData.blackjack ) return;
+			var gain:int = tableData.prize - tableData.currentBet ;
 			GameUtils.log('Check Gain of ', this.id, ' --> ',tableData.prize, tableData.currentBet,tableData.actived);
 			var pos:Point = localToGlobal(new Point(40, 10));
 			if ( gain < 0){
@@ -240,37 +240,6 @@ package uiimpl
 			bet_display.visible = false;
 			showResultLab(true);
 			tableData.actived = false;
-			/**
-			setTimeout(function(){
-				var pos:Point = localToGlobal(new Point(40, 10));
-				
-				if ( data.result == -1){
-					comman.duke.NumDisplay.show( -data.gain, pos.x,  pos.y);
-					removeAllBet( -1, chips_con, 114, 96);
-					img_result_0.url = 'png.images.result_lose';
-				}else if ( data.result == 1){
-					comman.duke.NumDisplay.show( data.gain, pos.x, pos.y);
-					var sp:Sprite = TableUtil.getChipStack(data.gain);
-					var pos:Point = globalToLocal(PokerGameVars.ChipLostPos);
-					sp.x = pos.x;
-					sp.y = pos.y;
-					addChild(sp);
-					TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
-					if ( !tableData.blackjack){
-						img_result_0.url = 'png.images.result_win_1';
-					}else{
-						img_result_0.url = 'png.images.result_win';
-					}
-					
-				}else{
-					comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
-					removeAllBet(1, chips_con, 114, 96);
-					img_result_0.url = 'png.images.result_push';
-				}
-				bet_display.visible = false;
-				showResultLab(true);
-			}, 1000);
-			*/
 		}
 		
 		private function showResultLab(flag:Boolean):void{
@@ -336,6 +305,7 @@ package uiimpl
 				chip = insure_con.removeChildAt(0) as Chip;
 				PoolMgr.reclaim(chip);
 			}
+			this.lab_points.text =  "";
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = bet_display.visible = false;
 			this.visible = id <= 3;
 			showResultLab(false);

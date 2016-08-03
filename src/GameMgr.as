@@ -140,7 +140,7 @@ package
 		}
 		public function checkButtons():void{
 			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
-			if ( starting || this.dispenseQueue.length != 0 ){
+			if ( !started || starting || this.dispenseQueue.length != 0 ){
 				return;
 			}
 			var table:TableData = tables[0];
@@ -212,6 +212,37 @@ package
 			
 		}
 		
+		public function x2Bet():void{
+			reset();
+			var table:TableData;
+			for (var i:String in tables){
+				table = tables[i];
+				if ( table.currentBet != 0){
+					betToTable(int(i), table.currentBet * 2);
+					if ( table.pairBet != 0 ){
+						betPair(int(i), table.pairBet * 2);
+					}
+				}
+			}
+		}
+		
+		public function repeatBet():void{
+			reset();
+			if ( lastBetData == null ){
+				FloatHint.Instance.show('no bet record');
+				return;
+			}
+			var chip:Chip;
+			var table:TableData;
+			for (var i in lastBetData){
+				betToTable(i, lastBetData[i]);
+			}
+			if ( lastPairBetData != null ){
+				for ( i in lastPairBetData){
+					betPair(i,lastPairBetData[i] );
+				}
+			}
+		}
 		/**
 		 * 添加赌注到某桌
 		 * 仅限开局使用
@@ -293,8 +324,6 @@ package
 					table.reset();
 				}
 				table.actived = true;
-				lastBetData = betObj;
-				lastPairBetData = pairBet;
 				/**
 				if (!gotPair){
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
@@ -322,9 +351,17 @@ package
 					table = tables[i];
 					table.prize = player.prize[HttpComunicator.START];
 					table.actived = player.stop == 0;
-					putToEnd(table.tableId);
+					putToEnd(table.tableId,false);
+					table.display.end();
 				}
 				started = false;
+				setTimeout(function():void{
+					onRoundEnd();
+				}, 1500);
+			}else{
+				setTimeout(function():void{
+					checkButtons();
+				}, 1500);
 			}
 			playCheck();
 			
@@ -339,10 +376,7 @@ package
 				table.display.btn_insurrance.visible = false;
 			}
 			//GameUtils.log('mgr.onInsured 3');
-			setTimeout(function():void{
-				checkButtons();
-			}, 1500);
-			//checkButtons();
+			
 		}
 		public function onInsureBack(data:Object):void{
 			//1 播放庄家第二张牌的动画
@@ -466,6 +500,8 @@ package
 			var player:Object;
 			var pairArr:Array;
 			var insured:Boolean = false;
+			lastBetData = {};
+			lastPairBetData = {};
 			for (var i:String in players){
 				player = players[i];
 				tableId = int(i);
@@ -477,17 +513,24 @@ package
 					table.display.tableData = table;
 					table.display.visible = true;
 				}
+				
 				table.isSplited = player.split_table_id != 0;
 				table.blackjack = player.blackJack == 1;
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
 				if ( !insured ){
-					GameUtils.log('check insured ',i,player.insurances);
+					//GameUtils.log('check insured ',i,player.insurances);
 					insured = player.hasOwnProperty('insurances') && player['insurances'] != 0;
 				}
 				table.actived = player.stop == 0;
 				table.currentBet = player.amount[HttpComunicator.START];
 				table.pairBet = player.amount[HttpComunicator.PAIR];
+				if( table.currentBet != 0)
+					lastBetData[i] = table.currentBet;
+				if( table.pairBet != 0)
+					lastPairBetData[i] = table.pairBet;
+				
+				
 				if( !isStart )
 					table.display.showBet();
 				if ( table.actived){
@@ -514,7 +557,7 @@ package
 				this._currentTable = this.tables[this.currentTables[0]];
 			}
 			
-			//this.money = money;
+			this.money = money;
 		}
 		
 		private var pairResult:Array;
@@ -540,21 +583,37 @@ package
 			}
 		}
 		
-		public function onBankerTurn(cards:Array, player:Object):void{
+		public function onBankerTurn(data:Object):void{
+			var cards:Array = data.banker.cards;
+			var players:Object = data.banker.player;
+			
 			var table:TableData;
-			for ( var j:String in player){
+			var player:*;
+			for ( var j:String in players){
+				player = players[j];
 				table = this.tables[j];
-				table.prize = player[j].prize[HttpComunicator.START];
+				table.prize = player.prize[HttpComunicator.START];
+				if ( player.prize[HttpComunicator.DOUBLE]){
+					table.prize += player.prize[HttpComunicator.DOUBLE];
+				}
+				if ( player.prize[HttpComunicator.SPLIT]){
+					table.prize += player.prize[HttpComunicator.SPLIT];
+				}
 			}
 			
 			//table = tables[0];
 			var len:int = cards.length;
 			var card:int;
 			//GameUtils.log('Banker card check :', table.cards.join(','),' vs', cards.join(','));
-			for (var i:int = 1 ;  i < len; i++){
-				card = int(cards[i]);
-				this.dispense(0, card);
+			if ( len != 1 ){
+				for (var i:int = 1 ;  i < len; i++){
+					card = int(cards[i]);
+					this.dispense(0, card);
+				}
+			}else{
+				this.onRoundEnd();
 			}
+			money = Number(data.account);
 			this.started = false;
 		}
 		
@@ -598,6 +657,7 @@ package
 				table.reset();
 				table.actived = true;
 				table.isSplited = true;
+				betToTable(son_id, bet);
 			}else{
 				betToTable(son_id, bet);
 				table = this.tables[son_id];
@@ -656,7 +716,7 @@ package
 		public function onDoubled(newCard:int, tabId:int, tableData:Object):void{
 			var table:TableData = this.tables[tabId];
 			table.currentBet = tableData.amount[HttpComunicator.START] + tableData.amount[HttpComunicator.DOUBLE];
-			table.display.updateBetinfo();
+			table.display.showBet();
 			table.doubled = true;
 			dispense(tabId, newCard);
 			//putToEnd(tabId);
@@ -665,7 +725,7 @@ package
 		public function onDoubleBack(data:Object):void{
 			var tabId:int = data.tabId;
 			var table:TableData = this.tables[tabId];
-			var moreBet:int = data.bet - table.currentBet;
+			//var moreBet:int = data.bet - table.currentBet;
 			table.currentBet = data.bet;
 			table.display.updateBetinfo();
 			putToEnd(tabId);
