@@ -1,6 +1,7 @@
 package uiimpl 
 {
 	import comman.duke.FloatHint;
+	import comman.duke.GameUtils;
 	import comman.duke.ImageClickCenter;
 	import comman.duke.PoolMgr;
 	import comman.duke.SoundMgr;
@@ -249,16 +250,16 @@ package uiimpl
 		}
 		private function double():void{
 			//this.hideAllBtns();
-			if ( mgr.currentTable == null) return;
-			var obj:Object = {};
-			obj.wayId = HttpComunicator.DOUBLE;
-			obj.stage = {};
-			obj.stage[mgr.currentTable.tableId] = {};
-			obj.stage[mgr.currentTable.tableId][HttpComunicator.DOUBLE] = mgr.currentTable.currentBet*2;
-			HttpComunicator.Instance.send(HttpComunicator.DOUBLE, obj,mgr.currentTable.tableId);
-			
-			if ( mgr.started){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
+			if ( mgr.started ){
+				//GameUtils.log('double 0 : ',mgr.started,mgr.currentTable)
+				if ( mgr.currentTable == null) return;
+				var obj:Object = {};
+				obj.wayId = HttpComunicator.DOUBLE;
+				obj.stage = {};
+				obj.stage[mgr.currentTable.tableId] = {};
+				obj.stage[mgr.currentTable.tableId][HttpComunicator.DOUBLE] = mgr.currentTable.currentBet*2;
+				HttpComunicator.Instance.send(HttpComunicator.DOUBLE, obj, mgr.currentTable.tableId);
+				//socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
 				betAndStart(true);
 			}
@@ -272,17 +273,11 @@ package uiimpl
 			obj.stage = {};
 			obj.stage[mgr.currentTable.tableId] = [];
 			HttpComunicator.Instance.send(HttpComunicator.STOP, obj,mgr.currentTable.tableId);
-				
+			/**
 			if( mgr.started && mgr.currentTable){
-				//socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
-				/**
-				var obj:Object = {};
-				obj.wayId = HttpComunicator.STOP;
-				obj.stage = {}; 
-				obj.stage[mgr.currentTable.tableId] = 0;
-				*/
-				
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
 			}
+			*/
 		}
 		
 		private static var _instance:Buttons;

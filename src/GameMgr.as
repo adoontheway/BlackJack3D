@@ -126,6 +126,8 @@ package
 						_instance.dispenseTimer = 0;
 					}
 				}, 500);
+			}else{
+				
 			}
 		}
 		public function onBankerDispense():void{
@@ -187,7 +189,7 @@ package
 					table.display.addCard(poker);
 				}else{
 					if( card != FAKE_CARD_VALUE )
-						table.addCard(poker);//fake poker
+						table.addCard(poker);
 					
 					mainView.onDispenseBanker(poker);	
 				}
@@ -209,7 +211,6 @@ package
 					this.onPairBetResult();
 				}
 			}
-			
 		}
 		
 		public function x2Bet():void{
@@ -367,10 +368,10 @@ package
 			
 			//GameUtils.log('mgr.onInsured 1');
 			for (i in tables){
-				if ( int(i) == 0 ) continue;
+				if ( int(i) == 0 || int(i) > 3) continue;
 				table = tables[i];
-				//GameUtils.log('mgr.onInsured 2',i,"-->",table);
-				if ( table.insureBet != 0 ){
+				GameUtils.log('mgr.onInsured',i,"-->",table.insured);
+				if ( table.insured ){
 					table.display.onInsureBack(newCard.length == 0 ? -table.insureBet : (players[i].prize[HttpComunicator.PAIR]-table.insureBet));
 				}
 				table.display.btn_insurrance.visible = false;

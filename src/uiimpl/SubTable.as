@@ -113,8 +113,8 @@ package uiimpl
 		}
 		
 		public function updatePoints(isSettled:Boolean = false):void{
-			this.lab_points.size = 30;
-			this.lab_points.y = 12;
+			this.soft_gro.visible = false;
+			this.lab_points.visible = true;
 			if ( !tableData.bust ){
 				if ( !tableData.blackjack){
 					if ( !tableData.hasA || (tableData.hasA && tableData.points >= 11) ){
@@ -127,10 +127,11 @@ package uiimpl
 						}
 					}else{
 						if ( !isSettled ){
+							this.lab_points.visible = false;
+							this.soft_gro.visible = true;
 							this.img_points_bg.url = 'png.images.soft';
-							this.lab_points.size = 20;
-							this.lab_points.y = 22;
-							this.lab_points.text =  tableData.points+"/"+(tableData.points+10);
+							this.soft_0.text =  tableData.points +"";
+							this.soft_2.text =  (tableData.points + 10 )+ "";
 						}else{
 							this.img_points_bg.url = 'png.images.green';
 							this.lab_points.text =  (tableData.points + 10) + "";
@@ -149,6 +150,7 @@ package uiimpl
 		}
 		
 		public function onInsureBack(bet:int):void{
+			GameUtils.log('Subtable.onInsureBack : ',id," -->",bet);
 			var value:uint = bet > 0 ? bet : -bet;			
 			var targetPos:Point;
 			if ( bet > 0 ){
