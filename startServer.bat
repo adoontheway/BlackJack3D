@@ -1,2 +1,1 @@
-@echo on
-node index
+node index.js

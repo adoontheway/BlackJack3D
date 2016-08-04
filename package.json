@@ -14,5 +14,9 @@
     "blackjack"
   ],
   "author": "jerry.d",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "express": "^4.14.0",
+    "gulp": "^3.9.1"
+  }
 }

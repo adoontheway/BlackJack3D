@@ -1,9 +1,9 @@
 var express = require('express');
 var app = express();
 
-//app.use('/',express.static('./bin/'));
+app.use('/',express.static('./'));
 
-app.listen(process.env.PORT || 3001);
+app.listen(process.env.PORT || 9001);
 /**
 var users = {};
 app.use('/login', function(req, res){
