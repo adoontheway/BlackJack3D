@@ -1,4 +1,0 @@
-<View width="99" height="99" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
-  <Image skin="png.images.img-0-1" layer="1" var="img_bg"/>
-  <Image skin="png.images.icon-clean" layer="1" var="icon"/>
-</View>

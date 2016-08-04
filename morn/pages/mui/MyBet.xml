@@ -1,5 +1,0 @@
-<View width="106" height="41" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
-  <Image skin="png.images.betMoney" layer="1" x="0" y="0" var="bet_bg"/>
-  <Label text="100.00" styleSkin="png.comp.label" x="10" y="4" layer="1" width="39" height="29" color="0xffffff" size="20" var="lab" align="left" font="Din" bold="false" autoSize="left"/>
-  <Button skin="png.images.btn_close" x="41" y="-7" layer="1" stateNum="1" var="btn_close"/>
-</View>

@@ -1,0 +1,258 @@
+package 
+{
+	import comman.duke.*;
+	import comman.duke.loader.SomeUrlLoader;
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.net.URLLoader;
+	import flash.net.URLLoaderDataFormat;
+	import flash.net.URLRequest;
+	import flash.net.URLRequestHeader;
+	import flash.net.URLRequestMethod;
+	import flash.net.URLVariables;
+	import flash.utils.setInterval;
+	import flash.utils.setTimeout;
+	import uiimpl.BalanceImpl;
+	/**
+	 * ...
+	 * @author jerry.d
+	 */
+	public class HttpComunicator 
+	{
+		public static const SPLIT:int = 1;
+		public static const HIT:int = 2;
+		public static const STOP:int = 3;
+		public static const DOUBLE:int = 4;
+		public static const INSURE:int = 5;
+		public static const START:int = 6;
+		public static const PAIR:int = 7;
+		public static const BANKER_TURN:int = 8;
+		public static const GAME_DATA:int = 9;
+		
+		
+		public static var submitUrl:String =  "http://t.bomao.lgv/casino/bet/8001/1";
+		public static var loaddataUrl:String = "http://t.bomao.lgv/bets/load-data/8001";
+		public static var pollUserAccountUrl:String = "http://t.bomao.lgv/users/user-account-info";
+		public static var currentTime:Number = 1469425223;
+		public static var _token:String = "EyBkMMA9prt7GN1IAaSqLXr1FmueWjvsbHoIm0Ys";
+		public static var is_agent:int = 1;
+		public static var cookieHeader:URLRequestHeader = new URLRequestHeader('Cookie', 'laravel_session=eyJpdiI6IllCK3g0MSsyVU9PWEtVdmw4WkJ1VjQzVVVZRHZOQjdlZEFNYXdLMmJQYnM9IiwidmFsdWUiOiJZM2tqeWxIQis0dUoyNnJzSHpWODJKZHNReGFEM2xHNjc3bTk5NE14NTU2d0s0RnV0MDlrdWhUUml0UHZNSXpvNkhRZFwvUDluV21RTVVjZlFQZ1piclE9PSIsIm1hYyI6IjY1OTdkMGNkZDM4MTliYmUxZmIzMzg0MWFjYWZmNDY1MDFkOWM4YTJiNzI4M2RhOGNhMTBlMDZjYzVmOGE1ZWMifQ%3D%3D');
+		
+		public var mgr:GameMgr;
+		public function HttpComunicator() 
+		{
+			
+		}
+		
+		public function send(wayId:int, data:*, tableId:int):void{
+			//GameUtils.log(wayId, JSON.stringify(data));
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(submitUrl);
+			request.method = URLRequestMethod.POST;
+			var vars:URLVariables = new URLVariables();
+			vars._token = _token;
+			vars.betdata =  JSON.stringify(data);
+			request.data = vars;
+			loader.load(data.wayId, tableId, request,onComplete,onError);
+		}
+		
+		public function requesAccount():void{
+			//return;
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(pollUserAccountUrl);
+			request.method = URLRequestMethod.POST;
+			loader.load(0,0,request,onAccountInfo,onError);
+			
+		}
+		
+		public function requestGameData():void{
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(submitUrl);
+			request.method = URLRequestMethod.POST;
+			
+			var vars:URLVariables = new URLVariables();
+			vars.betdata = JSON.stringify({ stage:0, wayId:9 });
+			vars._token = _token;
+			
+			request.data = vars;
+			loader.load(HttpComunicator.GAME_DATA,0,request,onComplete,onError);
+		}
+		
+		private function onAccountInfo(proto:int,tabldId:int,str:String):void{
+			//GameUtils.log(loader.data);
+			try{
+				var result:* = JSON.parse(str);
+				if ( result.isSuccess == 1){
+					var data:Object =  result.data[0].data[0];
+					if ( data.type == "balance"){
+						var balance = parseFloat(data.data);
+						//GameUtils.log("balance:",balance);
+						GameMgr.Instance.money = balance;
+						BalanceImpl.Instance.rockAndRoll();
+					}
+				}
+			}catch (e:Error){
+				GameUtils.fatal('error when parse accountinfo:',e.message);
+			}
+			
+		}
+		
+		private function onComplete(proto:int, tabId:int, data:String):void{
+			//GameUtils.log('proto back:', proto, data);
+			var result:* = JSON.parse(data);
+			if ( result.iSuccess == 1){
+				GameUtils.log('proto :', proto);
+				switch(proto){
+					case SPLIT:
+						onSplitBack(result.data,tabId);
+						break;
+					case HIT:
+						onHitBack(result.data);
+						break;
+					case STOP:
+						onStopBack(result.data, tabId);
+						break;
+					case DOUBLE:
+						onDoubleBack(int(result.data.newCard), result.data.stageId, result.data.stage);
+						mgr.money = Number(result.data.account);
+						BalanceImpl.Instance.rockAndRoll();
+						break;
+					case INSURE:
+						onInsure(result.data);
+						break;
+					case START:
+						onStart(result.data);
+						break;
+					case PAIR:
+						break;
+					case BANKER_TURN:
+						onBankerTurn(result.data);
+						break;
+					case GAME_DATA:
+						onGameData(result.data, false);
+						break;
+					default:
+						GameUtils.log('unknown proto', proto);
+						break;
+				}
+			}else{
+				FloatHint.Instance.show(result.msg);
+			}
+		}
+		
+		private function onInsure(data:Object):void{
+			//GameUtils.log('onInsureBack:');
+			if (data.banker != null){
+				mgr.onInsured(data.banker.cards,data.player);
+			}else if ( data.bankerNewCard != null){
+				mgr.onInsured(data.bankerNewCard,data.player);
+			}
+			mgr.money = Number(data.account);
+			BalanceImpl.Instance.rockAndRoll();
+		}
+		
+		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
+			//GameUtils.log('onDoubleBack:',newCard,tableId);
+			mgr.onDoubled(newCard, tableId, tableData);
+		}
+		
+		private function onSplitBack(data:Object,tableId:int):void{
+			mgr.onSplited(tableId, data.father_card, data.newCards);
+			mgr.money = Number(data.account);
+			BalanceImpl.Instance.rockAndRoll();
+		}
+		
+		private function onBankerTurn(data:Object):void{
+			mgr.onBankerTurn(data);
+			mgr.money = Number(data.account);
+		}
+		
+		private function onStopBack(data:*, tableId:int):void{
+			mgr.onStandBack({tabId:tableId});
+		}
+		
+		private function onHitBack(data:Object):void{
+			//GameUtils.log('onHit ', data.newCard,  data.stageId);
+			var stage:Object = data.stage;
+			if ( stage.stop == 1 && stage.prize != null){
+				setTimeout(function():void{
+					mgr.onTableEnd(data.stageId,stage);
+				}, 500);
+			}
+			mgr.dispense(data.stageId, int(data.newCard));
+		}
+		
+		private function onStart(data:Object):void{
+			//GameUtils.log('onStart ', data.banker,  data.player);
+			if ( data.banker != null && data.player != null ){
+				initDispatch(data,true);
+			}
+		}
+		
+		private function onGameData(data:Object, isStart:Boolean):void{
+			//GameUtils.log('onGameData ');
+			if ( data.banker != null && data.player != null ){
+				FloatHint.Instance.show("Request game data finished");
+				initDispatch(data,isStart);
+			}
+		}
+		
+		private function initDispatch(data:Object, isStart:Boolean):void{
+			var arr:Array = [];
+			var tempArr:Array;
+			var maxLen:int = 0;
+			var len:int = 0;
+			var cardsMap:Object = {};
+			//GameUtils.log('initDispatch');
+			for (var i:String in data.player){
+				arr.push(int(i));
+				tempArr =  data.player[i].cards.split(",");
+				len = tempArr.length;
+				maxLen = len < maxLen ? maxLen : len;
+				cardsMap[i] = tempArr;
+			}
+			cardsMap[0] = data.banker.cards;
+			var needFakeCard:Boolean = cardsMap[0].length == 1;
+			arr.sort();
+			mgr.onStarted(data.player,  Number(data.account),isStart);			
+			arr.push(0);
+			len = arr.length;
+			var tabId:int;
+			//GameUtils.log('arr:',arr.join(','));
+			for (var j:int = 0; j < len; j++){
+				tabId = arr[j];
+				tempArr = cardsMap[tabId];
+				//GameUtils.log('loop:',j,' tabld:'+tabId,' tempArr:'+tempArr,' arrLen:'+len,' repeat:'+maxLen);
+				if ( tempArr.length != 0){
+					mgr.dispense(tabId, int(tempArr.shift()));
+				}
+				
+				if ( j == len -1 ){
+					maxLen--;
+					if ( maxLen <= 0 ){
+						//GameUtils.log(j,maxLen);
+						break;
+					}else{
+						j = -1;
+					}
+				}
+			}
+			if( isStart && needFakeCard )
+				mgr.dispense(0, -1);
+		}
+		
+		
+		private function onError(proto:*, e:IOErrorEvent):void{
+			GameUtils.fatal(e.text);
+		}
+		
+		private static var _instance:HttpComunicator;
+		public static function get Instance():HttpComunicator{
+			if ( HttpComunicator._instance == null){
+				HttpComunicator._instance = new HttpComunicator();
+			}
+			return HttpComunicator._instance;
+		}
+	}
+
+}
