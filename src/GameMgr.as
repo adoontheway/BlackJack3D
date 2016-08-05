@@ -344,7 +344,7 @@ package
 			tables[0].insured = true;
 			
 			if ( newCard.length != 0 ){
-				bankerBJ = true;
+				//bankerBJ = true;
 				fakeCard = int(newCard[1]);
 				var player:*;
 				for ( var i:String in players){
@@ -386,7 +386,7 @@ package
 			var table:TableData = tables[0];
 			table.insured = true;
 			var result:Object = data.result;
-			bankerBJ = data.isbj;
+			//bankerBJ = data.isbj;
 			var tableDisplay:SubTable;
 			for (var i:String in subTableDisplays){
 				tableDisplay = subTableDisplays[i];
@@ -398,15 +398,17 @@ package
 			this.money = data.money;
 			//todo select table
 			playCheck();
+			/**
 			if ( bankerBJ ){
 				fakeCard = data.card;
 				setTimeout(function():void{
 					checkButtons();
 				}, 1500);
 			}
+			*/
 		}
-		private var fakeCard:int = -1;
-		private var bankerBJ:Boolean;
+		public var fakeCard:int = -1;
+		//private var bankerBJ:Boolean;
 		public function playCheck():void{
 			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
 			if ( poker != null ){
@@ -414,27 +416,16 @@ package
 			}
 		}
 		
-		public function onCheckPhase1(poker:Poker):void{
-			if ( tables[0].blackjack){
-				onCheckPhase2();
-			}else{
-				var item:ShakeItem = PoolMgr.gain(ShakeItem);
-				item.callBack = onCheckPhase2;
-				item.init('check', poker, 3, 3, ShakeMgr.SHAKE_TWIST);
-				ShakeMgr.Instance.addShakeItem(item);
-			}
-		}
-		
-		public function onCheckPhase2():void{
+		public function onCheckPhase1():void{
 			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
-			if ( bankerBJ ){
-				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase3});
+			if ( fakeCard != -1 ){
+				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase2});
 			}else{
 				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:checkButtons});
 			}
 		}
 		
-		public function onCheckPhase3():void{
+		public function onCheckPhase2():void{
 			this.onFakeCard(this.fakeCard);
 			this.fakeCard = FAKE_CARD_VALUE;
 		}
@@ -475,7 +466,7 @@ package
 			mainView.onRoundEnd();
 			enableDisplayMouse(true);
 			this.fakeCard = FAKE_CARD_VALUE;
-			this.bankerBJ = false;
+			//this.bankerBJ = false;
 		}
 		
 		public function enableDisplayMouse(value:Boolean):void{
@@ -522,7 +513,7 @@ package
 				table.insureBet = player.insurance;
 				if ( !insured ){
 					//GameUtils.log('check insured ',i,player.insurances);
-					insured = player.hasOwnProperty('insurances') && player['insurances'] != 0;
+					insured = player.amount[HttpComunicator.INSURE];
 				}
 				table.actived = player.stop == 0;
 				table.currentBet = player.amount[HttpComunicator.START];
@@ -731,6 +722,9 @@ package
 			table.display.showBet();
 			table.doubled = true;
 			dispense(tabId, newCard);
+			if ( tableData.stop == 1){
+				
+			}
 			//putToEnd(tabId);
 		}
 		

@@ -154,6 +154,11 @@ package
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
 			//GameUtils.log('onDoubleBack:',newCard,tableId);
 			mgr.onDoubled(newCard, tableId, tableData);
+			if ( tableData.stop == 1 && tableData.prize != null){
+				setTimeout(function():void{
+					mgr.onTableEnd(tableId,tableData);
+				}, 500);
+			}
 		}
 		
 		private function onSplitBack(data:Object,tableId:int):void{
@@ -212,14 +217,17 @@ package
 				cardsMap[i] = tempArr;
 			}
 			cardsMap[0] = data.banker.cards;
-			var needFakeCard:Boolean = cardsMap[0].length == 1;
+			var fakeCard:int = cardsMap[0].length == 1 ? -1 : cardsMap[0].pop();
+			var needCheck:Boolean = int(cardsMap[0][0]) % 100 >= 10;
 			arr.sort();
 			mgr.onStarted(data.player,  Number(data.account),isStart);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
 			//GameUtils.log('arr:',arr.join(','));
+			var num:uint = 0;
 			for (var j:int = 0; j < len; j++){
+				num++;
 				tabId = arr[j];
 				tempArr = cardsMap[tabId];
 				//GameUtils.log('loop:',j,' tabld:'+tabId,' tempArr:'+tempArr,' arrLen:'+len,' repeat:'+maxLen);
@@ -237,8 +245,15 @@ package
 					}
 				}
 			}
-			if( isStart && needFakeCard )
-				mgr.dispense(0, -1);
+			
+			mgr.dispense(0, -1);
+			num++;
+			if ( needCheck ){
+				setTimeout(function():void{
+					mgr.fakeCard = fakeCard;
+					mgr.playCheck();
+				}, num * 500);
+			}
 		}
 		
 		
