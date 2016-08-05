@@ -75,11 +75,10 @@ package uiimpl
 			if ( !bankerData.bust ){
 				if ( !bankerData.blackjack){
 					if ( !bankerData.hasA || (bankerData.hasA && bankerData.points >= 11) ){
+						this.img_points_bg.url = 'png.images.green';
 						if (bankerData.points < 21 ){
-							this.img_points_bg.url = 'png.images.green';
 							this.lab_points.text =  bankerData.points+"";
 						}else{
-							this.img_points_bg.url = 'png.images.full';
 							this.lab_points.text =  bankerData.points+"";
 						}
 					}else{
@@ -89,7 +88,7 @@ package uiimpl
 					}
 					
 				}else{
-					this.img_points_bg.url = 'png.images.green';
+					this.img_points_bg.url = 'png.images.full';
 					this.lab_points.text =  "21";
 				}
 			}else{
@@ -153,7 +152,7 @@ package uiimpl
 			poker.rotationY = 180;
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
-			//GameUtils.log('Fake card reverse complete..');
+			GameUtils.log('Fake card reverse complete..');
 			mgr.onBankerDispense();
 		}
 		

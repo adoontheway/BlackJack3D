@@ -29,7 +29,7 @@ package
 		
 		public var desk:uint = 0;//0 单桌 1 三桌
 		public var currentModel:uint = 0;//0,1,2筹码大小
-		public var started:Boolean = false;
+		private var _started:Boolean = false;
 		public var ME:uint = 1;
 		private var _money:Number = 0;
 		public const BANKER:uint = 0;
@@ -126,8 +126,6 @@ package
 						_instance.dispenseTimer = 0;
 					}
 				}, 500);
-			}else{
-				
 			}
 		}
 		public function onBankerDispense():void{
@@ -143,8 +141,12 @@ package
 		public function checkButtons():void{
 			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
 			if ( !started || starting || this.dispenseQueue.length != 0 ){
+				if ( !started ){
+					Buttons.Instance.switchModel(Buttons.MODEL_END);
+				}
 				return;
 			}
+			
 			var table:TableData = tables[0];
 			var subTable:SubTable;
 			
@@ -344,7 +346,6 @@ package
 			tables[0].insured = true;
 			
 			if ( newCard.length != 0 ){
-				//bankerBJ = true;
 				fakeCard = int(newCard[1]);
 				var player:*;
 				for ( var i:String in players){
@@ -366,7 +367,6 @@ package
 			}
 			playCheck();
 			
-			//GameUtils.log('mgr.onInsured 1');
 			for (i in tables){
 				if ( int(i) == 0 || int(i) > 3) continue;
 				table = tables[i];
@@ -376,9 +376,23 @@ package
 				}
 				table.display.btn_insurrance.visible = false;
 			}
-			//GameUtils.log('mgr.onInsured 3');
-			
 		}
+		
+		public function endAllTables():void{
+			GameUtils.log('mgr.endAllTables');
+			if ( _currentTable != null && _currentTable.display.selected){
+				_currentTable.display.selected = false;
+			}
+			var table:TableData;
+			for ( var i:String in tables){
+				if ( int(i) == 0 ) continue;
+				table = tables[i];
+				if ( table.display.visible){
+					putToEnd(table.tableId,false);
+				}
+			}
+		}
+		
 		public function onInsureBack(data:Object):void{
 			//1 播放庄家第二张牌的动画
 			//2 播放筹码得失动画
@@ -408,7 +422,6 @@ package
 			*/
 		}
 		public var fakeCard:int = -1;
-		//private var bankerBJ:Boolean;
 		public function playCheck():void{
 			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
 			if ( poker != null ){
@@ -416,8 +429,8 @@ package
 			}
 		}
 		
-		public function onCheckPhase1():void{
-			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
+		public function onCheckPhase1(poker:Poker):void{
+			GameUtils.log('mgr.onCheckPhase1:',fakeCard);
 			if ( fakeCard != -1 ){
 				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase2});
 			}else{
@@ -426,11 +439,13 @@ package
 		}
 		
 		public function onCheckPhase2():void{
+			GameUtils.log('mgr.onCheckPhase2');
 			this.onFakeCard(this.fakeCard);
 			this.fakeCard = FAKE_CARD_VALUE;
 		}
 		
 		public function onRoundEnd():void{
+			GameUtils.log('mgr.onRoundEnd');
 			this.started = false;
 			if ( _currentTable != null ){
 				_currentTable.display.selected = false;
@@ -530,7 +545,6 @@ package
 					lastPairBetData[i] = table.pairBet;
 				}
 				
-				
 				if( !isStart )
 					table.display.showBet();
 				if ( table.actived){
@@ -538,11 +552,16 @@ package
 				}else{
 					this.putToEnd(tableId,false);
 				}
+				
 				if ( isStart && table.pairBet != 0){
 					if ( pairArr == null){
 						pairArr = [];
 					}
 					pairArr.push(i,  player.prize[HttpComunicator.PAIR]);
+				}
+				
+				if ( player.prize && player.prize[HttpComunicator.START]){
+					table.prize = player.prize[HttpComunicator.START];
 				}
 			}
 			tables[0].insured = insured;
@@ -813,6 +832,17 @@ package
 				GameMgr._instance = new GameMgr();
 			}
 			return GameMgr._instance;
+		}
+		
+		public function get started():Boolean 
+		{
+			return _started;
+		}
+		
+		public function set started(value:Boolean):void 
+		{
+			GameUtils.log('started:',value);
+			_started = value;
 		}
 	}
 

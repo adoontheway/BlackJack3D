@@ -33,7 +33,7 @@ package game.ui.mui {
 			  <Box x="144" y="-17" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
 			    <Label x="5" y="10" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="38" align="center" font="Din" multiline="true"/>
-			    <Box x="5" y="11" var="soft_gro">
+			    <Box x="7" y="11" var="soft_gro">
 			      <Label text="1" color="0xffffff" font="Din" size="20" var="soft_0" width="25" height="33" align="right"/>
 			      <Label text="/" x="20" y="4" color="0xffffff" font="Din" size="20" var="soft_1" width="18" height="33"/>
 			      <Label text="11" x="25" y="12" color="0xffffff" font="Din" size="20" var="soft_2" width="26" height="33" align="left"/>

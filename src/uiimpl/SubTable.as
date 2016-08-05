@@ -118,11 +118,10 @@ package uiimpl
 			if ( !tableData.bust ){
 				if ( !tableData.blackjack){
 					if ( !tableData.hasA || (tableData.hasA && tableData.points >= 11) ){
+						this.img_points_bg.url = 'png.images.green';
 						if (tableData.points < 21 ){
-							this.img_points_bg.url = 'png.images.green';
 							this.lab_points.text =  tableData.points+"";
 						}else{
-							this.img_points_bg.url = 'png.images.full';
 							this.lab_points.text =  tableData.points+"";
 						}
 					}else{
@@ -139,7 +138,7 @@ package uiimpl
 					}
 					
 				}else{
-					this.img_points_bg.url = 'png.images.green';
+					this.img_points_bg.url = 'png.images.full';
 					this.lab_points.text =  "21";
 				}
 			}else{

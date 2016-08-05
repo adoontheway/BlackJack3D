@@ -252,6 +252,10 @@ package
 				setTimeout(function():void{
 					mgr.fakeCard = fakeCard;
 					mgr.playCheck();
+					if ( fakeCard != -1){
+						mgr.endAllTables();
+						mgr.onRoundEnd();
+					}
 				}, num * 500);
 			}
 		}
