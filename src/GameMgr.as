@@ -45,12 +45,34 @@ package
 		private var endTables:Array = [];
 		
 		public var needShowInsure:Boolean;
+		
+		private var lastActiveTime:uint = 0;
+		public var name:String;
 		public function GameMgr() 
 		{
 			this.pokerMap = {};
+			this.name = 'gamemgr';
+
 			//socketMgr = SocketMgr.Instance;
 			HttpComunicator.Instance.mgr = this;
 			HttpComunicator.Instance.requesAccount();
+			
+			lastActiveTime = new Date().time;
+			setInterval(checkOutTime, 60000);
+		}
+		
+		private function checkOutTime():void{
+			var referTime:uint = new Date().time - lastActiveTime;
+			if ( referTime >= 600000 && !auto){
+				GameUtils.log('long time no move');
+				autoGame();
+			}
+			//GameUtils.log('times no move', GameUtils.GetTimeString(referTime));
+		}
+		
+		public function refresh():void{
+			auto = false;
+			lastActiveTime = new Date().time;
 		}
 		
 		public var tableDisplays:Object = {};
@@ -154,7 +176,7 @@ package
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
 			lastDipenseTime = TickerMgr.SYSTIME;
-			GameUtils.log('mgr->dispenseTo :', tableId, card);
+			//GameUtils.log('mgr->dispenseTo :', tableId, card);
 			
 			var table:TableData = this.tables[tableId];
 			var poker:Poker;
@@ -392,7 +414,7 @@ package
 			for (i in tables){
 				if ( int(i) == 0 || int(i) > 3) continue;
 				table = tables[i];
-				GameUtils.log('mgr.onInsured',i,"-->",table.insured);
+				//GameUtils.log('mgr.onInsured',i,"-->",table.insured);
 				if ( table.insured ){
 					table.display.onInsureBack(newCard.length == 0 ? -table.currentBet*0.5 : table.currentBet);
 				}
@@ -401,7 +423,7 @@ package
 		}
 		
 		public function endAllTables():void{
-			GameUtils.log('mgr.endAllTables');
+			//GameUtils.log('mgr.endAllTables');
 			if ( _currentTable != null && _currentTable.display.selected){
 				_currentTable.display.selected = false;
 			}
@@ -645,7 +667,7 @@ package
 				if ( player.prize[HttpComunicator.SPLIT]){
 					table.prize += player.prize[HttpComunicator.SPLIT];
 				}
-				GameUtils.log('table:', j, '==== prize : ', table.prize);
+				//GameUtils.log('table:', j, '==== prize : ', table.prize);
 			}
 			
 			//table = tables[0];
@@ -766,9 +788,6 @@ package
 			table.display.showBet();
 			table.doubled = true;
 			dispense(tabId, newCard);
-			if ( tableData.stop == 1){
-				
-			}
 			//putToEnd(tabId);
 		}
 		
@@ -841,6 +860,38 @@ package
 			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
 			
 			return result;
+		}
+		private var auto:Boolean = false;
+		public function autoGame():void{
+			
+			return;
+			
+			if ( auto ) return;
+			auto = true;
+			autoStep();
+		}
+		
+		public function autoStep():void{
+			if ( !auto || !started) return;
+			if ( _currentTable != null ){
+				if ( _currentTable.points < 17 ){
+					enable(false);
+					
+					var obj:Object = {};
+					obj.wayId = HttpComunicator.HIT;
+					obj.stage = {};
+					obj.stage[_currentTable.tableId] = [];
+					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, _currentTable.tableId);
+				}else{
+					enable(false);
+			
+					var obj:Object = {};
+					obj.wayId = HttpComunicator.STOP;
+					obj.stage = {};
+					obj.stage[_currentTable.tableId] = [];
+					HttpComunicator.Instance.send(HttpComunicator.STOP, obj,_currentTable.tableId);
+				}
+			}
 		}
 		
 		public function get money():Number{

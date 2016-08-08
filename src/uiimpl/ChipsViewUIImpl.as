@@ -87,6 +87,7 @@ package uiimpl
 		public var currentValue:uint;
 		private function onChip(evt:MouseEvent):void{
 			//GameUtils.info(evt.target['name'] + ' clicked');
+			GameMgr.Instance.refresh();
 			SoundMgr.Instance.playEffect( SoundsEnum.CHIP);
 			if ( currentChip != null && currentChip == evt.target) {
 				TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]});

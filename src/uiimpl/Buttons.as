@@ -83,6 +83,7 @@ package uiimpl
 		
 		private function onButton(evt:MouseEvent):void{
 			var bname:String = evt.target.name;
+			mgr.refresh();
 			switch(bname){
 				case "start":
 					this.start();
@@ -207,19 +208,19 @@ package uiimpl
 			obj.stage = {};
 			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj,0);
 			
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
+			//socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
 		public function ok():void{
 			enable(false);
 			var tables:Array = mgr.getInsuredTables();
-			
+			/**
 			if ( tables.length > 0){
-				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
 			}else{
-				SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
+				socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 			}
-			
+			*/
 		}
 		
 		private function start():void{
@@ -238,7 +239,7 @@ package uiimpl
 			obj.stage[mgr.currentTable.tableId] = [];
 			HttpComunicator.Instance.send(HttpComunicator.HIT,obj,mgr.currentTable.tableId);
 				
-			socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
+			//socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
 		}
 
 		private function clean():void{

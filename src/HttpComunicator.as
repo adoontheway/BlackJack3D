@@ -50,9 +50,19 @@ package
 		public static var cookieHeader:URLRequestHeader = new URLRequestHeader('Cookie', 'laravel_session=eyJpdiI6IllCK3g0MSsyVU9PWEtVdmw4WkJ1VjQzVVVZRHZOQjdlZEFNYXdLMmJQYnM9IiwidmFsdWUiOiJZM2tqeWxIQis0dUoyNnJzSHpWODJKZHNReGFEM2xHNjc3bTk5NE14NTU2d0s0RnV0MDlrdWhUUml0UHZNSXpvNkhRZFwvUDluV21RTVVjZlFQZ1piclE9PSIsIm1hYyI6IjY1OTdkMGNkZDM4MTliYmUxZmIzMzg0MWFjYWZmNDY1MDFkOWM4YTJiNzI4M2RhOGNhMTBlMDZjYzVmOGE1ZWMifQ%3D%3D');
 		
 		public var mgr:GameMgr;
+		
+		private const decrKey:String = '0123456789abcdef';
+		private	const decrIV:String = '1234567891234567';
+		private var key:ByteArray;
+		private var pad:IPad;
+		private var aes:ICipher;
 		public function HttpComunicator() 
 		{
-			
+			key = Hex.toArray(Hex.fromString(decrKey));                
+			pad = new NullPad();
+			aes = Crypto.getCipher("aes-cbc", key, pad);
+			var ivmode:IVMode = aes as IVMode;
+			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));    
 		}
 		
 		public function send(wayId:int, data:*, tableId:int):void{
@@ -70,15 +80,8 @@ package
 		
 		private function encrypto(obj:*):String{
 			var src:String = JSON.stringify(obj);
-			var decrKey:String = '0123456789abcdef';
-			var decrIV:String = '1234567891234567';
 			
-			var inputBA:ByteArray=Hex.toArray(Hex.fromString(src));        
-			var key:ByteArray = Hex.toArray(Hex.fromString(decrKey));                
-			var pad:IPad = new NullPad();
-			var aes:ICipher = Crypto.getCipher("aes-cbc", key, pad);
-			var ivmode:IVMode = aes as IVMode;
-			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));            
+			var inputBA:ByteArray=Hex.toArray(Hex.fromString(src));    
 			aes.encrypt(inputBA); 
 			return Base64.encodeByteArray(inputBA);
 		}

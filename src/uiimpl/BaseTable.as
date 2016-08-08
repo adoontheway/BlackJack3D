@@ -95,10 +95,12 @@ package uiimpl
 		}
 		
 		private function betTable(evt:MouseEvent):void{
+			mgr.refresh();
 			mgr.betToTable(id);
 		}
 		
 		private function betPair(evt:MouseEvent):void{
+			mgr.refresh();
 			mgr.betPair(id);
 		}
 		public function addPairBet(bet:int):void{
