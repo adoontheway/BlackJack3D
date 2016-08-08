@@ -1,5 +1,7 @@
 package
 {
+	
+	
 	import comman.duke.*;
 	import comman.duke.display.BitmapClipFactory;
 	import consts.*;
@@ -21,6 +23,7 @@ package
 	import flash.system.ApplicationDomain;
 	import flash.system.Security;
 	import flash.text.Font;
+	import flash.utils.ByteArray;
 	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
 	import morn.core.handlers.Handler;
@@ -46,8 +49,6 @@ package
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
 			stage.addEventListener(Event.RESIZE, onResize);
-			
-			trace(Font.enumerateFonts(false));
 			
 			parseParams();
 			Security.allowDomain('*');
@@ -81,7 +82,10 @@ package
 			GameUtils.log(PokerGameVars.VERSION);
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
+			
 		}
+		
+		
 		
 		private function onUnknownError(event:UncaughtErrorEvent):void{
 			var message:String;

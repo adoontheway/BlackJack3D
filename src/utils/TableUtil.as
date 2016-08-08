@@ -90,7 +90,7 @@ package utils
 				
 				len--;
 			}
-			con.cacheAsBitmap = true;
+			//con.cacheAsBitmap = true;
 			return con;
 		}
 		

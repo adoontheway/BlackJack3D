@@ -67,6 +67,7 @@ package
 		}
 		
 		private var _currentTable:TableData;
+		private var requestedBaneker:Boolean = false;
 		public function nextTable():void{
 			if ( this._currentTable != null && this._currentTable.isSplited && this._currentTable.tableId <= 3){
 				//GameUtils.log('nextTable0: ',_currentTable.tableId);
@@ -90,7 +91,8 @@ package
 			}else{
 				var table:TableData = tables[0];
 				GameUtils.log('banker table :', table.numCards, table.blackjack);
-				if ( table.numCards == 1 ){
+				if ( table.numCards == 1 && !requestedBaneker){
+					requestedBaneker = true
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.BANKER_TURN;
 					obj.stage = [];
@@ -111,6 +113,25 @@ package
 		private var dispenseTimer:uint = 0;
 		private var lastDipenseTime:Number = 0;
 		private var dispenseQueue:Array = [];
+		
+		public function onHited(data:Object):void{
+			var stage:Object = data.stage;
+			var tabId:int = data.stageId;
+			var table:TableData = tables[tabId];
+			//table.actived = stage.stop == 0;
+			
+			if ( stage.stop == 1 ){
+				putToEnd(tabId);
+				if(stage.prize != null){
+					setTimeout(function():void{
+						onTableEnd(data.stageId,stage);
+					}, 400);
+				}
+			}
+			
+			dispense(data.stageId, int(data.newCard));
+		}
+		
 		public function dispense(tableId:uint, card:int):void{
 			//GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
 			dispenseQueue.push(tableId, card);
@@ -128,6 +149,59 @@ package
 				}, 500);
 			}
 		}
+		
+		
+		public var starting:Boolean = false;
+		private function dispenseTo(tableId:uint, card:int):void{
+			lastDipenseTime = TickerMgr.SYSTIME;
+			GameUtils.log('mgr->dispenseTo :', tableId, card);
+			
+			var table:TableData = this.tables[tableId];
+			var poker:Poker;
+			if ( tableId == 0 && table.numCards == 1 && pokerMap[FAKE_CARD_VALUE] != null){
+				poker = pokerMap[ FAKE_CARD_VALUE];
+				poker.value = card;
+				delete pokerMap[ FAKE_CARD_VALUE];
+				table.addCard(poker);
+				mainView.traverseTheFakePoker(poker);
+			}else{
+				poker = PoolMgr.gain(Poker);
+				poker.value = card;
+				poker.rotation = -75;
+				if ( card != FAKE_CARD_VALUE){
+					starting = false;
+					poker.rotationY = 180 ;
+				}
+				if ( tableId != 0 ){
+					table.display.addCard(poker);
+				}else{
+					if( card != FAKE_CARD_VALUE )
+						table.addCard(poker);
+					
+					mainView.onDispenseBanker(poker);	
+				}
+			}
+			
+			pokerMap[card] = poker;
+			if (tableId != 0 && ( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
+				if( this.endTables.indexOf(tableId) == -1)
+					this.putToEnd(tableId);
+			}
+			
+			if ( dispenseQueue.length == 0)
+			{
+				if ( !started  || tables[0].blackjack){
+					setTimeout(onRoundEnd, 500);
+				}else{
+					this.checkButtons();
+				}
+				
+				if ( this.pairResult != null && pairResult.length != 0 ){
+					this.onPairBetResult();
+				}
+			}
+		}
+		
 		public function onBankerDispense():void{
 			GameUtils.log('On banker dispense complete', this.started);
 			if ( !this.started && this.dispenseQueue.length == 0){
@@ -162,55 +236,6 @@ package
 				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
 				if ( currentTable != null){
 					_currentTable.display.selected = true;	
-				}
-			}
-		}
-		
-		public var starting:Boolean = false;
-		private function dispenseTo(tableId:uint, card:int):void{
-			lastDipenseTime = TickerMgr.SYSTIME;
-			//GameUtils.log('mgr->dispenseTo :', tableId, card);
-			
-			var table:TableData = this.tables[tableId];
-			var poker:Poker;
-			if ( tableId == 0 && table.numCards == 1 && pokerMap[FAKE_CARD_VALUE] != null){
-				poker = pokerMap[ FAKE_CARD_VALUE];
-				poker.value = card;
-				delete pokerMap[ FAKE_CARD_VALUE];
-				table.addCard(poker);
-				mainView.traverseTheFakePoker(poker);
-			}else{
-				poker = PoolMgr.gain(Poker);
-				poker.value = card;
-				poker.rotation = -75;
-				if ( card != FAKE_CARD_VALUE){
-					starting = false;
-					poker.rotationY = 180 ;
-				}
-				if ( tableId != 0 ){
-					table.display.addCard(poker);
-				}else{
-					if( card != FAKE_CARD_VALUE )
-						table.addCard(poker);
-					
-					mainView.onDispenseBanker(poker);	
-				}
-			}
-			
-			pokerMap[card] = poker;
-			if (tableId != 0 &&( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
-				this.putToEnd(tableId);
-			}
-			
-			if ( dispenseQueue.length == 0)
-			{
-				if ( !started  || tables[0].blackjack){
-					this.onRoundEnd();
-				}else{
-					this.checkButtons();
-				}
-				if ( this.pairResult != null && pairResult.length != 0 ){
-					this.onPairBetResult();
 				}
 			}
 		}
@@ -351,20 +376,17 @@ package
 				for ( var i:String in players){
 					player = players[i];
 					table = tables[i];
-					table.prize = player.prize[HttpComunicator.START];
+					table.prize = player.prize[HttpComunicator.INSURE];
 					table.actived = player.stop == 0;
 					putToEnd(table.tableId,false);
 					table.display.end();
 				}
 				started = false;
-				setTimeout(function():void{
-					onRoundEnd();
-				}, 1500);
+				setTimeout(	onRoundEnd, 1500);
 			}else{
-				setTimeout(function():void{
-					checkButtons();
-				}, 1500);
+				setTimeout(checkButtons, 1500);
 			}
+			
 			playCheck();
 			
 			for (i in tables){
@@ -372,7 +394,7 @@ package
 				table = tables[i];
 				GameUtils.log('mgr.onInsured',i,"-->",table.insured);
 				if ( table.insured ){
-					table.display.onInsureBack(newCard.length == 0 ? -table.insureBet : (players[i].prize[HttpComunicator.PAIR]-table.insureBet));
+					table.display.onInsureBack(newCard.length == 0 ? -table.currentBet*0.5 : table.currentBet);
 				}
 				table.display.btn_insurrance.visible = false;
 			}
@@ -425,6 +447,7 @@ package
 		public function playCheck():void{
 			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
 			if ( poker != null ){
+				Buttons.Instance.enable(false);
 				TweenLite.to(poker, 0.5, {scale:1.2, y:poker.y - 20, onComplete:onCheckPhase1, onCompleteParams:[poker]});
 			}
 		}
@@ -436,6 +459,7 @@ package
 			}else{
 				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:checkButtons});
 			}
+			Buttons.Instance.enable(true);
 		}
 		
 		public function onCheckPhase2():void{
@@ -481,6 +505,7 @@ package
 			mainView.onRoundEnd();
 			enableDisplayMouse(true);
 			this.fakeCard = FAKE_CARD_VALUE;
+			requestedBaneker = false;
 			//this.bankerBJ = false;
 		}
 		
@@ -498,7 +523,7 @@ package
 				mainView.tween(true);
 			}
 			//GameUtils.log('onStarted');
-			Buttons.Instance.disableAll();
+			Buttons.Instance.enable(false);
 			if( this.tables[0] == null)
 				mainView.bankerData = this.tables[0] = new TableData(0);
 			
@@ -538,7 +563,7 @@ package
 				}
 				
 				table.pairBet = player.amount[HttpComunicator.PAIR];
-				if( table.currentBet != 0)
+				if( table.currentBet != 0 && int(i) <= 3)
 					lastBetData[i] = table.currentBet;
 				if ( table.pairBet != 0){
 					noPairBets = false;
@@ -633,7 +658,7 @@ package
 					this.dispense(0, card);
 				}
 			}else{
-				this.onRoundEnd();
+				setTimeout(onRoundEnd, len*500);
 			}
 			money = Number(data.account);
 			this.started = false;
@@ -777,12 +802,15 @@ package
 			if ( index != -1){
 				this.currentTables.splice(index, 1);
 			}
-			var table:TableData = tables[tabId];
-			table.display.selected = false;
-			table.display.updatePoints(true);
-			this.endTables.push(tabId);
 			
-			GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
+			if ( this.endTables.indexOf(tabId) == -1){
+				var table:TableData = tables[tabId];
+				table.display.selected = false;
+				table.display.updatePoints(true);
+				this.endTables.push(tabId);
+				GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
+			}
+			
 			if( check )
 				this.nextTable();
 		}

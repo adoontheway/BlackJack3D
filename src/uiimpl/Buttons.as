@@ -147,11 +147,11 @@ package uiimpl
 			}
 		}
 		
-		public function disableAll():void{
+		public function enable(value:Boolean):void{
 			var button:BJButton;
 			for (var i:int = 0; i < 4; i++){
 				button = buttons[i];
-				button.enable = false;
+				button.enable = value;
 			}
 		}
 		
@@ -174,7 +174,7 @@ package uiimpl
 		}
 		
 		public function betAndStart(double:Boolean = false):void{
-			disableAll();
+			this.enable(false);
 			mgr.reset();
 			var betData:Object  = mgr.lastBetData;
 			var pairBetData:Object = mgr.lastPairBetData;
@@ -200,7 +200,7 @@ package uiimpl
 		}
 		
 		public function skip():void{
-			disableAll();
+			enable(false);
 			
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.INSURE;
@@ -211,7 +211,7 @@ package uiimpl
 		}
 		
 		public function ok():void{
-			disableAll();
+			enable(false);
 			var tables:Array = mgr.getInsuredTables();
 			
 			if ( tables.length > 0){
@@ -225,13 +225,13 @@ package uiimpl
 		private function start():void{
 			var result:Boolean = mgr.start();	
 			if ( result ){
-				disableAll();
+				enable(false);
 				MainViewImpl.Instance.tween(true);
 			}
 		}
 		
 		private function hit():void{ 
-			disableAll();
+			enable(false);
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.HIT;
 			obj.stage = {};
@@ -266,7 +266,7 @@ package uiimpl
 			
 		}
 		private function stand():void{
-			disableAll();
+			enable(false);
 			
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.STOP;

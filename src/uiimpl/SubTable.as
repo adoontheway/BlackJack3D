@@ -160,13 +160,16 @@ package uiimpl
 				this.addChild(sp);
 				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainSure, onCompleteParams:[sp]});
 			}else{
-				removeAllBet(1, insure_con,79,116,true);
+				GameUtils.log('Subtable.onInsureBack(insure_con) : ',id," -->",bet);
+				removeAllBet(1, insure_con,79,116);
 			}
 
 		}
 		
 		private function onGainSure(sp:Sprite):void{
-			removeAllBet(1, insure_con,79,116);
+			GameUtils.log('Subtable.onInsureBack(insure_con): ',id);
+			removeAllBet(1, insure_con, 79, 116);
+			GameUtils.log('Subtable.removeAllBet(sp): ',id);
 			removeAllBet(1, sp,0,0,true);
 		}
 		
@@ -185,7 +188,7 @@ package uiimpl
 			obj.stage[id] = {};
 			obj.stage[id][HttpComunicator.SPLIT] = this.tableData.currentBet;
 			HttpComunicator.Instance.send(HttpComunicator.SPLIT, obj, id);
-			Buttons.Instance.disableAll();
+			Buttons.Instance.enable(false);
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
@@ -261,7 +264,8 @@ package uiimpl
 			
 		}
 		
-		public function removeAllBet(type:int,con:DisplayObjectContainer, rawX:int, rawY:int,reclamContainer:Boolean=false):void{
+		public function removeAllBet(type:int, con:DisplayObjectContainer, rawX:int, rawY:int, reclamContainer:Boolean = false):void{
+			GameUtils.log('Subtable.removeAllBet(): ',con == null, con.parent == null);
 			var point:Point = con.parent.globalToLocal(type == -1 ? PokerGameVars.ChipLostPos : PokerGameVars.ChipGainPos );
 			TweenLite.to(con, 0.8, {x:point.x, y:point.y, onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
 		}

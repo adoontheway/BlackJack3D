@@ -13,6 +13,17 @@ package
 	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
 	import uiimpl.BalanceImpl;
+	import uiimpl.Buttons;
+	
+	import flash.utils.ByteArray;
+	import com.hurlant.util.Base64;
+	import com.hurlant.util.Hex;
+	import com.hurlant.crypto.Crypto;
+	import com.hurlant.crypto.symmetric.AESKey;
+	import com.hurlant.crypto.symmetric.ICipher;
+	import com.hurlant.crypto.symmetric.IPad;
+	import com.hurlant.crypto.symmetric.IVMode;
+	import com.hurlant.crypto.symmetric.NullPad;
 	/**
 	 * ...
 	 * @author jerry.d
@@ -51,9 +62,25 @@ package
 			request.method = URLRequestMethod.POST;
 			var vars:URLVariables = new URLVariables();
 			vars._token = _token;
-			vars.betdata =  JSON.stringify(data);
+			//vars.betdata =  JSON.stringify(data);
+			vars.betdata =  encrypto(data);
 			request.data = vars;
 			loader.load(data.wayId, tableId, request,onComplete,onError);
+		}
+		
+		private function encrypto(obj:*):String{
+			var src:String = JSON.stringify(obj);
+			var decrKey:String = '0123456789abcdef';
+			var decrIV:String = '1234567891234567';
+			
+			var inputBA:ByteArray=Hex.toArray(Hex.fromString(src));        
+			var key:ByteArray = Hex.toArray(Hex.fromString(decrKey));                
+			var pad:IPad = new NullPad();
+			var aes:ICipher = Crypto.getCipher("aes-cbc", key, pad);
+			var ivmode:IVMode = aes as IVMode;
+			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));            
+			aes.encrypt(inputBA); 
+			return Base64.encodeByteArray(inputBA);
 		}
 		
 		public function requesAccount():void{
@@ -71,7 +98,7 @@ package
 			request.method = URLRequestMethod.POST;
 			
 			var vars:URLVariables = new URLVariables();
-			vars.betdata = JSON.stringify({ stage:0, wayId:9 });
+			vars.betdata = encrypto({ stage:0, wayId:9 });
 			vars._token = _token;
 			
 			request.data = vars;
@@ -178,13 +205,7 @@ package
 		
 		private function onHitBack(data:Object):void{
 			//GameUtils.log('onHit ', data.newCard,  data.stageId);
-			var stage:Object = data.stage;
-			if ( stage.stop == 1 && stage.prize != null){
-				setTimeout(function():void{
-					mgr.onTableEnd(data.stageId,stage);
-				}, 500);
-			}
-			mgr.dispense(data.stageId, int(data.newCard));
+			mgr.onHited(data);
 		}
 		
 		private function onStart(data:Object):void{
@@ -260,9 +281,9 @@ package
 			}
 		}
 		
-		
 		private function onError(proto:*, e:IOErrorEvent):void{
 			GameUtils.fatal(e.text);
+			Buttons.Instance.enable(true);
 		}
 		
 		private static var _instance:HttpComunicator;
