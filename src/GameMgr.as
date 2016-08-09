@@ -9,6 +9,7 @@ package
 	import comman.duke.ShakeMgr;
 	import comman.duke.SoundMgr;
 	import comman.duke.TickerMgr;
+	import consts.PokerGameVars;
 	import consts.SoundsEnum;
 	import flash.geom.Point;
 	import flash.utils.*;
@@ -29,7 +30,7 @@ package
 		
 		public var desk:uint = 0;//0 单桌 1 三桌
 		public var currentModel:uint = 0;//0,1,2筹码大小
-		private var _started:Boolean = false;
+		public var started:Boolean = false;
 		public var ME:uint = 1;
 		private var _money:Number = 0;
 		public const BANKER:uint = 0;
@@ -63,15 +64,14 @@ package
 		
 		private function checkOutTime():void{
 			var referTime:uint = new Date().time - lastActiveTime;
-			if ( referTime >= 600000 && !auto){
+			if ( referTime >= PokerGameVars.TEN_MINUTES && LongTimeMask.Instance.parent == null){
 				GameUtils.log('long time no move');
-				autoGame();
+				showAutoRemind(referTime - PokerGameVars.TEN_MINUTES + PokerGameVars.FIVE_MINUTES);
 			}
-			//GameUtils.log('times no move', GameUtils.GetTimeString(referTime));
 		}
 		
+		
 		public function refresh():void{
-			auto = false;
 			lastActiveTime = new Date().time;
 		}
 		
@@ -910,6 +910,10 @@ package
 			}
 		}
 		
+		public function showAutoRemind(timeRest:int):void{
+			LongTimeMask.Instance.show(timeRest);
+		}
+		
 		public function get money():Number{
 			return this._money;
 		}
@@ -928,7 +932,7 @@ package
 			}
 			return GameMgr._instance;
 		}
-		
+		/**
 		public function get started():Boolean 
 		{
 			return _started;
@@ -939,6 +943,7 @@ package
 			GameUtils.log('started:',value);
 			_started = value;
 		}
+		*/
 	}
 
 }
