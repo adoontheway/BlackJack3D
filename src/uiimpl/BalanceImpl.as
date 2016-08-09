@@ -41,11 +41,11 @@ package uiimpl
 		public function update(delta:int):void{
 			var gap:Number = _blance - current;
 			if ( Math.abs(gap) < 1){
-				this.lab_0.text = GameUtils.NumberToString(_blance);
+				this.lab_0.text = GameUtils.NumberToString(_blance,',',0);
 				FrameMgr.Instance.remove(name);
 			}else{
 				current += gap * 0.25;
-				this.lab_0.text = GameUtils.NumberToString(current);
+				this.lab_0.text = GameUtils.NumberToString(current,',',0);
 			}
 			//GameUtils.log("balance update",current);
 		}
@@ -56,20 +56,20 @@ package uiimpl
 				FrameMgr.Instance.add(frameItem);
 		}
 		
-		private var _blance:Number = 0;
+		private var _blance:int = 0;
 		private var current:Number = -99999;
 		private var timeout:int = -1;
-		public function set balance(val:Number):void{
+		public function set balance(val:int):void{
 			//GameUtils.log("set balance",val);
 			if ( _blance == val ) return;
 			current = _blance;
 			if ( _blance == 0 ){
-				this.lab_0.text = GameUtils.NumberToString(_blance);
+				this.lab_0.text = GameUtils.NumberToString(_blance,',',0);
 			}
 			this._blance = val;
 		}
 		
-		public function get balance():Number{
+		public function get balance():int{
 			return _blance;
 		}
 		

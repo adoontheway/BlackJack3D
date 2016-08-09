@@ -36,7 +36,6 @@ package uiimpl
 			this.img_cover.mask = this.img_mask;
 			this.x = 149;
 			this.y = 623;
-			//this.img_cover.visible = false;
 			init();
 		}
 
@@ -86,7 +85,6 @@ package uiimpl
 		public var currentChip:Chip;
 		public var currentValue:uint;
 		private function onChip(evt:MouseEvent):void{
-			//GameUtils.info(evt.target['name'] + ' clicked');
 			GameMgr.Instance.refresh();
 			SoundMgr.Instance.playEffect( SoundsEnum.CHIP);
 			if ( currentChip != null && currentChip == evt.target) {
@@ -119,29 +117,16 @@ package uiimpl
 				(this['chip_' + i] as Image).url = 'png.chips.chip-'+currentChip[i];
 			}
 		}
-		/**
-		private var shakeInterval:int = -1;
-		private var currentShakeIndex:int = -1;
-		public function shakeIt():void{
-			if ( this.shakeInterval == -1){
-				this.shakeInterval = setInterval(function():void{
-					shakeIt();
-				}, 1000);
-				return;
-			}
-				
-			this.currentShakeIndex++;
-			if ( this.currentShakeIndex < this.chips.length){
-				var chip:Chip = this.chips[this.currentShakeIndex];
-				var item:ShakeItem = PoolMgr.gain(ShakeItem);
-				item.init(this.name+chip.name, chip, 5, 4, ShakeMgr.SHAKE_VER, chip.x, chip.y);
-				ShakeMgr.Instance.addShakeItem(item);
-			}else{
-				clearInterval(this.shakeInterval);
-				this.shakeInterval = -1;
+		
+		public function cancelSelect():void{
+			if ( currentChip != null ) {
+				TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]});
+				this.currentChip = null;
+				this.currentValue = 0;
+				this.selectEffect.visible = false;
 			}
 		}
-		*/
+		
 		private static var _instance:ChipsViewUIImpl;
 		public static function get Instance():ChipsViewUIImpl{
 			if ( ChipsViewUIImpl._instance == null){

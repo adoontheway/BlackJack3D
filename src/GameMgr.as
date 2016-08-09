@@ -35,7 +35,7 @@ package
 		public const BANKER:uint = 0;
 		private var splitors:Array;
 
-		private var pokerMap:Object = {};
+		//private var pokerMap:Object = {};
 		private var tables:Object = {};
 		
 		public var mainView:MainViewImpl;
@@ -50,7 +50,7 @@ package
 		public var name:String;
 		public function GameMgr() 
 		{
-			this.pokerMap = {};
+			//this.pokerMap = {};
 			this.name = 'gamemgr';
 
 			//socketMgr = SocketMgr.Instance;
@@ -180,12 +180,12 @@ package
 			
 			var table:TableData = this.tables[tableId];
 			var poker:Poker;
-			if ( tableId == 0 && table.numCards == 1 && pokerMap[FAKE_CARD_VALUE] != null){
-				poker = pokerMap[ FAKE_CARD_VALUE];
-				poker.value = card;
-				delete pokerMap[ FAKE_CARD_VALUE];
-				table.addCard(poker);
-				mainView.traverseTheFakePoker(poker);
+			if ( tableId == 0 && table.numCards == 1 && fakePoker != null ){//pokerMap[FAKE_CARD_VALUE] != null){
+				//poker = pokerMap[ FAKE_CARD_VALUE];
+				fakePoker.value = card;
+				//delete pokerMap[ FAKE_CARD_VALUE];
+				table.addCard(fakePoker);
+				mainView.traverseTheFakePoker(fakePoker);
 			}else{
 				poker = PoolMgr.gain(Poker);
 				poker.value = card;
@@ -199,12 +199,14 @@ package
 				}else{
 					if( card != FAKE_CARD_VALUE )
 						table.addCard(poker);
+					else
+						fakePoker = poker;
 					
 					mainView.onDispenseBanker(poker);	
 				}
 			}
 			
-			pokerMap[card] = poker;
+			//pokerMap[card] = poker;
 			if (tableId != 0 && ( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
 				if( this.endTables.indexOf(tableId) == -1)
 					this.putToEnd(tableId);
@@ -302,7 +304,7 @@ package
 				bet = ChipsViewUIImpl.Instance.currentValue;
 				
 			if ( bet == 0 ) {
-				FloatHint.Instance.show('no chips seleted...');
+				FloatHint.Instance.show('请先选择筹码再下注哦~~');
 				//ChipsViewUIImpl.Instance.shakeIt();
 				return;
 			}
@@ -323,7 +325,7 @@ package
 		public function betPair(tableId:int, bet:uint=0):void{
 			if ( bet == 0 ) bet = ChipsViewUIImpl.Instance.currentValue;
 			if ( bet == 0 ) {
-				FloatHint.Instance.show('no chips seleted...');
+				FloatHint.Instance.show('请先选择筹码再下注哦~~');
 				return;
 			}
 			var table:TableData = this.tables[tableId];
@@ -374,6 +376,7 @@ package
 					table.reset();
 				}
 				table.actived = true;
+				ChipsViewUIImpl.Instance.cancelSelect();
 				/**
 				if (!gotPair){
 					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
@@ -384,7 +387,7 @@ package
 				starting = true;
 				return true;
 			}else{
-				FloatHint.Instance.show('no bet');
+				FloatHint.Instance.show('请先下注筹码再发牌哦~~');
 				return false;
 			}
 		}
@@ -466,20 +469,21 @@ package
 			*/
 		}
 		public var fakeCard:int = -1;
+		private var fakePoker:Poker;
 		public function playCheck():void{
-			var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
-			if ( poker != null ){
+			//var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
+			if ( fakePoker != null ){
 				Buttons.Instance.enable(false);
-				TweenLite.to(poker, 0.5, {scale:1.2, y:poker.y - 20, onComplete:onCheckPhase1, onCompleteParams:[poker]});
+				TweenLite.to(fakePoker, 0.5, {scale:1.2, y:fakePoker.y - 20, onComplete:onCheckPhase1});
 			}
 		}
 		
-		public function onCheckPhase1(poker:Poker):void{
+		public function onCheckPhase1():void{
 			GameUtils.log('mgr.onCheckPhase1:',fakeCard);
 			if ( fakeCard != -1 ){
-				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:onCheckPhase2});
+				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
 			}else{
-				TweenLite.to(poker, 0.5, {scale:1, y:poker.y+20, onComplete:checkButtons});
+				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
 			}
 			Buttons.Instance.enable(true);
 		}
@@ -521,12 +525,13 @@ package
 			for ( key in this.subTableDisplays){
 				subTableDisplays[key].reset();
 			}
-			pokerMap = {};
+			//pokerMap = {};
 			this.currentTables = [];
 			this.endTables = [];
 			mainView.onRoundEnd();
 			enableDisplayMouse(true);
 			this.fakeCard = FAKE_CARD_VALUE;
+			this.fakePoker = null;
 			requestedBaneker = false;
 			//this.bankerBJ = false;
 		}
@@ -691,10 +696,12 @@ package
 			var bet:int = data.bet;
 			var table:TableData;
 			var poker:Poker;
-
+			var value:int;
 			for (var tablId in ttables ){
 				table = this.tables[tablId];
-				poker = pokerMap[ttables[tablId]];
+				value = ttables[tablId];
+				poker = table.getCard(value);
+				//poker = pokerMap[ttables[tablId]];
 				poker.x = 0 ;
 				poker.y = 0;
 				poker.rotation = 0;
@@ -718,9 +725,10 @@ package
 			}
 		}
 		
-		public function onSplited(father_id:int,father_card:Array,new_stage:Object):void{
-			var son_id:int = father_id + 3;
+		public function onSplited(father_id:int,son_id:int,father_card:Array,new_stage:Object):void{
+			//var son_id:int = father_id + 3;
 			var bet:int = this.tables[father_id].currentBet;
+			
 			table = this.tables[son_id];
 			if ( table != null ){
 				table.reset();
@@ -736,7 +744,10 @@ package
 				this.currentTables.push(son_id);
 			}
 			
-			poker = pokerMap[int(new_stage.cards)];
+			poker = tables[father_id].getCard(int(new_stage.cards));//pokerMap[int(new_stage.cards)];
+			GameUtils.assert(poker != null,'mgr.onSplited:0'+father_id+' has no ' +new_stage.cards);
+			tables[father_id].removeCard(poker);
+			
 			poker.x = 0 ;
 			poker.y = 0;
 			poker.rotation = 0;
@@ -748,20 +759,25 @@ package
 			poker.y = targetPoint.y;
 			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 			
-			
 			var table:TableData = this.tables[father_id];
+			
+			var poker:Poker;
+			//必须在这里拿到不然下面的reset就要清空导致报错
+			poker = table.getCard(int(father_card[0]));
+			GameUtils.assert(poker != null,'mgr.onSplited:1'+father_id+' has no ' +new_stage.cards);
 			table.reset();
 			table.currentBet = bet;
 			table.actived = true;
 			table.isSplited = true;
-
-			var poker:Poker;
-			poker = pokerMap[father_card[0]];
+			
 			poker.x = 0 ;
 			poker.y = 0;
 			poker.rotation = 0;
-			var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
+			
+			var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x, poker.y)));
+			
 			table.display.poker_con.addChild(poker);//todo tweent to table2
+			
 			table.display.visible = true;
 			poker.x = targetPoint.x;
 			poker.y = targetPoint.y;
@@ -802,13 +818,13 @@ package
 		
 		public function onFakeCard(card:int):void{
 			var table:TableData = tables[0];
-			var poker:Poker = this.pokerMap[ FAKE_CARD_VALUE];
-			if ( poker != null ){
-				poker.value = card;
-				pokerMap[card] = poker;
-				delete pokerMap[ FAKE_CARD_VALUE];
-				table.addCard(poker);
-				mainView.traverseTheFakePoker(poker);
+			//var poker:Poker = this.pokerMap[ FAKE_CARD_VALUE];
+			if ( fakePoker != null ){
+				fakePoker.value = card;
+				//pokerMap[card] = poker;
+				//delete pokerMap[ FAKE_CARD_VALUE];
+				table.addCard(fakePoker);
+				mainView.traverseTheFakePoker(fakePoker);
 			}else{
 				mainView.showFakeCardAfterTween = true;
 				GameUtils.log('no traverse poker');//check the dispose list
@@ -875,7 +891,7 @@ package
 			if ( !auto || !started) return;
 			if ( _currentTable != null ){
 				if ( _currentTable.points < 17 ){
-					enable(false);
+					Buttons.Instance.enable(false);
 					
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.HIT;
@@ -883,7 +899,7 @@ package
 					obj.stage[_currentTable.tableId] = [];
 					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, _currentTable.tableId);
 				}else{
-					enable(false);
+					Buttons.Instance.enable(false);
 			
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.STOP;

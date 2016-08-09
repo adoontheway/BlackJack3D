@@ -62,6 +62,22 @@ package model
 			this.bust = points > 21;
 		}
 
+		public function getCard(value:int):Poker{
+			for each(var card:Poker in cards){
+				if ( card.value == value){
+					return card;
+				}
+			}
+			return null;
+		}
+		
+		public function removeCard(poker:Poker):void{
+			var index:int = this.cards.indexOf(poker);
+			if ( index != -1){
+				this.cards.splice(index, 1);
+			}
+		}
+		
 		public function reset():void{
 			this.points = 0;
 			this.currentBet = 0;

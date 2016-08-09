@@ -1,5 +1,5 @@
 <View width="212" height="46" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
   <Image skin="png.images.balance" layer="1" x="0" y="0"/>
-  <Label text="100" styleSkin="png.comp.label" x="42" y="8" layer="1" width="97" height="27" color="0xcccccc" size="20" var="lab_0" font="Din"/>
+  <Label text="100" styleSkin="png.comp.label" x="40" y="8" layer="1" width="108" height="27" color="0xcccccc" size="20" var="lab_0" font="Din"/>
   <Button skin="png.images.btn_recharge" x="149" y="7" layer="1" stateNum="1" var="btn_recharge"/>
 </View>

@@ -192,7 +192,7 @@ package
 		}
 		
 		private function onSplitBack(data:Object,tableId:int):void{
-			mgr.onSplited(tableId, data.father_card, data.newCards);
+			mgr.onSplited(tableId, data.newStageId, data.father_card, data.newCards);
 			mgr.money = Number(data.account);
 			BalanceImpl.Instance.rockAndRoll();
 		}
@@ -284,8 +284,8 @@ package
 			}
 		}
 		
-		private function onError(proto:*, e:IOErrorEvent):void{
-			GameUtils.fatal(e.text);
+		private function onError(proto:*, tabldId:int, e:IOErrorEvent):void{
+			GameUtils.fatal('ProtoId:',proto,'  tabelId:',tabldId, ' Error:',e.text);
 			Buttons.Instance.enable(true);
 		}
 		
