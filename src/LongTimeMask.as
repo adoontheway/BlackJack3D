@@ -48,7 +48,7 @@ package
 			var tFormat:TextFormat = new TextFormat();
 			tFormat.align = TextFieldAutoSize.CENTER;
 			tFormat.color = 0xffffff;
-			tFormat.size = 40;
+			tFormat.size = 36;
 			this.tf.defaultTextFormat = tFormat;
 			
 			this.tf.text = "您已长时间未进行游戏\r\n如果在倒计时结束前还未进行任何操作，系统将进行自动游戏";
@@ -61,8 +61,9 @@ package
 			var tFormat1:TextFormat = new TextFormat();
 			tFormat1.align = TextFieldAutoSize.CENTER;
 			tFormat1.color = 0xffffff;
+			tFormat.bold = true;
 			tFormat1.size = 48;
-			this.tTimer.defaultTextFormat = tFormat;
+			this.tTimer.defaultTextFormat = tFormat1;
 			this.tTimer.filters = [PokerGameVars.YELLOW_Glow_Filter];
 			this.addChild(tTimer);
 		}
@@ -72,6 +73,11 @@ package
 			this.graphics.beginFill(0, 0.8);
 			this.graphics.drawRect(0, 0, GameVars.Stage_Width, GameVars.Stage_Height);
 			this.graphics.endFill();
+			
+			tf.x = GameVars.Stage_Width - tf.width >> 1;
+			tf.y = GameVars.Stage_Height - tf.height >> 1;
+			tTimer.x = GameVars.Stage_Width - tTimer.width >> 1;
+			tTimer.y = tf.y + tf.height;
 		}
 		
 		public function update(delta:int):void{
@@ -89,10 +95,7 @@ package
 			this.deadTime = dTime;
 			GameUtils.log('Show Remind for : ', dTime);
 			redraw();
-			tf.x = GameVars.Stage_Width - tf.width >> 1;
-			tf.y = GameVars.Stage_Height - tf.height >> 1;
-			tTimer.x = GameVars.Stage_Width - tTimer.width >> 1;
-			tTimer.y = tf.y + tf.height;
+			
 			GameVars.STAGE.addChild(this);
 			FrameMgr.Instance.add(this.frameItem);
 		}

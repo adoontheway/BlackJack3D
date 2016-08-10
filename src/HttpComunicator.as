@@ -2,6 +2,7 @@ package
 {
 	import comman.duke.*;
 	import comman.duke.loader.SomeUrlLoader;
+	import consts.PokerGameVars;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
 	import flash.net.URLLoader;
@@ -80,7 +81,9 @@ package
 		
 		private function encrypto(obj:*):String{
 			var src:String = JSON.stringify(obj);
-			
+			if ( !PokerGameVars.NEED_CRYPTO ){
+				return src;
+			}
 			var inputBA:ByteArray=Hex.toArray(Hex.fromString(src));    
 			aes.encrypt(inputBA); 
 			return Base64.encodeByteArray(inputBA);
@@ -122,7 +125,7 @@ package
 					}
 				}
 			}catch (e:Error){
-				GameUtils.fatal('error when parse accountinfo:',e.message);
+				GameUtils.fatal('读取账户信息出错:',e.message);
 			}
 			
 		}
@@ -166,10 +169,11 @@ package
 						break;
 				}
 			}else{
+				Buttons.Instance.enable(true);
 				if ( result.msg != null){
 					FloatHint.Instance.show(result.msg);
 				}else{
-					FloatHint.Instance.show('未知的错误码:'+result.errcode);
+					FloatHint.Instance.show('未知的错误码:'+result.errcode+" 协议号:"+proto+" stage:"+tabId);
 				}
 				
 			}
@@ -226,7 +230,7 @@ package
 		private function onGameData(data:Object, isStart:Boolean):void{
 			//GameUtils.log('onGameData ');
 			if ( data.banker != null && data.player != null ){
-				FloatHint.Instance.show("Request game data finished");
+				FloatHint.Instance.show("读取游戏存档完成");
 				initDispatch(data,isStart);
 			}
 		}

@@ -65,7 +65,7 @@ package
 		
 		private function checkOutTime():void{
 			var referTime:uint = new Date().time - lastActiveTime;
-			if ( referTime >= PokerGameVars.TEN_MINUTES && LongTimeMask.Instance.parent == null){
+			if ( referTime >= PokerGameVars.FIVE_MINUTES && LongTimeMask.Instance.parent == null){
 				GameUtils.log('long time no move since : ',lastActiveTime,'-------',referTime);
 				showAutoRemind(PokerGameVars.TEN_MINUTES - referTime + PokerGameVars.FIVE_MINUTES);
 			}
@@ -142,13 +142,13 @@ package
 			var tabId:int = data.stageId;
 			var table:TableData = tables[tabId];
 			//table.actived = stage.stop == 0;
-			
+			GameUtils.log('stageId:',data.stageId,' bust:',stage.bust == "1");
 			if ( stage.stop == 1 ){
 				putToEnd(tabId);
-				if(stage.prize != null){
-					setTimeout(function():void{
+				if(stage.bust == "1"){
+					//setTimeout(function():void{
 						onTableEnd(data.stageId,stage);
-					}, 400);
+					//}, 400);
 				}
 			}
 			
@@ -870,8 +870,13 @@ package
 		}
 		
 		public function onTableEnd(tabId:int, data:Object):void{
+			GameUtils.log('mgr.onTableEnd', tabId);
 			var table:TableData = this.tables[tabId];
-			table.prize = data.prize[HttpComunicator.START];
+			if ( data.prize && data.prize[HttpComunicator.START]){
+				table.prize = data.prize[HttpComunicator.START];
+			}
+				
+			
 			table.display.end();
 		}
 		

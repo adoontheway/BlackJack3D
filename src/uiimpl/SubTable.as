@@ -180,7 +180,7 @@ package uiimpl
 		
 		private function split(evt:MouseEvent):void{ 
 			//SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
-			if ( mgr.money >= tableData.currentBet){
+			if ( mgr.money < tableData.currentBet){
 				FloatHint.Instance.show("当前余额不足，不能分牌");
 				return;
 			}

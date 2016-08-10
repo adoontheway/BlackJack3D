@@ -200,6 +200,10 @@ package
 			}
 			if( BalanceImpl.Instance.parent)
 				BalanceImpl.Instance.onResize();
+				
+			if ( LongTimeMask.Instance.parent != null){
+				LongTimeMask.Instance.redraw();
+			}
 		}
 	}
 	
