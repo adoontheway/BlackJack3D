@@ -15,10 +15,12 @@ package consts
 	public class PokerGameVars 
 	{
 		
-		public static const VERSION:String = "V20160809-11-dev";
+		public static const VERSION:String = "V20160810-07-dev";
 		
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
+		
+		public static var TempInsureCost:int = 0;
 		
 		public static var resRoot:String = '';
 		

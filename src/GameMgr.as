@@ -49,6 +49,7 @@ package
 		
 		private var lastActiveTime:uint = 0;
 		public var name:String;
+		
 		public function GameMgr() 
 		{
 			//this.pokerMap = {};
@@ -65,8 +66,8 @@ package
 		private function checkOutTime():void{
 			var referTime:uint = new Date().time - lastActiveTime;
 			if ( referTime >= PokerGameVars.TEN_MINUTES && LongTimeMask.Instance.parent == null){
-				GameUtils.log('long time no move');
-				showAutoRemind(referTime - PokerGameVars.TEN_MINUTES + PokerGameVars.FIVE_MINUTES);
+				GameUtils.log('long time no move since : ',lastActiveTime,'-------',referTime);
+				showAutoRemind(PokerGameVars.TEN_MINUTES - referTime + PokerGameVars.FIVE_MINUTES);
 			}
 		}
 		
@@ -92,7 +93,7 @@ package
 		private var requestedBaneker:Boolean = false;
 		public function nextTable():void{
 			if ( this._currentTable != null && this._currentTable.isSplited && this._currentTable.tableId <= 3){
-				//GameUtils.log('nextTable0: ',_currentTable.tableId);
+				GameUtils.log('nextTable0: ',_currentTable.tableId);
 				this._currentTable = this.tables[this._currentTable.tableId + 3];
 				if ( endTables.indexOf( _currentTable.tableId) != -1){
 					_currentTable = null;
@@ -101,10 +102,10 @@ package
 					putToEnd(this._currentTable.tableId);
 				}
 			}else if ( this.currentTables.length != 0 ){
-				//GameUtils.log('nextTable 1 ');
+				GameUtils.log('nextTable 1 ');
 				_currentTable = this.tables[this.currentTables[0]];
 			}else{
-				//GameUtils.log('nextTable 2 ');
+				GameUtils.log('nextTable 2 ');
 				_currentTable = null;
 			}
 			
@@ -228,13 +229,18 @@ package
 		
 		public function onBankerDispense():void{
 			GameUtils.log('On banker dispense complete', this.started);
-			if ( !this.started && this.dispenseQueue.length == 0){
-				var table:TableData;
-				for each(var i:int in this.endTables){
-					table = this.tables[i];
-					table.display.end();
+			if ( this.dispenseQueue.length == 0 ){
+				if ( !this.started ){
+					var table:TableData;
+					for each(var i:int in this.endTables){
+						table = this.tables[i];
+						table.display.end();
+					}
+				}else if ( this.currentTables.length == 0 && this._currentTable == null ){
+					nextTable();
 				}
 			}
+			
 		}
 		public function checkButtons():void{
 			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
@@ -259,7 +265,10 @@ package
 			}else{
 				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
 				if ( currentTable != null){
-					_currentTable.display.selected = true;	
+					_currentTable.display.selected = true;
+					if ( auto ){
+						autoStep();
+					}
 				}
 			}
 		}
@@ -351,22 +360,31 @@ package
 			var table:TableData;
 			var got:Boolean;
 			var gotPair:Boolean;
+			
+			var needMoney:int = 0;
 			for (var key in this.tables){
 				table = tables[key];
 				if ( table.currentBet != 0){
 					got = true;
 					betObj[table.tableId] = table.currentBet;
-					
+					needMoney += table.currentBet;
 					obj.stage[table.tableId] = {};
 					obj.stage[table.tableId][HttpComunicator.START] = table.currentBet;
 				}
 				if ( table.pairBet != 0 && table.currentBet != 0 ){
 					gotPair = true;
 					pairBet[table.tableId] = table.pairBet;
+					
+					needMoney += table.pairBet;
+					
 					obj.stage[table.tableId][HttpComunicator.PAIR] = table.pairBet;
 				}
 			}
 			if (got){
+				if ( needMoney > this.money){
+					FloatHint.Instance.show("对不起，您的账户余额不够本次下注！");
+					return false;
+				}
 				//GameUtils.log('mgr.start :', JSON.stringify(obj));
 				HttpComunicator.Instance.send(HttpComunicator.START,obj,0);
 				table = this.tables[0];
@@ -533,6 +551,7 @@ package
 			this.fakeCard = FAKE_CARD_VALUE;
 			this.fakePoker = null;
 			requestedBaneker = false;
+			PokerGameVars.TempInsureCost = 0;
 			//this.bankerBJ = false;
 		}
 		
@@ -672,7 +691,7 @@ package
 				if ( player.prize[HttpComunicator.SPLIT]){
 					table.prize += player.prize[HttpComunicator.SPLIT];
 				}
-				//GameUtils.log('table:', j, '==== prize : ', table.prize);
+				GameUtils.log('table:', j, '==== prize : ', table.prize);
 			}
 			
 			//table = tables[0];
@@ -879,9 +898,6 @@ package
 		}
 		private var auto:Boolean = false;
 		public function autoGame():void{
-			
-			return;
-			
 			if ( auto ) return;
 			auto = true;
 			autoStep();
@@ -890,23 +906,15 @@ package
 		public function autoStep():void{
 			if ( !auto || !started) return;
 			if ( _currentTable != null ){
-				if ( _currentTable.points < 17 ){
-					Buttons.Instance.enable(false);
-					
-					var obj:Object = {};
-					obj.wayId = HttpComunicator.HIT;
-					obj.stage = {};
-					obj.stage[_currentTable.tableId] = [];
-					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, _currentTable.tableId);
-				}else{
-					Buttons.Instance.enable(false);
-			
-					var obj:Object = {};
-					obj.wayId = HttpComunicator.STOP;
-					obj.stage = {};
-					obj.stage[_currentTable.tableId] = [];
-					HttpComunicator.Instance.send(HttpComunicator.STOP, obj,_currentTable.tableId);
-				}
+				
+				Buttons.Instance.enable(false);
+		
+				var obj:Object = {};
+				obj.wayId = HttpComunicator.STOP;
+				obj.stage = {};
+				obj.stage[_currentTable.tableId] = [];
+				HttpComunicator.Instance.send(HttpComunicator.STOP, obj,_currentTable.tableId);
+				
 			}
 		}
 		

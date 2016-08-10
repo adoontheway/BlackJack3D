@@ -47,37 +47,27 @@ package uiimpl
 			if ( $id == 1 ){
 				this.x = 625;
 				this.y = 290;
-				claz = ApplicationDomain.currentDomain.getDefinition('RingSide') as Class;
+				claz = ApplicationDomain.currentDomain.getDefinition('RightRing') as Class;
 			}else if ( $id == 2 ){
 				this.x = 270;
 				this.y = 355;
 				this.table.skin = "png.images.btn_table_middle";
 				this.pair.skin = "png.images.btn_pair_center";
-				claz = ApplicationDomain.currentDomain.getDefinition('RingCenter') as Class;
+				claz = ApplicationDomain.currentDomain.getDefinition('CenterRing') as Class;
 			}else if ( $id == 3 ){
 				this.x = -85;
 				this.y = 295;
 				this.table.skin = "png.images.btn_table_left";
 				this.pair.skin = "png.images.btn_pair_left";
-				claz = ApplicationDomain.currentDomain.getDefinition('RingSide') as Class;
+				claz = ApplicationDomain.currentDomain.getDefinition('LeftRing') as Class;
 			}
 			
-			if ( false ){// claz != null ){
+			if ( claz != null ){
 				reminder = new claz() as MovieClip;
-				reminder.blendMode = BlendMode.ADD;
-				if ($id == 2){
-					reminder.alpha = 0.2;
-				}
-				reminder.x = 118;
-				reminder.y = 114;
-				if ( PokerGameVars.Reminder_Perspective == null ){
-					PokerGameVars.Reminder_Perspective = new PerspectiveProjection();
-					PokerGameVars.Reminder_Perspective.fieldOfView = 120;
-					PokerGameVars.Reminder_Perspective.projectionCenter = new Point(275,200);
-				}
-				reminder.transform.perspectiveProjection = PokerGameVars.Reminder_Perspective;
-				reminder.filters = [PokerGameVars.Reminder_Filter];
-				this.addChild(reminder);
+				reminder.x = 110;
+				reminder.y = 110;
+				reminder.mouseChildren = reminder.mouseEnabled = false;
+				//this.addChild(reminder);
 			}
 			
 			this.name = 'table_' + $id;
@@ -91,7 +81,15 @@ package uiimpl
 			this.addChild(new SubTable(this.id + 3));
 			this.addChild(new SubTable(this.id));
 			pair_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
-			//GameUtils.log('BaseTable init : '+this.name);
+		}
+		
+		public function showReminder(flag:Boolean):void{
+			if ( reminder == null ) return;
+			if ( flag && !this.contains(this.reminder)){
+				this.addChild(this.reminder);
+			}else if(!flag && this.contains(this.reminder)){
+				this.removeChild(this.reminder);
+			}
 		}
 		
 		private function betTable(evt:MouseEvent):void{

@@ -254,6 +254,10 @@ package uiimpl
 			if ( mgr.started ){
 				//GameUtils.log('double 0 : ',mgr.started,mgr.currentTable)
 				if ( mgr.currentTable == null) return;
+				if ( mgr.currentTable.currentBet > mgr.money){
+					FloatHint.Instance.show("当前余额不足，不能加倍");
+					return;
+				}
 				var obj:Object = {};
 				obj.wayId = HttpComunicator.DOUBLE;
 				obj.stage = {};

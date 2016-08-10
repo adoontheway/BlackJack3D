@@ -166,7 +166,12 @@ package
 						break;
 				}
 			}else{
-				FloatHint.Instance.show(result.msg);
+				if ( result.msg != null){
+					FloatHint.Instance.show(result.msg);
+				}else{
+					FloatHint.Instance.show('未知的错误码:'+result.errcode);
+				}
+				
 			}
 		}
 		

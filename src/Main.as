@@ -16,6 +16,7 @@ package
 	import flash.display.StageScaleMode;
 	import flash.events.ErrorEvent;
 	import flash.events.Event;
+	import flash.events.MouseEvent;
 	import flash.events.UncaughtErrorEvent;
 	import flash.external.ExternalInterface;
 	import flash.net.URLRequest;
@@ -160,14 +161,26 @@ package
 			//SocketMgr.Instance.init();
 			bgLoaded();
 			if ( ApplicationDomain.currentDomain.hasDefinition('DinBold')){
-				//GameUtils.log('register the font');
 				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
 				Font.registerFont(FontClass);
 			}
+			
+
 			SoundsEnum.InitSounds();
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			this.stage.addChild(BalanceImpl.Instance);
+			
+			var SoundBtn :Class = ApplicationDomain.currentDomain.getDefinition('SoundBtn') as Class; 
+			
+			if ( SoundBtn != null){
+				var mc:MovieClip = new SoundBtn() as MovieClip;
+				mc.x = 50;
+				mc.y = 100;
+				this.stage.addChild(mc);
+				SoundMgr.Instance.setBtn(mc);
+			}
+			
 			onResize(null);
 			othersLoaded = true;
 			if ( openupLoaded ){

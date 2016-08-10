@@ -180,8 +180,11 @@ package uiimpl
 		
 		private function split(evt:MouseEvent):void{ 
 			//SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
+			if ( mgr.money >= tableData.currentBet){
+				FloatHint.Instance.show("当前余额不足，不能分牌");
+				return;
+			}
 			this.btn_split.visible = false;
-			
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.SPLIT;
 			obj.stage = {};
@@ -192,6 +195,11 @@ package uiimpl
 		}
 		
 		private function insurrance(evt:MouseEvent):void{
+			if ( PokerGameVars.TempInsureCost + tableData.currentBet * 0.5 > mgr.money){
+				FloatHint.Instance.show("当前余额不足，不能保险");
+				return;
+			}
+			PokerGameVars.TempInsureCost += tableData.currentBet * 0.5
 			tableData.insured = true;
 			TableUtil.displayChipsToContainer(tableData.currentBet*0.5, this.insure_con);
 			this.btn_insurrance.visible = false;

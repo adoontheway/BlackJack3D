@@ -10,6 +10,7 @@ package uiimpl
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
+	import flash.system.ApplicationDomain;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.setTimeout;
 	import game.ui.mui.MainViewUI;
@@ -37,9 +38,8 @@ package uiimpl
 			super();
 			this.init();
 		}
-		//private var arrow:MovieClip;
+		
 		private function init():void{
-			//this.circles = [];
 			socketMgr = SocketMgr.Instance;
 			
 			mgr = GameMgr.Instance;
@@ -56,6 +56,8 @@ package uiimpl
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
+			
+			
 			
 			/*
 			frameItem = new FrameItem('mainView', this.update);
