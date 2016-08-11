@@ -41,7 +41,6 @@ package
 		public static const BANKER_TURN:int = 8;
 		public static const GAME_DATA:int = 9;
 		
-		
 		public static var submitUrl:String =  "http://t.bomao.lgv/casino/bet/8001/1";
 		public static var loaddataUrl:String = "http://t.bomao.lgv/bets/load-data/8001";
 		public static var pollUserAccountUrl:String = "http://t.bomao.lgv/users/user-account-info";
@@ -65,8 +64,17 @@ package
 			var ivmode:IVMode = aes as IVMode;
 			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));    
 		}
+		private var lastRequestTime:uint = 0;
 		
-		public function send(wayId:int, data:*, tableId:int):void{
+		public function send(wayId:int, data:*, tableId:int, isAutoRequest:Boolean=false):void{
+			var now:uint = flash.utils.getTimer();
+			if ( now - lastRequestTime < 1000 && !isAutoRequest){
+				FloatHint.Instance.show("操作过于频繁");
+				Buttons.Instance.enable(true);
+				return;
+			}
+			lastRequestTime = now;
+			
 			//GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
@@ -145,7 +153,6 @@ package
 						break;
 					case STOP:
 						onStopBack(result.data, tabId);
-						Buttons.Instance.enable(true);
 						break;
 					case DOUBLE:
 						onDoubleBack(int(result.data.newCard), result.data.stageId, result.data.stage);
@@ -196,7 +203,7 @@ package
 			//GameUtils.log('onDoubleBack:',newCard,tableId);
 			mgr.onDoubled(newCard, tableId, tableData);
 			
-			if ( tableData.stop == 1 && tableData.bust == "1" ){
+			if ( tableData.bust == 1 ){
 				setTimeout(function():void{
 					mgr.onTableEnd(tableId,tableData);
 				}, 500);
@@ -235,6 +242,8 @@ package
 			if ( data.banker != null && data.player != null ){
 				FloatHint.Instance.show("读取游戏存档完成");
 				initDispatch(data,isStart);
+			}else{
+				Buttons.Instance.switchModel(Buttons.MODEL_START);
 			}
 		}
 		
@@ -284,6 +293,9 @@ package
 			
 			mgr.dispense(0, -1);
 			num++;
+			mgr.needPlayCheck = needCheck;
+			mgr.fakeCard = fakeCard;
+			/**
 			if ( needCheck ){
 				setTimeout(function():void{
 					mgr.fakeCard = fakeCard;
@@ -294,6 +306,7 @@ package
 					}
 				}, num * 500);
 			}
+			*/
 		}
 		
 		private function onError(proto:*, tabldId:int, e:IOErrorEvent):void{

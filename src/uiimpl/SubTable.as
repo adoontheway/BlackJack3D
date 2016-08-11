@@ -335,9 +335,7 @@ package uiimpl
 					obj.wayId = HttpComunicator.HIT;
 					obj.stage = {};
 					obj.stage[id] = [];
-					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id);
-			
-					SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:id});
+					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id,true);
 				}
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut});

@@ -56,17 +56,9 @@ package uiimpl
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
-			
-			
-			
-			/*
-			frameItem = new FrameItem('mainView', this.update);
-			FrameMgr.Instance.add(frameItem);
-			*/
 		}
 		
 		public function afterStart():void{
-			Buttons.Instance.switchModel(Buttons.MODEL_START);
 			this.addChild(Buttons.Instance);
 		}
 		
@@ -132,7 +124,7 @@ package uiimpl
 				onDispenseBanker(poker);
 			}else {
 				//GameUtils.log('Banker dipense complete..');
-				mgr.onBankerDispense();
+				mgr.dispenseComplete(0);
 			}
 			/**
 			if (showFakeCardAfterTween){
@@ -155,7 +147,7 @@ package uiimpl
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
 			//GameUtils.log('Fake card reverse complete..');
-			mgr.onBankerDispense();
+			mgr.dispenseComplete(0);
 		}
 		
 		public function onRoundEnd():void{

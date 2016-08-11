@@ -1,7 +1,5 @@
 package
 {
-	
-	
 	import comman.duke.*;
 	import comman.duke.display.BitmapClipFactory;
 	import consts.*;

@@ -8,6 +8,8 @@ package uiimpl
 	import consts.SoundsEnum;
 	import flash.display.DisplayObject;
 	import flash.events.MouseEvent;
+	import flash.utils.getTimer;
+	import flash.utils.setTimeout;
 	import game.ui.mui.ButtonGroupUI;
 	import model.ProtocolClientEnum;
 	import model.TableData;
@@ -72,11 +74,11 @@ package uiimpl
 				button.x = posInfo.x;
 				button.y = posInfo.y;
 				this.addChild(button);
+				button.visible = false;
 				buttons.push(button);
 				button.addEventListener(MouseEvent.CLICK, onButton);
 				ImageClickCenter.Instance.add(button);
 			}
-			
 			mgr = GameMgr.Instance;
 			socketMgr = SocketMgr.Instance;
 		}
@@ -177,27 +179,30 @@ package uiimpl
 		
 		public function betAndStart(double:Boolean = false):void{
 			mgr.reset();
-			var betData:Object  = mgr.lastBetData;
-			var pairBetData:Object = mgr.lastPairBetData;
-			if ( betData == null ){
-				FloatHint.Instance.show('no bet record');
-				return;
-			}
-			var chip:Chip;
-			var table:TableData;
-			for (var i in betData){
-				mgr.betToTable(i,!double ? betData[i] : betData[i] * 2);
-			}
-			if ( pairBetData != null ){
-				for ( i in pairBetData){
-					mgr.betPair(i,!double ? pairBetData[i] : pairBetData[i] * 2);
+			setTimeout(function():void{
+				var betData:Object  = mgr.lastBetData;
+				var pairBetData:Object = mgr.lastPairBetData;
+				if ( betData == null ){
+					Buttons.Instance.enable(true);
+					FloatHint.Instance.show('no bet record');
+					return;
 				}
-			}
-			
-			mgr.start();
-			if ( MainViewImpl.Instance.y != 0){
-				MainViewImpl.Instance.tween(true);
-			}
+				var chip:Chip;
+				var table:TableData;
+				for (var i in betData){
+					mgr.betToTable(i,!double ? betData[i] : betData[i] * 2);
+				}
+				if ( pairBetData != null ){
+					for ( i in pairBetData){
+						mgr.betPair(i,!double ? pairBetData[i] : pairBetData[i] * 2);
+					}
+				}
+				
+				mgr.start();
+				if ( MainViewImpl.Instance.y != 0){
+					MainViewImpl.Instance.tween(true);
+				}
+			}, 1000);
 		}
 		
 		public function skip():void{
@@ -214,8 +219,9 @@ package uiimpl
 		private function start():void{
 			var result:Boolean = mgr.start();	
 			if ( result ){
-				enable(false);
 				MainViewImpl.Instance.tween(true);
+			}else{
+				enable(true);
 			}
 		}
 		
@@ -233,6 +239,7 @@ package uiimpl
 			if ( mgr.lastBetData != null ){
 				switchModel(MODEL_CLEAN);
 			}
+			enable(true);
 		}
 		private function double():void{
 			//this.hideAllBtns();
@@ -241,6 +248,7 @@ package uiimpl
 				if ( mgr.currentTable == null) return;
 				if ( mgr.currentTable.currentBet > mgr.money){
 					FloatHint.Instance.show("当前余额不足，不能加倍");
+					enable(true);
 					return;
 				}
 				var obj:Object = {};
