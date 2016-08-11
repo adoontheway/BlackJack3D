@@ -50,12 +50,12 @@ package
 		private var lastActiveTime:uint = 0;
 		public var name:String;
 		
+		public var totalDispensed:uint = 0;
 		public function GameMgr() 
 		{
 			//this.pokerMap = {};
 			this.name = 'gamemgr';
 
-			//socketMgr = SocketMgr.Instance;
 			HttpComunicator.Instance.mgr = this;
 			HttpComunicator.Instance.requesAccount();
 			
@@ -134,7 +134,7 @@ package
 		}
 	
 		private var dispenseTimer:uint = 0;
-		private var lastDipenseTime:Number = 0;
+		//private var lastDipenseTime:Number = 0;
 		private var dispenseQueue:Array = [];
 		
 		public function onHited(data:Object):void{
@@ -142,7 +142,7 @@ package
 			var tabId:int = data.stageId;
 			var table:TableData = tables[tabId];
 			//table.actived = stage.stop == 0;
-			GameUtils.log('stageId:',data.stageId,' bust:',stage.bust == "1");
+			//GameUtils.log('stageId:',data.stageId,' bust:',stage.bust == "1");
 			if ( stage.stop == 1 ){
 				putToEnd(tabId);
 				if(stage.bust == "1"){
@@ -157,8 +157,13 @@ package
 		
 		public function dispense(tableId:uint, card:int):void{
 			//GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
-			dispenseQueue.push(tableId, card);
+			if ( dispensing ){
+				dispenseQueue.push(tableId, card);
+			}else{
+				dispenseTo(tableId, card);
+			}
 			
+			/**
 			if ( dispenseTimer == 0){
 				dispenseTimer = setInterval(function():void{
 					var tabId:uint = _instance.dispenseQueue.shift();
@@ -171,16 +176,49 @@ package
 					}
 				}, 500);
 			}
+			*/
 		}
 		
+		private var dispensing:Boolean = false;
+		public function dispenseComplete(tabId:int):void{
+			dispensing = false;
+			var table:TableData = tables[tabId];
+			if (tabId != 0 && ( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
+				if( this.endTables.indexOf(tabId) == -1)
+					this.putToEnd(tabId);
+			}
+			
+			if ( dispenseQueue.length != 0 ){
+				tabId = _instance.dispenseQueue.shift();
+				var cardId:int = _instance.dispenseQueue.shift();
+				dispenseTo(tabId, cardId);
+			}else{
+				Buttons.Instance.enable(true);
+				if ( !started  || tables[0].blackjack){
+					setTimeout(onRoundEnd, 500);
+				}else{
+					this.checkButtons();
+				}
+				
+				if ( this.pairResult != null && pairResult.length != 0 ){
+					this.onPairBetResult();
+				}
+			}
+		}
 		
 		public var starting:Boolean = false;
 		private function dispenseTo(tableId:uint, card:int):void{
-			lastDipenseTime = TickerMgr.SYSTIME;
+			dispensing = true;
+			//lastDipenseTime = TickerMgr.SYSTIME;
 			//GameUtils.log('mgr->dispenseTo :', tableId, card);
+			
+			if ( card != -1 ){
+				totalDispensed++;
+			}
 			
 			var table:TableData = this.tables[tableId];
 			var poker:Poker;
+			
 			if ( tableId == 0 && table.numCards == 1 && fakePoker != null ){//pokerMap[FAKE_CARD_VALUE] != null){
 				//poker = pokerMap[ FAKE_CARD_VALUE];
 				fakePoker.value = card;
@@ -206,29 +244,11 @@ package
 					mainView.onDispenseBanker(poker);	
 				}
 			}
-			
-			//pokerMap[card] = poker;
-			if (tableId != 0 && ( table.bust || table.blackjack || table.points == 21 || ( table.hasA && table.points == 11) || table.doubled)){
-				if( this.endTables.indexOf(tableId) == -1)
-					this.putToEnd(tableId);
-			}
-			
-			if ( dispenseQueue.length == 0)
-			{
-				if ( !started  || tables[0].blackjack){
-					setTimeout(onRoundEnd, 500);
-				}else{
-					this.checkButtons();
-				}
-				
-				if ( this.pairResult != null && pairResult.length != 0 ){
-					this.onPairBetResult();
-				}
-			}
 		}
 		
 		public function onBankerDispense():void{
-			GameUtils.log('On banker dispense complete', this.started);
+			//GameUtils.log('On banker dispense complete', this.started);
+			dispenseComplete(0);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					var table:TableData;
@@ -290,7 +310,7 @@ package
 		public function repeatBet():void{
 			reset();
 			if ( lastBetData == null ){
-				FloatHint.Instance.show('no bet record');
+				FloatHint.Instance.show('没有上局下注记录');
 				return;
 			}
 			var chip:Chip;
@@ -395,13 +415,6 @@ package
 				}
 				table.actived = true;
 				ChipsViewUIImpl.Instance.cancelSelect();
-				/**
-				if (!gotPair){
-					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj });
-				}else{
-					socketMgr.send({proto:ProtocolClientEnum.PROTO_START, bet:betObj, pair:pairBet });
-				}
-				*/
 				starting = true;
 				return true;
 			}else{
@@ -457,35 +470,7 @@ package
 				}
 			}
 		}
-		
-		public function onInsureBack(data:Object):void{
-			//1 播放庄家第二张牌的动画
-			//2 播放筹码得失动画
-			//3 更新余额
-			var table:TableData = tables[0];
-			table.insured = true;
-			var result:Object = data.result;
-			//bankerBJ = data.isbj;
-			var tableDisplay:SubTable;
-			for (var i:String in subTableDisplays){
-				tableDisplay = subTableDisplays[i];
-				if ( result != null && result[i] != null ){
-					tableDisplay.onInsureBack(result[i]);
-				}
-				tableDisplay.btn_insurrance.visible = false;
-			}
-			this.money = data.money;
-			//todo select table
-			playCheck();
-			/**
-			if ( bankerBJ ){
-				fakeCard = data.card;
-				setTimeout(function():void{
-					checkButtons();
-				}, 1500);
-			}
-			*/
-		}
+
 		public var fakeCard:int = -1;
 		private var fakePoker:Poker;
 		public function playCheck():void{
@@ -497,7 +482,7 @@ package
 		}
 		
 		public function onCheckPhase1():void{
-			GameUtils.log('mgr.onCheckPhase1:',fakeCard);
+			//GameUtils.log('mgr.onCheckPhase1:',fakeCard);
 			if ( fakeCard != -1 ){
 				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
 			}else{
@@ -507,19 +492,25 @@ package
 		}
 		
 		public function onCheckPhase2():void{
-			GameUtils.log('mgr.onCheckPhase2');
+			//GameUtils.log('mgr.onCheckPhase2');
 			this.onFakeCard(this.fakeCard);
 			this.fakeCard = FAKE_CARD_VALUE;
 		}
 		
 		public function onRoundEnd():void{
-			GameUtils.log('mgr.onRoundEnd');
+			//GameUtils.log('mgr.onRoundEnd');
 			this.started = false;
 			if ( _currentTable != null ){
 				_currentTable.display.selected = false;
 				_currentTable = null;
 			}
 			Buttons.Instance.switchModel(Buttons.MODEL_END);
+			if ( totalDispensed < 164 ){
+				
+			}else{
+				
+			}
+			
 		}
 		
 		
@@ -654,14 +645,6 @@ package
 		
 		private var pairResult:Array;
 		public function onPairBetResult():void{//data:Object):void{
-			/**
-			if ( this.dispenseQueue.length != 0 ){
-				this.pairResult = data;
-				return;
-			}
-			this.pairResult = null;
-			var result:Array = data.result;
-			*/
 			if ( pairResult == null ) return;
 			var table:BaseTable;
 			var tabId:int;
@@ -710,42 +693,7 @@ package
 			this.started = false;
 		}
 		
-		public function onSplitBack(data:Object):void{
-			var ttables:Object = data.tables;
-			var bet:int = data.bet;
-			var table:TableData;
-			var poker:Poker;
-			var value:int;
-			for (var tablId in ttables ){
-				table = this.tables[tablId];
-				value = ttables[tablId];
-				poker = table.getCard(value);
-				//poker = pokerMap[ttables[tablId]];
-				poker.x = 0 ;
-				poker.y = 0;
-				poker.rotation = 0;
-				if ( table != null ){
-					table.reset();
-					table.actived = true;
-					table.isSplited = true;
-				}else{
-					betToTable(tablId, bet);
-					table = this.tables[tablId];
-				}
-				if (currentTables.indexOf(tablId) == -1){
-					this.currentTables.push(tablId);
-				}
-				var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
-				table.display.poker_con.addChild(poker);//todo tweent to table2
-				table.display.visible = true;
-				poker.x = targetPoint.x;
-				poker.y = targetPoint.y;
-				TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
-			}
-		}
-		
 		public function onSplited(father_id:int,son_id:int,father_card:Array,new_stage:Object):void{
-			//var son_id:int = father_id + 3;
 			var bet:int = this.tables[father_id].currentBet;
 			
 			table = this.tables[son_id];
@@ -826,15 +774,6 @@ package
 			//putToEnd(tabId);
 		}
 		
-		public function onDoubleBack(data:Object):void{
-			var tabId:int = data.tabId;
-			var table:TableData = this.tables[tabId];
-			//var moreBet:int = data.bet - table.currentBet;
-			table.currentBet = data.bet;
-			table.display.updateBetinfo();
-			putToEnd(tabId);
-		}
-		
 		public function onFakeCard(card:int):void{
 			var table:TableData = tables[0];
 			//var poker:Poker = this.pokerMap[ FAKE_CARD_VALUE];
@@ -909,6 +848,7 @@ package
 		}
 		
 		public function autoStep():void{
+			return;
 			if ( !auto || !started) return;
 			if ( _currentTable != null ){
 				

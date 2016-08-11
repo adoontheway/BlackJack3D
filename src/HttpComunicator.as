@@ -81,6 +81,7 @@ package
 		
 		private function encrypto(obj:*):String{
 			var src:String = JSON.stringify(obj);
+			GameUtils.log('Sending:'+src);
 			if ( !PokerGameVars.NEED_CRYPTO ){
 				return src;
 			}
@@ -144,6 +145,7 @@ package
 						break;
 					case STOP:
 						onStopBack(result.data, tabId);
+						Buttons.Instance.enable(true);
 						break;
 					case DOUBLE:
 						onDoubleBack(int(result.data.newCard), result.data.stageId, result.data.stage);
@@ -193,7 +195,8 @@ package
 		private function onDoubleBack(newCard:int, tableId:int, tableData:Object):void{
 			//GameUtils.log('onDoubleBack:',newCard,tableId);
 			mgr.onDoubled(newCard, tableId, tableData);
-			if ( tableData.stop == 1 && tableData.prize != null){
+			
+			if ( tableData.stop == 1 && tableData.bust == "1" ){
 				setTimeout(function():void{
 					mgr.onTableEnd(tableId,tableData);
 				}, 500);

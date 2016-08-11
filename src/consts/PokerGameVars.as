@@ -15,7 +15,7 @@ package consts
 	public class PokerGameVars 
 	{
 		
-		public static const VERSION:String = "V20160810-14-dev";
+		public static const VERSION:String = "V20160811-08-dev";
 		
 		public static const NEED_CRYPTO:Boolean = true;
 		

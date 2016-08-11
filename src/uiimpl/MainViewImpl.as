@@ -154,7 +154,7 @@ package uiimpl
 			poker.rotationY = 180;
 			TweenLite.to(poker, 0.2, {rotationY:0});
 			updatePoints();
-			GameUtils.log('Fake card reverse complete..');
+			//GameUtils.log('Fake card reverse complete..');
 			mgr.onBankerDispense();
 		}
 		

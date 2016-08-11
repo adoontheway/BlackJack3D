@@ -96,6 +96,7 @@ package uiimpl
 		
 		private function onTweenComplete():void{
 			TableUtil.reOrderContainer(poker_con, 0, 200, 200);
+			mgr.dispenseComplete(id);
 		}
 		private function betTable(evt:MouseEvent):void{
 			var bet:int = ChipsViewUIImpl.Instance.currentValue;
@@ -149,7 +150,7 @@ package uiimpl
 		}
 		
 		public function onInsureBack(bet:int):void{
-			GameUtils.log('Subtable.onInsureBack : ',id," -->",bet);
+			//GameUtils.log('Subtable.onInsureBack : ',id," -->",bet);
 			var value:uint = bet > 0 ? bet : -bet;			
 			var targetPos:Point;
 			if ( bet > 0 ){

@@ -54,6 +54,7 @@ package
 				return;
 			}
 			switch(proto){
+				/**
 				case ProtocolServerEnum.S_R_LOGIN:
 					this.onLogin(data);
 					break;
@@ -105,9 +106,11 @@ package
 				default:
 					GameUtils.log('unhandled proto ', proto);
 					break;
+					*/
 			}
 		}
 		private var mgr:GameMgr;
+		/*
 		private function pairBetResult(data:Object):void{
 			//mgr.onPairBetResult(data);
 		}
@@ -169,7 +172,7 @@ package
 			mgr.money = data.money;
 			//MainViewImpl.Instance.updateBalance(data.money);
 		}
-		
+		*/
 		private function onMessage(evt:WebSocketEvent):void{
 			GameUtils.info('recieve message:', evt.message.utf8Data);
 			var data:Object = JSON.parse(evt.message.utf8Data);
@@ -197,6 +200,7 @@ package
 		private function onIOError(evt:IOErrorEvent):void{
 			GameUtils.log(evt.text);
 		}
+		
 		private var reconnectiong:Boolean = false;
 		
 		private static var _instance:SocketMgr;

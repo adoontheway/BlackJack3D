@@ -51,7 +51,7 @@ package
 			tFormat.size = 36;
 			this.tf.defaultTextFormat = tFormat;
 			
-			this.tf.text = "您已长时间未进行游戏\r\n如果在倒计时结束前还未进行任何操作，系统将进行自动游戏";
+			this.tf.text = "您已长时间未进行游戏\r如果在倒计时结束前还未进行任何操作，系统将进行自动游戏";
 			this.tf.filters = [PokerGameVars.YELLOW_Glow_Filter];
 			this.addChild(tf);
 			

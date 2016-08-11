@@ -84,6 +84,7 @@ package uiimpl
 		private function onButton(evt:MouseEvent):void{
 			var bname:String = evt.target.name;
 			mgr.refresh();
+			enable(false);
 			switch(bname){
 				case "start":
 					this.start();
@@ -143,7 +144,7 @@ package uiimpl
 			var button:BJButton;
 			for (var i:int = 0; i < 4; i++){
 				button = buttons[i];
-				button.enable = true;
+				//button.enable = true;
 				button.visible = false;
 			}
 		}
@@ -175,7 +176,6 @@ package uiimpl
 		}
 		
 		public function betAndStart(double:Boolean = false):void{
-			this.enable(false);
 			mgr.reset();
 			var betData:Object  = mgr.lastBetData;
 			var pairBetData:Object = mgr.lastPairBetData;
@@ -201,26 +201,14 @@ package uiimpl
 		}
 		
 		public function skip():void{
-			enable(false);
-			
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.INSURE;
 			obj.stage = {};
 			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj,0);
-			
-			//socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
 		}
 		
 		public function ok():void{
-			enable(false);
 			var tables:Array = mgr.getInsuredTables();
-			/**
-			if ( tables.length > 0){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_INSURRANCE, tables:tables});
-			}else{
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_SKIP_INSURRANCE});
-			}
-			*/
 		}
 		
 		private function start():void{
@@ -232,14 +220,11 @@ package uiimpl
 		}
 		
 		private function hit():void{ 
-			enable(false);
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.HIT;
 			obj.stage = {};
 			obj.stage[mgr.currentTable.tableId] = [];
 			HttpComunicator.Instance.send(HttpComunicator.HIT,obj,mgr.currentTable.tableId);
-				
-			//socketMgr.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:mgr.currentTable.tableId});
 		}
 
 		private function clean():void{
@@ -264,25 +249,17 @@ package uiimpl
 				obj.stage[mgr.currentTable.tableId] = {};
 				obj.stage[mgr.currentTable.tableId][HttpComunicator.DOUBLE] = mgr.currentTable.currentBet*2;
 				HttpComunicator.Instance.send(HttpComunicator.DOUBLE, obj, mgr.currentTable.tableId);
-				//socketMgr.send({proto:ProtocolClientEnum.PROTO_DOUBLE, tabId:mgr.currentTable.tableId});
 			}else{
 				betAndStart(true);
 			}
-			
 		}
+		
 		private function stand():void{
-			enable(false);
-			
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.STOP;
 			obj.stage = {};
 			obj.stage[mgr.currentTable.tableId] = [];
 			HttpComunicator.Instance.send(HttpComunicator.STOP, obj,mgr.currentTable.tableId);
-			/**
-			if( mgr.started && mgr.currentTable){
-				socketMgr.send({proto:ProtocolClientEnum.PROTO_STAND, tabId:mgr.currentTable.tableId});
-			}
-			*/
 		}
 		
 		private static var _instance:Buttons;
