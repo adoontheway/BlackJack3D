@@ -91,6 +91,10 @@ package
 		
 		private var _currentTable:TableData;
 		private var requestedBaneker:Boolean = false;
+		/**
+		 * 读取下一个操作的桌子
+		 * 
+		 * **/
 		public function nextTable():void{
 			if ( this._currentTable != null && this._currentTable.isSplited && this._currentTable.tableId <= 3){
 				GameUtils.log('nextTable 0: ',_currentTable.tableId);
@@ -120,14 +124,10 @@ package
 					obj.wayId = HttpComunicator.BANKER_TURN;
 					obj.stage = [];
 					HttpComunicator.Instance.send(HttpComunicator.BANKER_TURN, obj, 0,true);
-					return;
 				}else{
-					//GameUtils.log('Why here need end...');
 					this.onRoundEnd();
 				}
-				return;
 			}
-			checkButtons();
 		}
 		
 		public function get currentTable():TableData{
@@ -190,36 +190,40 @@ package
 					this.putToEnd(tabId);
 			}
 			
+			
 			if ( dispenseQueue.length != 0 ){
-				tabId = _instance.dispenseQueue.shift();
-				var cardId:int = _instance.dispenseQueue.shift();
+				tabId = dispenseQueue.shift();
+				var cardId:int = dispenseQueue.shift();
 				dispenseTo(tabId, cardId);
 			}else{
 				if ( !needPlayCheck ){
 					if ( !started  || tables[0].blackjack){
+						GameUtils.log('mgr.dispenseComplete 0');
 						onRoundEnd();
 						for each(var i:int in this.endTables){
 							table = this.tables[i];
 							table.display.end();
 						}
 						Buttons.Instance.enable(true);
-					}else if(this.currentTables.length == 0 && _currentTable == null){
-						nextTable();
-					}else{
-						checkButtons();
+					}else if ( checkInsurrable() ){
+						GameUtils.log('mgr.dispenseComplete 1');
+						Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 						Buttons.Instance.enable(true);
+					}else if ( _currentTable != null ){
+						_currentTable.display.selected = true;
+						Buttons.Instance.enable(true);
+					}else{
+						GameUtils.log('mgr.dispenseComplete 2');
+						nextTable();
 					}
 					
 					if ( this.pairResult != null && pairResult.length != 0 ){
 						this.onPairBetResult();
 					}
-					
-					
 				}else{
-					playCheck();
-					needPlayCheck = false;
+						playCheck();
+						needPlayCheck = false;
 				}
-				
 			}
 		}
 		
@@ -279,7 +283,12 @@ package
 			}
 		}
 		*/
-		public function checkButtons():void{
+		/**
+		 * 检查是否需要显示保险按钮
+		 * 
+		 * **/
+		private function checkInsurrable():Boolean{
+			/**
 			GameUtils.log('Check Buttons : ', started, starting, this.dispenseQueue.length);
 			Buttons.Instance.enable(true);
 			if ( !started ){
@@ -289,20 +298,27 @@ package
 			if ( starting || this.dispenseQueue.length != 0 ){
 				return;
 			}
-			
+			*/
+			var need:Boolean = false;
 			var table:TableData = tables[0];
 			var subTable:SubTable;
 			
 			if ( table.points == 1 && !table.insured){
-				GameUtils.log('mgr.checkButtons : 0',table.points,table.insured);
+				//GameUtils.log('mgr.checkButtons : 0',table.points,table.insured);
 				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
-					if( subTable.visible && subTable.tableData != null && subTable.tableData.actived)
+					if ( subTable.visible && subTable.tableData != null && subTable.tableData.actived){
 						subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
+						need = subTable.btn_insurrance.visible || need;
+					}
 				}
-			}else{
-				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
+			}
+			
+			return need;
+			/**
+			else{
+				GameUtils.log('mgr.checkButtons : 1', currentTable == null);
 				if ( currentTable != null){
 					_currentTable.display.selected = true;
 					if ( auto ){
@@ -310,6 +326,7 @@ package
 					}
 				}
 			}
+			*/
 		}
 		
 		public function x2Bet():void{
@@ -458,10 +475,12 @@ package
 				}
 				started = false;
 				setTimeout(	onRoundEnd, 1500);
-			}else{
-				setTimeout(checkButtons, 1500);
 			}
-			
+			/**
+			else{
+				setTimeout(checkInsurrable, 1500);
+			}
+			*/
 			playCheck();
 			
 			for (i in tables){
@@ -505,15 +524,29 @@ package
 			if ( fakeCard != -1 ){
 				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
 			}else{
-				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
+				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase3});
 			}
-			
+		}
+		
+		public function onCheckPhase3():void{
+			var flag:Boolean = checkInsurrable();
+			if (flag ){
+				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
+			}else{
+				if ( _currentTable != null ){
+					_currentTable.display.selected = true;
+					Buttons.Instance.enable(true);
+				}else {
+					nextTable();
+				}
+			}
 		}
 		
 		public function onCheckPhase2():void{
 			//GameUtils.log('mgr.onCheckPhase2');
 			this.onFakeCard(this.fakeCard);
 			this.fakeCard = FAKE_CARD_VALUE;
+			Buttons.Instance.switchModel(Buttons.MODEL_END);
 			Buttons.Instance.enable(true);
 		}
 		
@@ -744,7 +777,6 @@ package
 			table.display.visible = true;
 			poker.x = targetPoint.x;
 			poker.y = targetPoint.y;
-			table.points = poker.compareValue;
 			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 			
 			var table:TableData = this.tables[father_id];
@@ -819,7 +851,6 @@ package
 			if ( this.endTables.indexOf(tabId) == -1){
 				var table:TableData = tables[tabId];
 				table.display.selected = false;
-				table.display.updatePoints(true);
 				this.endTables.push(tabId);
 				GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			}

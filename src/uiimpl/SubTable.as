@@ -347,6 +347,7 @@ package uiimpl
 				
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
 			}else{
+				this.updatePoints(true);
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
 				Buttons.Instance.hideAll();
