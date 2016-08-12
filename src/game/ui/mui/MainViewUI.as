@@ -9,6 +9,7 @@ package game.ui.mui {
 		protected static var uiXML:XML =
 			<View width="800" height="600">
 			  <Image skin="png.bg.desk" x="-644" y="-1"/>
+			  <Image skin="png.images.img-logo" x="332" y="833"/>
 			  <Image skin="png.images.chip-box" x="259" y="-11"/>
 			  <Image skin="png.images.recycle-bin" x="-130" y="-64"/>
 			  <Image skin="png.images.dispenser" x="612" y="-63"/>

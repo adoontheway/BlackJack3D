@@ -1,5 +1,6 @@
-<View width="800" height="600" sceneColor="0xffffff" layers="1,1,0,0,第 1 层;2,1,0,1,第 2 层">
+<View width="800" height="600" sceneColor="0xffffff" layers="1,1,1,1,第 1 层;2,1,1,0,第 2 层">
   <Image skin="png.bg.desk" x="-644" y="-1" layer="2"/>
+  <Image skin="png.images.img-logo" x="332" y="833" layer="2"/>
   <Image skin="png.images.chip-box" x="259" y="-11" layer="1"/>
   <Image skin="png.images.recycle-bin" x="-130" y="-64" layer="1"/>
   <Image skin="png.images.dispenser" x="612" y="-63" layer="1"/>

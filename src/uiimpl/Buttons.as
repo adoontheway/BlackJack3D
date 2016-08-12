@@ -91,6 +91,7 @@ package uiimpl
 					break;
 				case "clean":
 					this.clean();
+					enable(true);
 					break;
 				case "skip":
 					this.skip();
@@ -112,9 +113,11 @@ package uiimpl
 					break;
 				case "x2":
 					this.x2();
+					enable(true);
 					break;
 				case "repeat":
 					this.repeat();
+					enable(true);
 					break;
 			}
 		}

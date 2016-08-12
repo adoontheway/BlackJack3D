@@ -415,6 +415,7 @@ package
 				return true;
 			}else{
 				FloatHint.Instance.show('请先下注筹码再发牌哦~~');
+				Buttons.Instance.enable(true);
 				return false;
 			}
 		}
