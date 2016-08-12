@@ -60,50 +60,19 @@ package
 			openupLoader.load(new URLRequest(PokerGameVars.resRoot+"swfs/openup.swf"));
 			App.init(this);
 			
-			App.loader.loadAssets([
-			PokerGameVars.resRoot+"assets/bg.swf",
-			PokerGameVars.resRoot+"assets/chips.swf", 
-			PokerGameVars.resRoot+"assets/ui.swf", 
-			PokerGameVars.resRoot+"assets/nums.swf",
-			PokerGameVars.resRoot+"assets/pokers.swf", 
-			PokerGameVars.resRoot+"assets/images.swf",
-			PokerGameVars.resRoot+"assets/comp.swf",
-			PokerGameVars.resRoot+"swfs/effects.swf"], 
-			new Handler(onAssetsLoade));
-			
-			//App.loader.loadAssets([], new Handler(bgLoaded));
-			//comman.duke.display.BitmapClipFactory.Instance.loadAnim();
+			App.loader.loadAssets([PokerGameVars.resRoot+"assets/loading.swf"],new Handler(onLoadingViewLoaded));
 			
 			GameVars.STAGE = stage;
+			GameVars.Stage_Width = stage.stageWidth;
+			GameVars.Stage_Height = stage.stageHeight;
 			
 			stage.frameRate = 30;
-			//stage.quality = StageQuality.HIGH_16X16;
+			stage.quality = StageQuality.HIGH;
 			
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			GameUtils.log(PokerGameVars.VERSION);
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
-			
-		}
-		
-		
-		
-		private function onUnknownError(event:UncaughtErrorEvent):void{
-			var message:String;
-             
-             if (event.error is Error)
-             {
-                 message = Error(event.error).message;
-             }
-             else if (event.error is ErrorEvent)
-             {
-                 message = ErrorEvent(event.error).text;
-             }
-             else
-             {
-                 message = event.error.toString();
-             }
-			 GameUtils.fatal('Stage Uncaught Errors :', message);
 		}
 		
 		private function parseParams():void{
@@ -111,7 +80,9 @@ package
 			
 			PokerGameVars.Model = params.model || 0;//场次
 			PokerGameVars.Desk = params.desk || 0;//桌子id
+			
 			if ( ExternalInterface.available){
+				PokerGameVars.NEED_CRYPTO = params.is_encode == 1;
 				PokerGameVars.resRoot = params.resRoot;
 				HttpComunicator._token = params._token;
 				HttpComunicator.is_agent = params.is_agent;
@@ -120,10 +91,29 @@ package
 				HttpComunicator.pollUserAccountUrl = params.pollUserAccountUrl;
 				HttpComunicator.cookieHeader = new URLRequestHeader("Cookie",params.cookie);
 			}
-			
-			//GameUtils.log('model and desk:', params.model, params.desk);
-			
 		}
+		
+		private function onLoadingViewLoaded():void{
+			App.loader.loadAssets([
+				PokerGameVars.resRoot+"assets/bg.swf",
+				PokerGameVars.resRoot+"assets/chips.swf", 
+				PokerGameVars.resRoot+"assets/ui.swf", 
+				PokerGameVars.resRoot+"assets/nums.swf",
+				PokerGameVars.resRoot+"assets/pokers.swf", 
+				PokerGameVars.resRoot+"assets/images.swf",
+				PokerGameVars.resRoot+"assets/comp.swf",
+				PokerGameVars.resRoot+"swfs/effects.swf"], 
+				new Handler(onAssetsLoade), 
+				new Handler(onProgress));
+				
+			LoadView.Instance.show();
+		}
+		
+		private function onProgress(value:Number):void{
+			LoadView.Instance.showProgress(value);
+		}
+		
+		
 		private var openupLoaded:Boolean;
 		private var othersLoaded:Boolean;
 		private function onOpenUpLoaded(e:Event):void{
@@ -132,6 +122,7 @@ package
 				playOpenUp();
 			}
 		}
+		
 		private function playOpenUp():void{
 			openupLoader.x = this.stage.stageWidth >> 1;
 			openupLoader.y = 170;
@@ -155,11 +146,14 @@ package
 			var claz:* = App.asset.getAsset('jpg.bg.bg');
 			this.bg = new Bitmap(claz);
 			this.addChild(bg);
-			
 		}
+		
 		private function onAssetsLoade():void{
 			//SocketMgr.Instance.init();
 			bgLoaded();
+			
+			LoadView.Instance.hide();
+			
 			if ( ApplicationDomain.currentDomain.hasDefinition('DinBold')){
 				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
 				Font.registerFont(FontClass);
@@ -191,6 +185,7 @@ package
 		private function onResize(evt:Event):void{
 			GameVars.Stage_Width = stage.stageWidth;
 			GameVars.Stage_Height = stage.stageHeight;
+			GameVars.RedrawMask();
 			if ( this.bg ){
 				this.bg.x = GameVars.Stage_Width - bg.width >> 1;
 			}
@@ -201,9 +196,28 @@ package
 			if( BalanceImpl.Instance.parent)
 				BalanceImpl.Instance.onResize();
 				
-			if ( LongTimeMask.Instance.parent != null){
-				LongTimeMask.Instance.redraw();
+			if ( OverTimeReminder.Instance.parent != null){
+				OverTimeReminder.Instance.onResize();
 			}
+			
+		}
+		
+		private function onUnknownError(event:UncaughtErrorEvent):void{
+			var message:String;
+             
+             if (event.error is Error)
+             {
+                 message = Error(event.error).message;
+             }
+             else if (event.error is ErrorEvent)
+             {
+                 message = ErrorEvent(event.error).text;
+             }
+             else
+             {
+                 message = event.error.toString();
+             }
+			 GameUtils.fatal('Stage Uncaught Errors :', message);
 		}
 	}
 	

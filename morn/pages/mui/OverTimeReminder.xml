@@ -1,0 +1,7 @@
+<View width="437" height="143" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.img-remind-bg" layer="1"/>
+  <Button skin="png.images.btn_back" x="172" y="90" layer="1" stateNum="2" var="btn_return" name="btn_return"/>
+  <Label text="HI~你还在不在啊？快回来" styleSkin="png.comp.label" x="29" y="22" layer="1" width="382" height="34" multiline="true" wordWrap="true" align="center" autoSize="center" color="0xffffff" size="20" font="Microsoft Yahei"/>
+  <Label text="游戏将在            秒后自动进行" styleSkin="png.comp.label" x="43" y="52" layer="1" width="360" height="37" multiline="true" wordWrap="true" align="center" autoSize="center" color="0xffffff" size="16" font="Microsoft Yahei"/>
+  <Label text="00:00" styleSkin="png.comp.label" x="178" y="53" layer="1" width="57" height="36" color="0xf0d860" font="Arial" size="20" align="center" var="timer"/>
+</View>

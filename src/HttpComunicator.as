@@ -66,19 +66,6 @@ package
 			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));    
 		}
 		
-		public function send(wayId:int, data:*, tableId:int):void{
-			//GameUtils.log(wayId, JSON.stringify(data));
-			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
-			var request:URLRequest = new URLRequest(submitUrl);
-			request.method = URLRequestMethod.POST;
-			var vars:URLVariables = new URLVariables();
-			vars._token = _token;
-			//vars.betdata =  JSON.stringify(data);
-			vars.betdata =  encrypto(data);
-			request.data = vars;
-			loader.load(data.wayId, tableId, request,onComplete,onError);
-		}
-		
 		private function encrypto(obj:*):String{
 			var src:String = JSON.stringify(obj);
 			GameUtils.log('Sending:'+src);
@@ -90,13 +77,25 @@ package
 			return Base64.encodeByteArray(inputBA);
 		}
 		
+		public function send(wayId:int, data:*, tableId:int):void{
+			//GameUtils.log(wayId, JSON.stringify(data));
+			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
+			var request:URLRequest = new URLRequest(submitUrl);
+			request.method = URLRequestMethod.POST;
+			var vars:URLVariables = new URLVariables();
+			vars._token = _token;
+			vars.betdata =  encrypto(data);
+			vars.is_encode = PokerGameVars.NEED_CRYPTO ? 1 : 0;
+			request.data = vars;
+			loader.load(data.wayId, tableId, request,onComplete,onError);
+		}
+		
 		public function requesAccount():void{
 			//return;
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(pollUserAccountUrl);
 			request.method = URLRequestMethod.POST;
 			loader.load(0,0,request,onAccountInfo,onError);
-			
 		}
 		
 		public function requestGameData():void{
@@ -107,6 +106,7 @@ package
 			var vars:URLVariables = new URLVariables();
 			vars.betdata = encrypto({ stage:0, wayId:9 });
 			vars._token = _token;
+			vars.is_encode = PokerGameVars.NEED_CRYPTO ? 1 : 0;
 			
 			request.data = vars;
 			loader.load(HttpComunicator.GAME_DATA,0,request,onComplete,onError);
@@ -284,6 +284,7 @@ package
 			
 			mgr.dispense(0, -1);
 			num++;
+			mgr.needCheck = needCheck;
 			if ( needCheck ){
 				setTimeout(function():void{
 					mgr.fakeCard = fakeCard;

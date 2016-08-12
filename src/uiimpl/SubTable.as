@@ -70,13 +70,14 @@ package uiimpl
 			this.updateBetinfo();
 		}
 		
-		public function addCard(poker:Poker):void 
+		public function addCard(poker:Poker,needTween:Boolean=true):void 
 		{
 			tableData.addCard(poker);
 			updatePoints();
 			mark_blackjack.visible = tableData.blackjack;
 			bet_display.visible = false;
-			doTween(poker);
+			if( needTween )
+				doTween(poker);
 		}
 		private var dispenseStartPoint:Point;
 		private function doTween(poker:Poker):void{
@@ -118,7 +119,7 @@ package uiimpl
 			this.lab_points.visible = true;
 			if ( !tableData.bust ){
 				if ( !tableData.blackjack){
-					if ( !tableData.hasA || (tableData.hasA && tableData.points >= 11) ){
+					if ( tableData.numA <= 0 || (tableData.numA > 0 && tableData.points >= 11) ){
 						this.img_points_bg.url = 'png.images.green';
 						if (tableData.points < 21 ){
 							this.lab_points.text =  tableData.points+"";
@@ -126,15 +127,15 @@ package uiimpl
 							this.lab_points.text =  tableData.points+"";
 						}
 					}else{
-						if ( !isSettled ){
+						if ( isSettled || !tableData.actived ){
+							this.img_points_bg.url = 'png.images.green';
+							this.lab_points.text =  (tableData.points + 10) + "";
+						}else{
 							this.lab_points.visible = false;
 							this.soft_gro.visible = true;
 							this.img_points_bg.url = 'png.images.soft';
 							this.soft_0.text =  tableData.points +"";
 							this.soft_2.text =  (tableData.points + 10 )+ "";
-						}else{
-							this.img_points_bg.url = 'png.images.green';
-							this.lab_points.text =  (tableData.points + 10) + "";
 						}
 					}
 					

@@ -56,13 +56,6 @@ package uiimpl
 			ChipsViewUIImpl.Instance.setupValues(chipValues);
 			ChipsViewUIImpl.Instance.switchCover(false);
 			addChild(ChipsViewUIImpl.Instance);
-			
-			
-			
-			/*
-			frameItem = new FrameItem('mainView', this.update);
-			FrameMgr.Instance.add(frameItem);
-			*/
 		}
 		
 		public function afterStart():void{
@@ -76,7 +69,7 @@ package uiimpl
 			this.lab_points.y = 12;
 			if ( !bankerData.bust ){
 				if ( !bankerData.blackjack){
-					if ( !bankerData.hasA || (bankerData.hasA && bankerData.points >= 11) ){
+					if ( bankerData.numA == 0 || (bankerData.numA != 0 && bankerData.points >= 11) ){
 						this.img_points_bg.url = 'png.images.green';
 						if (bankerData.points < 21 ){
 							this.lab_points.text =  bankerData.points+"";

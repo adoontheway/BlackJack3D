@@ -21,7 +21,7 @@ package model
 		public var endRound:Boolean;
 		
 		/*** switched ***/
-		public var hasA:Boolean;//got a
+		public var numA:int;//how many A do i have
 		public var blackjack:Boolean;//got blackjack
 		public var bust:Boolean;//bust
 		public var doubled:Boolean;//already doubled
@@ -52,13 +52,13 @@ package model
 			if ( this.tableId == 0 ){
 				GameMgr.Instance.needShowInsure = this.cards.length == 1 && this.points == 1;
 			}
-			if ( !this.hasA ){
-				this.hasA = card.realValue == 1;
+			if ( card.realValue == 1){
+				this.numA++;
 			}
-			if ( this.hasA && this.points == 11) this.points = 21;
+			if ( this.numA > 0 && this.points == 11) this.points = 21;
 			
 			this.canSplit = !this.isSplited && this.tableId <= 3 && numCards == 2 && cards[0].compareValue == cards[1].compareValue;
-			this.blackjack =  numCards == 2 && this.hasA && this.points == 21 && !isSplited  && this.tableId <= 3;
+			this.blackjack =  numCards == 2 && this.numA != 0 && this.points == 21 && !isSplited  && this.tableId <= 3;
 			this.bust = points > 21;
 		}
 
@@ -73,6 +73,8 @@ package model
 		
 		public function removeCard(poker:Poker):void{
 			var index:int = this.cards.indexOf(poker);
+			this.points -= poker.compareValue;
+			if ( poker.realValue == 1) this.numA--;
 			if ( index != -1){
 				this.cards.splice(index, 1);
 			}
@@ -86,7 +88,7 @@ package model
 			this.doubled = false;
 			this.bust = false;
 			this.actived = false;
-			this.hasA = false;
+			this.numA = 0;
 			this.pairBet = 0;
 			this.insureBet = 0;
 			this.prize = 0;
