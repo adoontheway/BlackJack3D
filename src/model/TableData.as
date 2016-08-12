@@ -15,7 +15,7 @@ package model
 		public var numCards:int = 0;
 		public var points:int = 0;
 		public var currentBet:int;
-		/** 是否活跃 **/
+		/** 是否活跃:游戏中与否的标示，跟stop应该不能有关系 **/
 		public var actived:Boolean;
 		/** 是否本局已经结束：后续不结算，eg：五龙 **/
 		public var endRound:Boolean;

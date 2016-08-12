@@ -232,9 +232,10 @@ package
 				}
 			}
 		}
-		/** 庄家要牌之后的回调 **/
+		/** 庄家发牌之后的回调 **/
 		public function onBankerDispense():void{
 			dispenseComplete(0);
+			GameUtils.log('mgr.onBankerDispense', this.dispenseQueue.length, started);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					var table:TableData;
@@ -434,7 +435,7 @@ package
 					player = players[i];
 					table = tables[i];
 					table.prize = player.prize[HttpComunicator.INSURE];
-					table.actived = player.stop == 0;
+					//table.actived = player.stop == 0;
 					putToEnd(table.tableId,false);
 					table.display.end();
 				}
@@ -571,7 +572,6 @@ package
 					//GameUtils.log('check insured ',i,player.insurances);
 					insured = player.amount[HttpComunicator.INSURE];
 				}
-				table.actived = player.stop == 0;
 				table.currentBet = player.amount[HttpComunicator.START];
 				
 				if ( table.tableId > 3 ){
@@ -591,7 +591,7 @@ package
 				if( !isStart )//如果是读取游戏进度，那么要展示筹码
 					table.display.showBet();
 					
-				if ( table.actived ){
+				if ( player.stop == 0 ){
 					this.currentTables.push(tableId);
 				}else{
 					this.putToEnd(tableId, false);
@@ -644,6 +644,8 @@ package
 			var cards:Array = data.banker.cards;
 			var players:Object = data.player;
 			
+			this.started = false;
+			
 			var table:TableData;
 			var player:*;
 			for ( var j:String in players){
@@ -671,21 +673,20 @@ package
 				setTimeout(onRoundEnd, 500);//玩家的牌全部爆牌庄家不需要发牌
 			}
 			money = Number(data.account);
-			this.started = false;
 		}
 		
 		/** 分牌 **/
 		public function onSplited(father_id:int,son_id:int,father_card:Array,new_stage:Object):void{
-			var bet:int = this.tables[father_id].currentBet;//原始押注数量
+			//var bet:int = this.tables[father_id].currentBet;//原始押注数量
 			/**----  处理子桌  ----**/
 			table = this.tables[son_id];
 			if ( table != null ){
 				table.reset();
 				table.actived = true;
 				table.isSplited = true;
-				betToTable(son_id, bet);
+				betToTable(son_id, new_stage.amount[HttpComunicator.SPLIT]);
 			}else{
-				betToTable(son_id, bet);
+				betToTable(son_id, new_stage.amount[HttpComunicator.SPLIT]);
 				table = this.tables[son_id];
 			}
 			GameUtils.log('Table:', son_id, 'Points:', table.points);
@@ -716,7 +717,7 @@ package
 			poker = table.getCard(int(father_card[0]));
 			GameUtils.assert(poker != null,'mgr.onSplited:1'+father_id+' has no ' +new_stage.cards);
 			table.reset();
-			table.currentBet = bet;
+			table.currentBet = new_stage.amount[HttpComunicator.SPLIT];
 			table.actived = true;
 			table.isSplited = true;
 			
@@ -798,30 +799,33 @@ package
 				table.prize = data.prize[HttpComunicator.START];
 			}
 				
-			
 			table.display.end();
 		}
 		
-		public function getInsuredTables():Array{
+		public function getInsuredTables():void{
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.INSURE;
 			obj.stage = {};
 			
-			var result:Array = [];
 			var table:TableData;
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
 				
 				if ( table.insured){
-					result.push(i);
 					obj.stage[i] = {};
 					obj.stage[i][HttpComunicator.INSURE] = table.currentBet * 0.5;
 				}
 			}
-			
 			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
-			
-			return result;
+		}
+		/**
+		 * 服务端返回错误码处理
+		 * **/
+		public function onServerErrorCode(code:int, proto:int):void{
+			Buttons.Instance.enable(true);
+			if ( code == -505 && proto == HttpComunicator.START && _currentTable != null){
+				_currentTable.display.selected = true;
+			}
 		}
 		
 		/**

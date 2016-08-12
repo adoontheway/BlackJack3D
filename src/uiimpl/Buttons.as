@@ -211,7 +211,7 @@ package uiimpl
 		}
 		
 		public function ok():void{
-			var tables:Array = mgr.getInsuredTables();
+			mgr.getInsuredTables();
 		}
 		
 		private function start():void{

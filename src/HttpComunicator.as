@@ -171,12 +171,13 @@ package
 						break;
 				}
 			}else{
-				Buttons.Instance.enable(true);
 				if ( result.msg != null){
 					FloatHint.Instance.show(result.msg);
 				}else{
 					FloatHint.Instance.show('未知的错误码:'+result.errcode+" 协议号:"+proto+" stage:"+tabId);
 				}
+				mgr.onServerErrorCode( result.errcode, proto);
+				
 				
 			}
 		}
