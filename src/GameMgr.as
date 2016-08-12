@@ -162,21 +162,6 @@ package
 			}else{
 				dispenseTo(tableId, card);
 			}
-			
-			/**
-			if ( dispenseTimer == 0){
-				dispenseTimer = setInterval(function():void{
-					var tabId:uint = _instance.dispenseQueue.shift();
-					var cardId:int = _instance.dispenseQueue.shift();
-					_instance.dispenseTo(tabId, cardId);
-					
-					if ( _instance.dispenseQueue.length == 0 ){
-						clearInterval(_instance.dispenseTimer);
-						_instance.dispenseTimer = 0;
-					}
-				}, 500);
-			}
-			*/
 		}
 		
 		private var dispensing:Boolean = false;
@@ -711,7 +696,7 @@ package
 				this.currentTables.push(son_id);
 			}
 			
-			poker = tables[father_id].getCard(int(new_stage.cards));//pokerMap[int(new_stage.cards)];
+			poker = tables[father_id].getCard(int(new_stage.cards));
 			GameUtils.assert(poker != null,'mgr.onSplited:0'+father_id+' has no ' +new_stage.cards);
 			tables[father_id].removeCard(poker);
 			
@@ -756,6 +741,7 @@ package
 		public function onSplitComplete(poker:Poker, table:TableData):void{
 			//table.display.poker_con.addChild(poker);
 			table.addCard(poker);
+			table.display.updatePoints();
 		}
 		
 		
