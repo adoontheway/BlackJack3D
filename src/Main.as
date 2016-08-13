@@ -89,7 +89,6 @@ package
 				HttpComunicator.submitUrl = params.submitUrl;
 				HttpComunicator.loaddataUrl = params.loaddataUrl;
 				HttpComunicator.pollUserAccountUrl = params.pollUserAccountUrl;
-				HttpComunicator.cookieHeader = new URLRequestHeader("Cookie",params.cookie);
 			}
 		}
 		

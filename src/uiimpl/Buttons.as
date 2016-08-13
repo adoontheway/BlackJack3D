@@ -82,6 +82,10 @@ package uiimpl
 		}
 		
 		private function onButton(evt:MouseEvent):void{
+			if ( mgr.requestedBaneker && mgr.started ) {//已经请求了庄家要牌并且正在游戏中
+				FloatHint.Instance.show('游戏结算中');
+				return;
+			}
 			var bname:String = evt.target.name;
 			mgr.refresh();
 			enable(false);
@@ -95,9 +99,11 @@ package uiimpl
 					break;
 				case "skip":
 					this.skip();
+					mgr.unvisAllInsureBtn();
 					break;
 				case "ok":
 					this.ok();
+					mgr.unvisAllInsureBtn();
 					break;
 				case "hit":
 					this.hit();
@@ -204,6 +210,7 @@ package uiimpl
 		}
 		
 		public function skip():void{
+			if (mgr.getTableDataById(0).insured) return;
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.INSURE;
 			obj.stage = {};
@@ -211,6 +218,7 @@ package uiimpl
 		}
 		
 		public function ok():void{
+			if (mgr.getTableDataById(0).insured) return;
 			mgr.getInsuredTables();
 		}
 		

@@ -186,6 +186,10 @@ package uiimpl
 				FloatHint.Instance.show("当前余额不足，不能分牌");
 				return;
 			}
+			if ( mgr.requestedBaneker && mgr.started ) {
+				FloatHint.Instance.show('游戏结算中');
+				return;
+			}
 			this.btn_split.visible = false;
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.SPLIT;
@@ -199,6 +203,10 @@ package uiimpl
 		private function insurrance(evt:MouseEvent):void{
 			if ( PokerGameVars.TempInsureCost + tableData.currentBet * 0.5 > mgr.money){
 				FloatHint.Instance.show("当前余额不足，不能保险");
+				return;
+			}
+			if ( mgr.requestedBaneker && mgr.started ) {
+				FloatHint.Instance.show('游戏结算中');
 				return;
 			}
 			PokerGameVars.TempInsureCost += tableData.currentBet * 0.5
@@ -290,8 +298,8 @@ package uiimpl
 				PoolMgr.reclaim(chip);
 			}
 			if ( !reclamContainer){
-				con.x = 114;
-				con.y = 96;
+				con.x = rawX;
+				con.y = rawY;
 			}else{
 				if ( con.parent ){
 					con.parent.removeChild(con);

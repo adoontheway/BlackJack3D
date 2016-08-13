@@ -94,7 +94,7 @@ package
 		
 		private var _currentTable:TableData;
 		//单局只会在结束的时候请求庄家要牌（即结算）
-		private var requestedBaneker:Boolean = false;
+		public var requestedBaneker:Boolean = false;
 		/** 下一桌 **/
 		private function nextTable():void{
 			if ( this._currentTable != null && this._currentTable.isSplited && this._currentTable.tableId <= 3){
@@ -253,6 +253,16 @@ package
 			}
 			
 		}
+		/** 在点击确认保险和跳过保险之后隐藏所有保险按钮 **/
+		public function unvisAllInsureBtn():void{
+			var subTable:SubTable;
+			for (var i in subTableDisplays){
+				subTable = subTableDisplays[i];
+				if( subTable.visible)
+					subTable.btn_insurrance.visible = false;
+			}
+		}
+		
 		/** 原先只是检查是否需要显示保险的，后面改bug加了大堆不相关的东西，唉 **/
 		public function checkButtons():void{
 			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
@@ -568,6 +578,7 @@ package
 				table.blackjack = player.blackJack == 1;
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
+				table.actived = player.bust != 1;//只有在读取游戏进度的时候才有可能爆牌,读取游戏进度的游戏不显示结果
 				if ( !insured ){
 					//GameUtils.log('check insured ',i,player.insurances);
 					insured = player.amount[HttpComunicator.INSURE];
@@ -689,7 +700,7 @@ package
 				betToTable(son_id, new_stage.amount[HttpComunicator.SPLIT]);
 				table = this.tables[son_id];
 			}
-			GameUtils.log('Table:', son_id, 'Points:', table.points);
+			
 			if (currentTables.indexOf(son_id) == -1){
 				this.currentTables.push(son_id);
 			}
@@ -707,7 +718,6 @@ package
 			table.display.visible = true;
 			poker.x = targetPoint.x;
 			poker.y = targetPoint.y;
-			GameUtils.log('Table:', son_id, 'Points:', table.points);
 			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
 			
 			/**---  处理父桌  ---**/
@@ -721,7 +731,8 @@ package
 			table.actived = true;
 			table.isSplited = true;
 			
-			table.display.addCard(poker,false);
+			table.display.addCard(poker, false);
+			GameUtils.log('Table:', son_id, 'Points:', table.points,'Bet:',table.currentBet,new_stage.amount[HttpComunicator.SPLIT]);
 			/*
 			poker.x = 0 ;
 			poker.y = 0;
@@ -742,7 +753,7 @@ package
 			//table.display.poker_con.addChild(poker);
 			table.addCard(poker);
 			table.display.updatePoints();
-			GameUtils.log('onSplitComplete--> Table:', table.tableId, 'Points:', table.points);
+			//GameUtils.log('onSplitComplete--> Table:', table.tableId, 'Points:', table.points);
 		}
 		
 		
@@ -754,7 +765,7 @@ package
 		
 		public function onDoubled(newCard:int, tabId:int, tableData:Object):void{
 			var table:TableData = this.tables[tabId];
-			table.currentBet = tableData.amount[HttpComunicator.START] + tableData.amount[HttpComunicator.DOUBLE];
+			table.currentBet = int(tableData.amount[HttpComunicator.START]) +  int(tableData.amount[HttpComunicator.SPLIT]) +int(tableData.amount[HttpComunicator.DOUBLE]);
 			table.display.showBet();
 			table.doubled = true;
 			dispense(tabId, newCard);
@@ -818,16 +829,7 @@ package
 			}
 			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
 		}
-		/**
-		 * 服务端返回错误码处理
-		 * **/
-		public function onServerErrorCode(code:int, proto:int):void{
-			Buttons.Instance.enable(true);
-			if ( code == -505 && proto == HttpComunicator.START && _currentTable != null){
-				_currentTable.display.selected = true;
-			}
-		}
-		
+
 		/**
 		 * 重置桌子：目前只在关闭筹码值显示的时候调用
 		 * **/

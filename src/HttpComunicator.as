@@ -48,7 +48,6 @@ package
 		public static var currentTime:Number = 1469425223;
 		public static var _token:String = "EyBkMMA9prt7GN1IAaSqLXr1FmueWjvsbHoIm0Ys";
 		public static var is_agent:int = 1;
-		public static var cookieHeader:URLRequestHeader = new URLRequestHeader('Cookie', 'laravel_session=eyJpdiI6IllCK3g0MSsyVU9PWEtVdmw4WkJ1VjQzVVVZRHZOQjdlZEFNYXdLMmJQYnM9IiwidmFsdWUiOiJZM2tqeWxIQis0dUoyNnJzSHpWODJKZHNReGFEM2xHNjc3bTk5NE14NTU2d0s0RnV0MDlrdWhUUml0UHZNSXpvNkhRZFwvUDluV21RTVVjZlFQZ1piclE9PSIsIm1hYyI6IjY1OTdkMGNkZDM4MTliYmUxZmIzMzg0MWFjYWZmNDY1MDFkOWM4YTJiNzI4M2RhOGNhMTBlMDZjYzVmOGE1ZWMifQ%3D%3D');
 		
 		public var mgr:GameMgr;
 		
@@ -76,7 +75,6 @@ package
 			aes.encrypt(inputBA); 
 			return Base64.encodeByteArray(inputBA);
 		}
-		
 		public function send(wayId:int, data:*, tableId:int):void{
 			//GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
@@ -91,7 +89,6 @@ package
 		}
 		
 		public function requesAccount():void{
-			//return;
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(pollUserAccountUrl);
 			request.method = URLRequestMethod.POST;
@@ -112,7 +109,7 @@ package
 			loader.load(HttpComunicator.GAME_DATA,0,request,onComplete,onError);
 		}
 		
-		private function onAccountInfo(proto:int,tabldId:int,str:String):void{
+		private function onAccountInfo(proto:int,tabldId:int,str:String, loader:SomeUrlLoader):void{
 			//GameUtils.log(loader.data);
 			try{
 				var result:* = JSON.parse(str);
@@ -131,7 +128,7 @@ package
 			
 		}
 		
-		private function onComplete(proto:int, tabId:int, data:String):void{
+		private function onComplete(proto:int, tabId:int, data:String, loader:SomeUrlLoader):void{
 			//GameUtils.log('proto back:', proto, data);
 			var result:* = JSON.parse(data);
 			if ( result.iSuccess == 1){
@@ -170,15 +167,27 @@ package
 						GameUtils.log('unknown proto', proto);
 						break;
 				}
+				PoolMgr.reclaim(loader);
 			}else{
+				var code:int = result.errcode;
 				if ( result.msg != null){
 					FloatHint.Instance.show(result.msg);
 				}else{
-					FloatHint.Instance.show('未知的错误码:'+result.errcode+" 协议号:"+proto+" stage:"+tabId);
+					FloatHint.Instance.show('未知的错误码:'+code+" 协议号:"+proto+" stage:"+tabId);
 				}
-				mgr.onServerErrorCode( result.errcode, proto);
 				
-				
+				Buttons.Instance.enable(true);
+				/**--------  错误码处理逻辑 ---------**/
+				if ( code == -505 && proto == HttpComunicator.START && mgr.currentTable != null){//牌局已经开始
+					mgr.currentTable.display.selected = true;
+					PoolMgr.reclaim(loader);
+				}else if ( code == -417 && proto == HttpComunicator.BANKER_TURN){//超时结算
+					Buttons.Instance.switchModel(Buttons.MODEL_END);
+					Buttons.Instance.enable(true);
+					PoolMgr.reclaim(loader);
+				}else if ( code == -512 ){
+					loader.resend();
+				}
 			}
 		}
 		
