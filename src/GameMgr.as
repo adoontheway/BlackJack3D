@@ -66,6 +66,7 @@ package
 			lastActiveTime = new Date().time;
 			setInterval(checkOutTime, 60000);
 		}
+		
 		//定时器检查多久没有进行交互操作
 		private function checkOutTime():void{
 			if ( !started ) return;
@@ -451,7 +452,13 @@ package
 				for ( var i:String in players){
 					player = players[i];
 					table = tables[i];
-					table.prize = player.prize[HttpComunicator.INSURE];
+					
+					if ( player.prize[HttpComunicator.START]){
+						table.prize += player.prize[HttpComunicator.START];
+					}
+					if ( player.prize[HttpComunicator.SPLIT]){
+						table.prize = player.prize[HttpComunicator.INSURE];
+					}
 					//table.actived = player.stop == 0;
 					putToEnd(table.tableId,false);
 					table.display.end();
@@ -639,7 +646,7 @@ package
 			
 			if ( this.currentTables.length >= 1){
 				this.currentTables.sort(Array.NUMERIC);
-				//GameUtils.log('sort tables:', this.currentTables.join('.'));
+				GameUtils.log('sort tables:', this.currentTables.join('.'));
 				this._currentTable = this.tables[this.currentTables[0]];
 			}
 			
@@ -674,7 +681,12 @@ package
 			for ( var j:String in players){
 				player = players[j];
 				table = this.tables[j];
-				table.prize = player.prize[HttpComunicator.START];
+				
+				table.prize = 0;
+				if ( player.prize[HttpComunicator.START]){
+					table.prize += player.prize[HttpComunicator.START];
+				}
+				
 				if ( player.prize[HttpComunicator.DOUBLE]){
 					table.prize += player.prize[HttpComunicator.DOUBLE];
 				}
