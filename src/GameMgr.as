@@ -38,11 +38,10 @@ package
 		public const BANKER:uint = 0;
 		private var splitors:Array;
 
-		//private var pokerMap:Object = {};
 		private var tables:Object = {};
 		
 		public var mainView:MainViewImpl;
-		private var socketMgr:SocketMgr;
+		public var buttons:Buttons;
 		
 		private var currentTables:Array = [];
 		private var endTables:Array = [];
@@ -150,17 +149,16 @@ package
 			var stage:Object = data.stage;
 			var tabId:int = data.stageId;
 			var table:TableData = tables[tabId];
-			//table.actived = stage.stop == 0;
 			//GameUtils.log('stageId:',data.stageId,' bust:',stage.bust == "1");
+			dispense(data.stageId, int(data.newCard));
 			if ( stage.stop == 1 ){
 				putToEnd(tabId);
-				if(stage.bust == "1"){
+				if(stage.bust == 1){
 					//setTimeout(function():void{
 						onTableEnd(data.stageId,stage);
 					//}, 400);
 				}
 			}
-			dispense(data.stageId, int(data.newCard));
 		}
 		/** 发牌 **/
 		public function dispense(tableId:uint, card:int):void{
@@ -187,7 +185,7 @@ package
 				var cardId:int = _instance.dispenseQueue.shift();
 				dispenseTo(tabId, cardId);
 			}else{
-				Buttons.Instance.enable(true);
+				buttons.enable(true);
 				if ( !started  || tables[0].blackjack){
 					setTimeout(onRoundEnd, 500);
 				}else{
@@ -257,7 +255,7 @@ package
 			}
 			
 			if ( needCheck ){
-				Buttons.Instance.enable(false);
+				buttons.enable(false);
 			}
 			
 		}
@@ -276,7 +274,7 @@ package
 			//GameUtils.log('Check Buttons', start, this.dispenseQueue.length);
 			if ( !started || starting || this.dispenseQueue.length != 0 ){
 				if ( !started ){
-					Buttons.Instance.switchModel(Buttons.MODEL_END);
+					buttons.switchModel(Buttons.MODEL_END);
 				}
 				return;
 			}
@@ -286,7 +284,7 @@ package
 			
 			if ( table.points == 1 && !table.insured){
 				GameUtils.log('mgr.checkButtons : 0',table.points,table.insured);
-				Buttons.Instance.switchModel(Buttons.MODEL_INSRRUREABLE);
+				buttons.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
 					if( subTable.visible && subTable.tableData != null && subTable.tableData.actived)
@@ -434,7 +432,7 @@ package
 				return true;
 			}else{
 				FloatHint.Instance.show('请先下注筹码再发牌哦~~');
-				Buttons.Instance.enable(true);
+				buttons.enable(true);
 				return false;
 			}
 		}
@@ -510,7 +508,7 @@ package
 		public function playCheck():void{
 			//var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
 			if ( fakePoker != null ){
-				Buttons.Instance.enable(false);
+				buttons.enable(false);
 				TweenLite.to(fakePoker, 0.5, {scale:1.2, y:fakePoker.y - 20, onComplete:onCheckPhase1});
 			}
 			needCheck = false;
@@ -529,7 +527,7 @@ package
 			if ( started && _currentTable != null && _currentTable.canSplit){
 				_currentTable.display.btn_split.visible = true;
 			}
-			Buttons.Instance.enable(true);
+			buttons.enable(true);
 		}
 		/**
 		 * 假牌翻转
@@ -550,7 +548,7 @@ package
 				_currentTable = null;
 			}
 			
-			Buttons.Instance.switchModel(Buttons.MODEL_END);
+			buttons.switchModel(Buttons.MODEL_END);
 			
 			if ( totalDispensed >= 164 ){//要洗牌了
 				
@@ -561,14 +559,14 @@ package
 		/**
 		 * 游戏开始或者读取游戏进度
 		 * **/
-		public function onStarted(players:Object, money:int, isStart:Boolean):void{
+		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean):void{
 			this.started = true;
 			var table:TableData ;
 			if ( mainView.y != 0){
 				mainView.tween(true);
 			}
 			//GameUtils.log('onStarted');
-			Buttons.Instance.enable(false);
+			buttons.enable(false);
 			
 			if( this.tables[0] == null)
 				mainView.bankerData = this.tables[0] = new TableData(0);
@@ -577,7 +575,8 @@ package
 			var tableId:int;
 			var player:Object;
 			var pairArr:Array;
-			var insured:Boolean = false;
+					
+			
 			lastBetData = {};
 			lastPairBetData = {};
 			var noPairBets:Boolean = true;
@@ -598,10 +597,9 @@ package
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
 				table.actived = player.bust != 1;//只有在读取游戏进度的时候才有可能爆牌,读取游戏进度的游戏不显示结果
-				if ( !insured ){
-					//GameUtils.log('check insured ',i,player.insurances);
-					insured = player.amount[HttpComunicator.INSURE];
-				}
+				
+				
+				
 				table.currentBet = player.amount[HttpComunicator.START];
 				
 				if ( table.tableId > 3 ){
@@ -638,7 +636,8 @@ package
 					table.prize = player.prize[HttpComunicator.START];
 				}
 			}
-			tables[0].insured = insured;
+			
+			tables[0].insured = hasInsured;// player.hasOwnProperty['insurances'] != null && player.insurances != 0;;
 			
 			enableDisplayMouse(false);
 			
@@ -652,7 +651,6 @@ package
 			
 			this.money = money;
 			BalanceImpl.Instance.rockAndRoll();
-	
 		}
 		//对子奖励
 		private var pairResult:Array;
@@ -826,7 +824,7 @@ package
 			}
 			
 			if( check )
-				this.nextTable();
+				nextTable();
 		}
 		
 		public function onTableEnd(tabId:int, data:Object):void{
@@ -919,7 +917,7 @@ package
 			GameUtils.log('Auto Step');
 			if ( _currentTable != null ){
 				if ( _currentTable.points >= 17 ){
-					Buttons.Instance.enable(false);
+					buttons.enable(false);
 					
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.STOP;

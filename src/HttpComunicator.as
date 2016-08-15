@@ -147,7 +147,6 @@ package
 						break;
 					case STOP:
 						onStopBack(result.data, tabId);
-						Buttons.Instance.enable(true);
 						break;
 					case DOUBLE:
 						onDoubleBack(int(result.data.newCard), result.data.stageId, result.data.stage);
@@ -272,7 +271,7 @@ package
 			var fakeCard:int = cardsMap[0].length == 1 ? -1 : cardsMap[0].pop();
 			var needCheck:Boolean = int(cardsMap[0][0]) % 100 >= 10;
 			arr.sort();
-			mgr.onStarted(data.player,  Number(data.account),isStart);			
+			mgr.onStarted(data.player,  Number(data.account),isStart, data['insuranced'] != null && data['insuranced'] == 1);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;

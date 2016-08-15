@@ -78,6 +78,7 @@ package uiimpl
 			}
 			
 			mgr = GameMgr.Instance;
+			mgr.buttons = this;
 			socketMgr = SocketMgr.Instance;
 		}
 		

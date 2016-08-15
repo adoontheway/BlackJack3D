@@ -181,7 +181,6 @@ package uiimpl
 		}
 		
 		private function split(evt:MouseEvent):void{ 
-			//SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_SPLIT, tabId:id});
 			if ( mgr.money < tableData.currentBet){
 				FloatHint.Instance.show("当前余额不足，不能分牌");
 				return;
@@ -342,16 +341,16 @@ package uiimpl
 			this.chips_con.visible = !val;
 			if ( val ){
 				var numCards:int = tableData.cards.length;
-				GameUtils.log('Check dispense on selected : ',numCards,secondRequest);
+				GameUtils.log('Check dispense on selected : ', numCards, secondRequest);
+				Buttons.Instance.enable(true);
 				if ( numCards == 1 && !secondRequest){
+					Buttons.Instance.enable(false);
 					secondRequest = true;
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.HIT;
 					obj.stage = {};
 					obj.stage[id] = [];
 					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id);
-			
-					SocketMgr.Instance.send({proto:ProtocolClientEnum.PROTO_HIT,  tabId:id});
 				}
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut});
@@ -360,7 +359,6 @@ package uiimpl
 				}else{
 					Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);
 				}
-				
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
 			}else{
 				this.btn_split.visible = false;
