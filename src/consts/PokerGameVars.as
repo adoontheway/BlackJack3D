@@ -15,7 +15,7 @@ package consts
 	public class PokerGameVars 
 	{
 		
-		public static const VERSION:String = "V20160813-10-dev";
+		public static const VERSION:String = "V20160815-06-dev";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		
@@ -25,9 +25,6 @@ package consts
 		public static var TempInsureCost:int = 0;
 		
 		public static var resRoot:String = '';
-		
-		public static const FIVE_MINUTES:uint = 5 * 60 * 1000;
-		public static const TEN_MINUTES:uint = 10 * 60 * 1000;
 		
 		public static var ChipLostPos:Point = new Point(350, 70);
 		public static var ChipGainPos:Point = new Point(850, 100);

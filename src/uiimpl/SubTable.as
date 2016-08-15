@@ -341,7 +341,9 @@ package uiimpl
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
-				if ( this.tableData.numCards == 1 && !secondRequest){
+				var numCards:int = tableData.cards.length;
+				GameUtils.log('Check dispense on selected : ',numCards,secondRequest);
+				if ( numCards == 1 && !secondRequest){
 					secondRequest = true;
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.HIT;
@@ -353,7 +355,7 @@ package uiimpl
 				}
 				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut});
-				if (tableData.numCards != 2){
+				if (numCards != 2){
 					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
 				}else{
 					Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);

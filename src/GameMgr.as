@@ -3,6 +3,7 @@ package
 	import com.greensock.TweenLite;
 	import comman.duke.FloatHint;
 	import comman.duke.GameUtils;
+	import comman.duke.GameVars;
 	import comman.duke.PoolMgr;
 	import model.*;
 	import comman.duke.ShakeItem;
@@ -52,6 +53,8 @@ package
 		public var name:String;
 		
 		public var totalDispensed:uint = 0;
+		
+		public var tempTotalBet:int = 0;
 		public function GameMgr() 
 		{
 			//this.pokerMap = {};
@@ -65,11 +68,12 @@ package
 		}
 		//定时器检查多久没有进行交互操作
 		private function checkOutTime():void{
-			return;
-			var referTime:uint = new Date().time - lastActiveTime;
-			if ( referTime >= PokerGameVars.FIVE_MINUTES && uiimpl.OverTimeReminder.Instance.parent == null){
-				GameUtils.log('long time no move since : ',lastActiveTime,'-------',referTime);
-				showAutoRemind(PokerGameVars.TEN_MINUTES - referTime + PokerGameVars.FIVE_MINUTES);
+			if ( !started ) return;
+			var referTime:int = new Date().time - lastActiveTime;
+			if ( referTime >= GameVars.FIVE_MINUTES && OverTimeReminder.Instance.parent == null){
+				//GameUtils.log('long time no move since : ', lastActiveTime, '-------', referTime);
+				showAutoRemind(GameVars.TEN_MINUTES - referTime + GameVars.FIVE_MINUTES);
+				//showAutoRemind(GameVars.ONE_MINUTES * 2 - referTime + GameVars.ONE_MINUTES);//测试用的1分钟提醒 2分钟自动游戏
 			}
 		}
 		
@@ -118,8 +122,8 @@ package
 				GameUtils.log('select table:', _currentTable.tableId);
 			}else{
 				var table:TableData = tables[0];
-				GameUtils.log('banker table :', table.numCards, table.blackjack);
-				if ( table.numCards == 1 && !requestedBaneker){
+				GameUtils.log('banker table :', table.cards.length, table.blackjack);
+				if ( table.cards.length == 1 && !requestedBaneker){
 					requestedBaneker = true
 					var obj:Object = {};
 					obj.wayId = HttpComunicator.BANKER_TURN;
@@ -192,6 +196,9 @@ package
 				if ( this.pairResult != null && pairResult.length != 0 ){
 					this.onPairBetResult();
 				}
+				if ( auto ){
+					autoStep();
+				}
 			}
 		}
 		
@@ -208,7 +215,7 @@ package
 			var table:TableData = this.tables[tableId];
 			var poker:Poker;
 			
-			if ( tableId == 0 && table.numCards == 1 && fakePoker != null ){
+			if ( tableId == 0 && table.cards.length == 1 && fakePoker != null ){
 				fakePoker.value = card;
 				table.addCard(fakePoker);
 				mainView.traverseTheFakePoker(fakePoker);
@@ -235,7 +242,7 @@ package
 		/** 庄家发牌之后的回调 **/
 		public function onBankerDispense():void{
 			dispenseComplete(0);
-			GameUtils.log('mgr.onBankerDispense', this.dispenseQueue.length, started);
+			//GameUtils.log('mgr.onBankerDispense', this.dispenseQueue.length, started);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					var table:TableData;
@@ -465,6 +472,7 @@ package
 					table.display.onInsureBack(newCard.length == 0 ? -table.currentBet*0.5 : table.currentBet);
 				}
 				table.display.btn_insurrance.visible = false;
+				table.display.btn_split.visible = false;
 			}
 		}
 		
@@ -509,6 +517,10 @@ package
 				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
 			}else{
 				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
+			}
+			
+			if ( started && _currentTable != null && _currentTable.canSplit){
+				_currentTable.display.btn_split.visible = true;
 			}
 			Buttons.Instance.enable(true);
 		}
@@ -627,7 +639,7 @@ package
 			
 			if ( this.currentTables.length >= 1){
 				this.currentTables.sort(Array.NUMERIC);
-				GameUtils.log('sort tables:', this.currentTables.join('.'));
+				//GameUtils.log('sort tables:', this.currentTables.join('.'));
 				this._currentTable = this.tables[this.currentTables[0]];
 			}
 			
@@ -684,6 +696,8 @@ package
 				setTimeout(onRoundEnd, 500);//玩家的牌全部爆牌庄家不需要发牌
 			}
 			money = Number(data.account);
+			
+			auto = false;
 		}
 		
 		/** 分牌 **/
@@ -882,29 +896,36 @@ package
 		
 		private var auto:Boolean = false;
 		public function autoGame():void{
-			if ( auto ) return;
+			GameUtils.log('mgr.autoGame:', auto, started);
+			if ( auto || !started ) return;
 			auto = true;
 			autoStep();
 		}
 		
 		public function autoStep():void{
-			return;
-			if ( !auto || !started) return;
+			if ( !auto || !started || HttpComunicator.lock) return;
+			GameUtils.log('Auto Step');
 			if ( _currentTable != null ){
-				
-				Buttons.Instance.enable(false);
-		
-				var obj:Object = {};
-				obj.wayId = HttpComunicator.STOP;
-				obj.stage = {};
-				obj.stage[_currentTable.tableId] = [];
-				HttpComunicator.Instance.send(HttpComunicator.STOP, obj,_currentTable.tableId);
-				
+				if ( _currentTable.points >= 17 ){
+					Buttons.Instance.enable(false);
+					
+					var obj:Object = {};
+					obj.wayId = HttpComunicator.STOP;
+					obj.stage = {};
+					obj.stage[_currentTable.tableId] = [];
+					HttpComunicator.Instance.send(HttpComunicator.STOP, obj,_currentTable.tableId);
+				}else{
+					obj = {};
+					obj.wayId = HttpComunicator.HIT;
+					obj.stage = {};
+					obj.stage[_currentTable.tableId] = [];
+					HttpComunicator.Instance.send(HttpComunicator.HIT,obj,_currentTable.tableId);
+				}
 			}
 		}
 		
 		public function showAutoRemind(timeRest:int):void{
-			uiimpl.OverTimeReminder.Instance.show(timeRest);
+			OverTimeReminder.Instance.show(timeRest);
 		}
 		
 		public function get money():Number{

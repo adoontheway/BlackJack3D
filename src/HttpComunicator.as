@@ -41,6 +41,7 @@ package
 		public static const BANKER_TURN:int = 8;
 		public static const GAME_DATA:int = 9;
 		
+		public static var lock:Boolean = false;
 		
 		public static var submitUrl:String =  "http://t.bomao.lgv/casino/bet/8001/1";
 		public static var loaddataUrl:String = "http://t.bomao.lgv/bets/load-data/8001";
@@ -75,7 +76,9 @@ package
 			aes.encrypt(inputBA); 
 			return Base64.encodeByteArray(inputBA);
 		}
+		
 		public function send(wayId:int, data:*, tableId:int):void{
+			lock = true;
 			//GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
@@ -96,6 +99,7 @@ package
 		}
 		
 		public function requestGameData():void{
+			lock = true;
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
 			request.method = URLRequestMethod.POST;
@@ -130,9 +134,10 @@ package
 		
 		private function onComplete(proto:int, tabId:int, data:String, loader:SomeUrlLoader):void{
 			//GameUtils.log('proto back:', proto, data);
+			lock = false;
 			var result:* = JSON.parse(data);
 			if ( result.iSuccess == 1){
-				GameUtils.log('proto :', proto);
+				GameUtils.log('Recieve : proto ', proto);
 				switch(proto){
 					case SPLIT:
 						onSplitBack(result.data,tabId);
@@ -182,6 +187,7 @@ package
 					mgr.currentTable.display.selected = true;
 					PoolMgr.reclaim(loader);
 				}else if ( code == -417 && proto == HttpComunicator.BANKER_TURN){//超时结算
+					mgr.requestedBaneker = false;
 					Buttons.Instance.switchModel(Buttons.MODEL_END);
 					Buttons.Instance.enable(true);
 					PoolMgr.reclaim(loader);

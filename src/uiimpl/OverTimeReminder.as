@@ -43,6 +43,7 @@ package uiimpl
 		
 		public function update(delta:int):void{
 			deadTime -= delta;
+			//GameUtils.log('OverTimeReminder:',deadTime);
 			if ( deadTime > 0 ){
 				this.timer.text = GameUtils.GetTimeString(deadTime,'[min]:[sec]');
 			}else{
@@ -56,10 +57,9 @@ package uiimpl
 			this.y = GameVars.Stage_Height - this.height >> 1;
 		}
 		
-		private var deadTime:uint;
-		public function show(dTime:uint):void{
+		private var deadTime:int;
+		public function show(dTime:int):void{
 			this.deadTime = dTime;
-			//GameUtils.log('Show Remind for : ', dTime);
 			GameVars.ShowMask();
 			GameVars.STAGE.addChild(this);
 			FrameMgr.Instance.add(this.frameItem);
