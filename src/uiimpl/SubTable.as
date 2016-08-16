@@ -231,7 +231,7 @@ package uiimpl
 		}
 		
 		public function end():void{
-			GameUtils.log('End Table ', this.id, ' --> ',tableData.prize, tableData.currentBet, tableData.actived);
+			GameUtils.assert(!tableData.actived ,'End Table '+this.id+' --> prize:'+tableData.prize+' bet:'+tableData.currentBet );
 			if ( !tableData.actived) return;
 			//if(!tableData.blackjack ) return;
 			

@@ -31,15 +31,15 @@ package
 	 */
 	public class HttpComunicator 
 	{
-		public static const SPLIT:int = 1;
-		public static const HIT:int = 2;
-		public static const STOP:int = 3;
-		public static const DOUBLE:int = 4;
-		public static const INSURE:int = 5;
-		public static const START:int = 6;
-		public static const PAIR:int = 7;
-		public static const BANKER_TURN:int = 8;
-		public static const GAME_DATA:int = 9;
+		public static const SPLIT:int = 1001;
+		public static const HIT:int = 1002;
+		public static const STOP:int = 1003;
+		public static const DOUBLE:int = 1004;
+		public static const INSURE:int = 1005;
+		public static const START:int = 1006;
+		public static const PAIR:int = 1007;
+		public static const BANKER_TURN:int = 1008;
+		public static const GAME_DATA:int = 1009;
 		
 		public static var lock:Boolean = false;
 		
@@ -105,7 +105,7 @@ package
 			request.method = URLRequestMethod.POST;
 			
 			var vars:URLVariables = new URLVariables();
-			vars.betdata = encrypto({ stage:0, wayId:9 });
+			vars.betdata = encrypto({ stage:0, wayId:HttpComunicator.GAME_DATA });
 			vars._token = _token;
 			vars.is_encode = PokerGameVars.NEED_CRYPTO ? 1 : 0;
 			

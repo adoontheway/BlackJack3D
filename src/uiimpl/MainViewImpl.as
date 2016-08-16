@@ -127,28 +127,20 @@ package uiimpl
 				//GameUtils.log('Banker dipense complete..');
 				mgr.onBankerDispense();
 			}
-			/**
-			if (showFakeCardAfterTween){
-				var index:int = 0;
-				var num:int = this.banker_poker_con.numChildren;
-				while ( index < num){
-					poker = banker_poker_con.getChildAt(index) as Poker;
-					if ( poker.value == -1){
-						this.traverseTheFakePoker(poker);
-						break;
-					}
-					index++;
-				}
-			}*/
 		}
 		
 		public function traverseTheFakePoker(poker:Poker):void{
 			SoundMgr.Instance.playEffect(SoundsEnum.REVERSE);
 			poker.rotationY = 180;
-			TweenLite.to(poker, 0.2, {rotationY:0});
-			updatePoints();
+			TweenLite.to(poker, 0.2, {rotationY:0,onComplete:onTraverseComplete});		
+		}
+		
+		private function onTraverseComplete():void{
 			//GameUtils.log('Fake card reverse complete..');
-			mgr.onBankerDispense();
+			updatePoints();
+			if ( !tweening ){
+				mgr.onBankerDispense();
+			}
 		}
 		
 		public function onRoundEnd():void{
@@ -160,6 +152,7 @@ package uiimpl
 			this.point_display.visible = false;
 			this.showFakeCardAfterTween = false;
 		}
+		
 		private var dispenserPos:Point = new Point(612, 50);
 		private var diapearPos:Point = new Point(50, 80);
 		private var chipLostPos:Point = new Point(350, 50);

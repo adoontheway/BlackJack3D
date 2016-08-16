@@ -151,14 +151,19 @@ package
 			var table:TableData = tables[tabId];
 			//GameUtils.log('stageId:',data.stageId,' bust:',stage.bust == "1");
 			dispense(data.stageId, int(data.newCard));
+			
+			/** 这些应该都是到发牌结束里面处理
 			if ( stage.stop == 1 ){
 				putToEnd(tabId);
+				*/
 				if(stage.bust == 1){
 					//setTimeout(function():void{
-						onTableEnd(data.stageId,stage);
-					//}, 400);
+						onTableEnd(data.stageId,stage, false);
+					//}, 200);
 				}
+				/*
 			}
+			*/
 		}
 		/** 发牌 **/
 		public function dispense(tableId:uint, card:int):void{
@@ -176,10 +181,18 @@ package
 			dispensing = false;
 			var table:TableData = tables[tabId];
 			if (tabId != 0 && ( table.bust || table.blackjack || table.points == 21 || ( table.numA > 0 && table.points == 11) || table.doubled)){
-				if( this.endTables.indexOf(tabId) == -1)
+				if ( this.endTables.indexOf(tabId) == -1){
 					this.putToEnd(tabId);
+				}
+				
+				if ( dispenseQueue.length == 0 ){
+					if ( table.bust ){
+						table.display.end();
+					}
+				}
 			}
 			
+			GameUtils.assert(dispenseQueue.length != 0,'mgr.dispenseComplete : '+ tabId);
 			if ( dispenseQueue.length != 0 ){
 				tabId = _instance.dispenseQueue.shift();
 				var cardId:int = _instance.dispenseQueue.shift();
@@ -240,8 +253,8 @@ package
 		}
 		/** 庄家发牌之后的回调 **/
 		public function onBankerDispense():void{
-			dispenseComplete(0);
-			//GameUtils.log('mgr.onBankerDispense', this.dispenseQueue.length, started);
+			
+			//GameUtils.log('mgr.onBankerDispense : ', this.dispenseQueue.length);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					var table:TableData;
@@ -258,6 +271,7 @@ package
 				buttons.enable(false);
 			}
 			
+			dispenseComplete(0);
 		}
 		/** 在点击确认保险和跳过保险之后隐藏所有保险按钮 **/
 		public function unvisAllInsureBtn():void{
@@ -565,7 +579,6 @@ package
 			if ( mainView.y != 0){
 				mainView.tween(true);
 			}
-			//GameUtils.log('onStarted');
 			buttons.enable(false);
 			
 			if( this.tables[0] == null)
@@ -575,7 +588,6 @@ package
 			var tableId:int;
 			var player:Object;
 			var pairArr:Array;
-					
 			
 			lastBetData = {};
 			lastPairBetData = {};
@@ -597,25 +609,18 @@ package
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
 				table.actived = player.bust != 1;//只有在读取游戏进度的时候才有可能爆牌,读取游戏进度的游戏不显示结果
-				
-				
-				
 				table.currentBet = player.amount[HttpComunicator.START];
-				
 				if ( table.tableId > 3 ){
 					table.currentBet = player.amount[HttpComunicator.SPLIT];
 				}
-				
 				table.pairBet = player.amount[HttpComunicator.PAIR];
-				
 				if( table.currentBet != 0 && int(i) <= 3)
 					lastBetData[i] = table.currentBet;
-					
+				
 				if ( table.pairBet != 0){
 					noPairBets = false;
 					lastPairBetData[i] = table.pairBet;
 				}
-				
 				if( !isStart )//如果是读取游戏进度，那么要展示筹码
 					table.display.showBet();
 					
@@ -629,20 +634,22 @@ package
 					if ( pairArr == null){
 						pairArr = [];
 					}
-					pairArr.push(i,  player.prize[HttpComunicator.PAIR]);
+					if ( player.prize){
+						pairArr.push(i,  int(player.prize[HttpComunicator.PAIR]));
+					}else{
+						pairArr.push(i,  0);
+					}
 				}
 				
 				if ( player.prize && player.prize[HttpComunicator.START]){
 					table.prize = player.prize[HttpComunicator.START];
 				}
 			}
-			
-			tables[0].insured = hasInsured;// player.hasOwnProperty['insurances'] != null && player.insurances != 0;;
+			tables[0].insured = hasInsured;
 			
 			enableDisplayMouse(false);
 			
 			pairResult = pairArr;
-			
 			if ( this.currentTables.length >= 1){
 				this.currentTables.sort(Array.NUMERIC);
 				GameUtils.log('sort tables:', this.currentTables.join('.'));
@@ -652,6 +659,7 @@ package
 			this.money = money;
 			BalanceImpl.Instance.rockAndRoll();
 		}
+		
 		//对子奖励
 		private var pairResult:Array;
 		//展示对子奖励
@@ -706,13 +714,11 @@ package
 				setTimeout(onRoundEnd, 500);//玩家的牌全部爆牌庄家不需要发牌
 			}
 			money = Number(data.account);
-			
 			auto = false;
 		}
 		
 		/** 分牌 **/
 		public function onSplited(father_id:int,son_id:int,father_card:Array,new_stage:Object):void{
-			//var bet:int = this.tables[father_id].currentBet;//原始押注数量
 			/**----  处理子桌  ----**/
 			table = this.tables[son_id];
 			if ( table != null ){
@@ -738,7 +744,7 @@ package
 			poker.rotation = 0;
 			
 			var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x,poker.y)));
-			table.display.poker_con.addChild(poker);//todo tweent to table2
+			table.display.poker_con.addChild(poker);
 			table.display.visible = true;
 			poker.x = targetPoint.x;
 			poker.y = targetPoint.y;
@@ -749,14 +755,14 @@ package
 			var poker:Poker;
 			//必须在这里拿到不然下面的reset就要清空导致报错
 			poker = table.getCard(int(father_card[0]));
-			GameUtils.assert(poker != null,'mgr.onSplited:1'+father_id+' has no ' +new_stage.cards);
+			//GameUtils.assert(poker != null,'mgr.onSplited:1'+father_id+' has no ' +new_stage.cards);
 			table.reset();
 			table.currentBet = new_stage.amount[HttpComunicator.SPLIT];
 			table.actived = true;
 			table.isSplited = true;
 			
 			table.display.addCard(poker, false);
-			GameUtils.log('Table:', son_id, 'Points:', table.points,'Bet:',table.currentBet,new_stage.amount[HttpComunicator.SPLIT]);
+			//GameUtils.log('Table:', son_id, 'Points:', table.points,'Bet:',table.currentBet,new_stage.amount[HttpComunicator.SPLIT]);
 			/*
 			poker.x = 0 ;
 			poker.y = 0;
@@ -780,8 +786,6 @@ package
 			//GameUtils.log('onSplitComplete--> Table:', table.tableId, 'Points:', table.points);
 		}
 		
-		
-		
 		public function onStandBack(data:Object):void{
 			var tabId:int = data.tabId;
 			putToEnd(tabId);
@@ -793,7 +797,6 @@ package
 			table.display.showBet();
 			table.doubled = true;
 			dispense(tabId, newCard);
-			//putToEnd(tabId);
 		}
 		
 		public function onFakeCard(card:int):void{
@@ -827,14 +830,26 @@ package
 				nextTable();
 		}
 		
-		public function onTableEnd(tabId:int, data:Object):void{
-			GameUtils.log('mgr.onTableEnd', tabId);
+		public function onTableEnd(tabId:int, data:Object, displayEnd:Boolean=true):void{
+			//GameUtils.log('mgr.onTableEnd', tabId);
 			var table:TableData = this.tables[tabId];
-			if ( data.prize && data.prize[HttpComunicator.START]){
-				table.prize = data.prize[HttpComunicator.START];
-			}
+			table.prize = 0;
+			if ( data['prize'] != null ){
+				if (data.prize[HttpComunicator.START] != null){
+					table.prize += data.prize[HttpComunicator.START];
+				}
 				
-			table.display.end();
+				if (data.prize[HttpComunicator.SPLIT] != null){
+					table.prize += data.prize[HttpComunicator.SPLIT];
+				}
+				
+				if (data.prize[HttpComunicator.DOUBLE] != null){
+					table.prize += data.prize[HttpComunicator.DOUBLE];
+				}
+			}
+			
+			if( displayEnd )
+				table.display.end();
 		}
 		
 		public function getInsuredTables():void{
@@ -956,18 +971,6 @@ package
 			}
 			return GameMgr._instance;
 		}
-		/**
-		public function get started():Boolean 
-		{
-			return _started;
-		}
-		
-		public function set started(value:Boolean):void 
-		{
-			GameUtils.log('started:',value);
-			_started = value;
-		}
-		*/
 	}
 
 }

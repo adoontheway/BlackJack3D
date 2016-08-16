@@ -232,6 +232,9 @@ package uiimpl
 		}
 		
 		private function hit():void{ 
+			if (mgr.currentTable.display.btn_split.visible ){
+				mgr.currentTable.display.btn_split.visible = false;
+			}
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.HIT;
 			obj.stage = {};
