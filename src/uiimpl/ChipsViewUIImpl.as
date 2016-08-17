@@ -56,11 +56,12 @@ package uiimpl
 			selectEffect.filters = [PokerGameVars.YELLOW_Glow_Filter];
 		}
 		
-		public function setupValues(arr:Array):void{
+		public function updateChips():void{
+			var chipValues:Array = PokerGameVars.Model_Config[GameMgr.Instance.currentModel];
 			var chip:Chip;
 			for (var i:int = 0; i <= 5; i++){
 				chip = chips[i];
-				chip.value = arr[i];
+				chip.value = chipValues[i];
 			}
 		}
 		
@@ -108,16 +109,16 @@ package uiimpl
 			selectEffect.y = currentChip.y - 3;
 			TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]-38});
 		}
-		
-		public function updateChips():void{
-			var currentChip:Array = PokerGameVars.Model_Config[PokerGameVars.Model];
+		/**
+		public function updateChips(model:int):void{
+			var currentChip:Array = PokerGameVars.Model_Config[model];
 			var len:uint = currentChip.length;
 			for (var i:uint = 0; i < len; i++){
 				this['chip_' + i].name = 'chip_' + currentChip[i];
 				(this['chip_' + i] as Image).url = 'png.chips.chip-'+currentChip[i];
 			}
 		}
-		
+		*/
 		public function cancelSelect():void{
 			if ( currentChip != null ) {
 				TweenLite.to(currentChip, 0.2, {y:rawY[chips.indexOf(currentChip)]});

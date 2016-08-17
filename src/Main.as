@@ -57,7 +57,7 @@ package
 			
 			openupLoader = new Loader();
 			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
-			openupLoader.load(new URLRequest(PokerGameVars.resRoot+"swfs/openup.swf"));
+			openupLoader.load(new URLRequest(PokerGameVars.resRoot+"swfs/openup.swf?v="+PokerGameVars.VERSION));
 			App.init(this);
 			
 			App.loader.loadAssets([PokerGameVars.resRoot+"assets/loading.swf"],new Handler(onLoadingViewLoaded));
@@ -68,18 +68,15 @@ package
 			
 			stage.frameRate = 30;
 			stage.quality = StageQuality.HIGH;
-			
+			GameUtils.sign();
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
-			GameUtils.log(PokerGameVars.VERSION);
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
+			SoundMgr.Instance.playEffect(SoundsEnum.WELCOME);
 		}
 		
 		private function parseParams():void{
 			var params:Object = stage.loaderInfo.parameters;
-			
-			PokerGameVars.Model = params.model || 0;//场次
-			PokerGameVars.Desk = params.desk || 0;//桌子id
 			
 			if ( ExternalInterface.available){
 				PokerGameVars.NEED_CRYPTO = params.is_encode == 1;
@@ -89,21 +86,24 @@ package
 				HttpComunicator.submitUrl = params.submitUrl;
 				HttpComunicator.loaddataUrl = params.loaddataUrl;
 				HttpComunicator.pollUserAccountUrl = params.pollUserAccountUrl;
+				HttpComunicator.rechargeUrl = params.rechargeUrl;
 			}
+			GameMgr.Instance.setup(params.table || 1);
 		}
 		
 		private function onLoadingViewLoaded():void{
 			App.loader.loadAssets([
-				PokerGameVars.resRoot+"assets/bg.swf",
-				PokerGameVars.resRoot+"assets/chips.swf", 
-				PokerGameVars.resRoot+"assets/ui.swf", 
-				PokerGameVars.resRoot+"assets/nums.swf",
-				PokerGameVars.resRoot+"assets/pokers.swf", 
-				PokerGameVars.resRoot+"assets/images.swf",
-				PokerGameVars.resRoot+"assets/comp.swf",
-				PokerGameVars.resRoot+"swfs/effects.swf"], 
+				PokerGameVars.resRoot+"assets/bg.swf?v="+PokerGameVars.VERSION,
+				PokerGameVars.resRoot+"assets/chips.swf?v="+PokerGameVars.VERSION, 
+				PokerGameVars.resRoot+"assets/ui.swf?v="+PokerGameVars.VERSION, 
+				PokerGameVars.resRoot+"assets/nums.swf?v="+PokerGameVars.VERSION,
+				PokerGameVars.resRoot+"assets/pokers.swf?v="+PokerGameVars.VERSION, 
+				PokerGameVars.resRoot+"assets/images.swf?v="+PokerGameVars.VERSION,
+				PokerGameVars.resRoot+"assets/comp.swf?v="+PokerGameVars.VERSION,
+				PokerGameVars.resRoot+"swfs/effects.swf?v="+PokerGameVars.VERSION], 
 				new Handler(onAssetsLoade), 
-				new Handler(onProgress));
+				new Handler(onProgress)
+			);
 				
 			LoadView.Instance.show();
 		}
@@ -148,7 +148,8 @@ package
 		}
 		
 		private function onAssetsLoade():void{
-			//SocketMgr.Instance.init();
+			HttpComunicator.Instance.requesAccount();//assets all loaded, or something display incorrectly
+			
 			bgLoaded();
 			
 			LoadView.Instance.hide();

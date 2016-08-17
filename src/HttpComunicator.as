@@ -11,6 +11,7 @@ package
 	import flash.net.URLRequestHeader;
 	import flash.net.URLRequestMethod;
 	import flash.net.URLVariables;
+	import flash.net.navigateToURL;
 	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
 	import uiimpl.BalanceImpl;
@@ -43,13 +44,14 @@ package
 		
 		public static var lock:Boolean = false;
 		
-		public static var submitUrl:String =  "http://t.bomao.lgv/casino/bet/8001/1";
-		public static var loaddataUrl:String = "http://t.bomao.lgv/bets/load-data/8001";
-		public static var pollUserAccountUrl:String = "http://t.bomao.lgv/users/user-account-info";
+		public static var submitUrl:String =  "";
+		public static var loaddataUrl:String = "";
+		public static var pollUserAccountUrl:String = "";
+		public static var rechargeUrl:String = "";
 		public static var currentTime:Number = 1469425223;
-		public static var _token:String = "EyBkMMA9prt7GN1IAaSqLXr1FmueWjvsbHoIm0Ys";
+		public static var _token:String = "";
 		public static var is_agent:int = 1;
-		
+		// /users/safe-reset-fund-password
 		public var mgr:GameMgr;
 		
 		private const decrKey:String = '0123456789abcdef';
@@ -63,7 +65,7 @@ package
 			pad = new NullPad();
 			aes = Crypto.getCipher("aes-cbc", key, pad);
 			var ivmode:IVMode = aes as IVMode;
-			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));    
+			ivmode.IV = Hex.toArray(Hex.fromString(decrIV));
 		}
 		
 		private function encrypto(obj:*):String{
@@ -123,7 +125,8 @@ package
 						var balance = parseFloat(data.data);
 						//GameUtils.log("balance:",balance);
 						GameMgr.Instance.money = balance;
-						BalanceImpl.Instance.rockAndRoll();
+						if( BalanceImpl.Instance.parent != null)
+							BalanceImpl.Instance.rockAndRoll();
 					}
 				}
 			}catch (e:Error){
@@ -133,9 +136,20 @@ package
 		}
 		
 		private function onComplete(proto:int, tabId:int, data:String, loader:SomeUrlLoader):void{
-			//GameUtils.log('proto back:', proto, data);
 			lock = false;
-			var result:* = JSON.parse(data);
+			try{
+				var result:* = JSON.parse(data);
+				parseResult(proto,tabId, loader, result);
+			}catch (e:Error){
+				GameUtils.fatal('Error when parse:', data);
+				GameUtils.fatal('Error info:',e.message);
+				if( data.indexOf('<html>') != -1){
+					navigateToURL(loader.request,'_self');
+				}
+			}
+		}
+		
+		private function parseResult(proto:int, tabId:int, loader:SomeUrlLoader, result:Object):void{
 			if ( result.iSuccess == 1){
 				GameUtils.log('Recieve : proto ', proto);
 				switch(proto){
@@ -188,7 +202,6 @@ package
 				}else if ( code == -417 && proto == HttpComunicator.BANKER_TURN){//超时结算
 					mgr.requestedBaneker = false;
 					Buttons.Instance.switchModel(Buttons.MODEL_END);
-					Buttons.Instance.enable(true);
 					PoolMgr.reclaim(loader);
 				}else if ( code == -512 ){
 					loader.resend();
@@ -211,7 +224,7 @@ package
 			//GameUtils.log('onDoubleBack:',newCard,tableId);
 			mgr.onDoubled(newCard, tableId, tableData);
 			
-			if ( tableData.stop == 1 && tableData.bust == "1" ){
+			if ( tableData.stop == 1 && tableData.bust == 1 ){
 				setTimeout(function():void{
 					mgr.onTableEnd(tableId,tableData);
 				}, 500);

@@ -7,6 +7,8 @@ package uiimpl
 	import consts.SoundsEnum;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
+	import flash.net.URLRequest;
+	import flash.net.navigateToURL;
 	import flash.utils.setTimeout;
 	import game.ui.mui.BalanceUI;
 	
@@ -25,6 +27,12 @@ package uiimpl
 			frameItem = new FrameItem(name, update);
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, onAdded);
+			
+			if ( GameMgr.Instance.money != 0 ){
+				_blance = GameMgr.Instance.money;
+				this.lab_0.text = GameUtils.NumberToString(_blance,',', 0);
+			}
+			
 			btn_recharge.addEventListener(MouseEvent.CLICK, onRecharge);
 		}
 		
@@ -35,7 +43,7 @@ package uiimpl
 		}
 		
 		private function onRecharge(evt:MouseEvent):void{
-			
+			navigateToURL(new URLRequest(HttpComunicator.rechargeUrl), '_blank');
 		}
 		
 		public function update(delta:int):void{

@@ -58,12 +58,27 @@ package
 		{
 			//this.pokerMap = {};
 			this.name = 'gamemgr';
-
 			HttpComunicator.Instance.mgr = this;
-			HttpComunicator.Instance.requesAccount();
+			
 			
 			lastActiveTime = new Date().time;
 			setInterval(checkOutTime, 60000);
+		}
+		private var minBet:int;
+		private var maxBet:int;
+		private var minPairBet:int;
+		private var maxPairBet:int;
+		public function setup(model:int):void{
+			if ( model < 1 || model > 3){
+				model = 1;
+			}
+			this.currentModel = model - 1;
+			var startIndex:int = currentModel * 4;
+			minBet = PokerGameVars.LIMITS[startIndex];
+			maxBet = PokerGameVars.LIMITS[startIndex+1];
+			minPairBet = PokerGameVars.LIMITS[startIndex+2];
+			maxPairBet = PokerGameVars.LIMITS[startIndex + 3];
+			//GameUtils.log('Limits:', model, startIndex, minBet, maxBet, minPairBet, maxPairBet);
 		}
 		
 		//定时器检查多久没有进行交互操作
@@ -73,7 +88,6 @@ package
 			if ( referTime >= GameVars.FIVE_MINUTES && OverTimeReminder.Instance.parent == null){
 				//GameUtils.log('long time no move since : ', lastActiveTime, '-------', referTime);
 				showAutoRemind(GameVars.TEN_MINUTES - referTime + GameVars.FIVE_MINUTES);
-				//showAutoRemind(GameVars.ONE_MINUTES * 2 - referTime + GameVars.ONE_MINUTES);//测试用的1分钟提醒 2分钟自动游戏
 			}
 		}
 		
@@ -81,6 +95,7 @@ package
 		public function refresh():void{
 			lastActiveTime = new Date().time;
 		}
+		
 		/** 游戏押注桌子显示对象注册 **/
 		public var tableDisplays:Object = {};
 		public function registerTableDisplay(id:int, table:BaseTable):void{
@@ -165,6 +180,7 @@ package
 			}
 			*/
 		}
+		
 		/** 发牌 **/
 		public function dispense(tableId:uint, card:int):void{
 			//GameUtils.log(tableId,card,' ==> ['+dispenseQueue.join(',')+'] ');
@@ -174,8 +190,10 @@ package
 				dispenseTo(tableId, card);
 			}
 		}
+		
 		//是否发牌中：Y 发牌数据压入发牌队列 N 发牌
 		private var dispensing:Boolean = false;
+		
 		/** 发牌结束回调至此 **/
 		public function dispenseComplete(tabId:int):void{
 			dispensing = false;
@@ -188,6 +206,17 @@ package
 				if ( dispenseQueue.length == 0 ){
 					if ( table.bust ){
 						table.display.end();
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 : SoundsEnum.BUST_1);
+					}else if ( table.blackjack ){
+						SoundMgr.Instance.playEffect( SoundsEnum.BLACKJACK );
+					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+					}else{
+						if ( table.numA > 0 && table.points + 10 < 21){
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)]);
+						}else{
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points]);
+						}
 					}
 				}
 			}
@@ -262,9 +291,25 @@ package
 						table = this.tables[i];
 						table.display.end();
 					}
+					
+					var table:TableData = tables[0];
+					if ( table.bust ){
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_BUST_0 : SoundsEnum.BANKER_BUST_1);
+					}else if ( table.blackjack ){
+						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1);
+					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+					}else{
+						if ( table.numA > 0 && table.points + 10 < 21){
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)]);
+						}else{
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points]);
+						}
+					}
 				}else if ( this.currentTables.length == 0 && this._currentTable == null ){
 					nextTable();
 				}
+				
 			}
 			
 			if ( needCheck ){
@@ -296,13 +341,24 @@ package
 			var table:TableData = tables[0];
 			var subTable:SubTable;
 			
-			if ( table.points == 1 && !table.insured){
-				GameUtils.log('mgr.checkButtons : 0',table.points,table.insured);
+			if ( table.points == 1 && !table.insured && this.currentTables.length != 0){
+				var needSoundEffect:Boolean = false;
+				GameUtils.log('mgr.checkButtons : 0', this.currentTables.length);
 				buttons.switchModel(Buttons.MODEL_INSRRUREABLE);
 				for (var i in subTableDisplays){
 					subTable = subTableDisplays[i];
-					if( subTable.visible && subTable.tableData != null && subTable.tableData.actived)
+					if ( subTable.visible && subTable.tableData != null && subTable.tableData.actived){
+						if ( subTable.btn_insurrance.visible ){
+							break;
+						}
+						
 						subTable.btn_insurrance.visible = !subTable.tableData.blackjack;
+						needSoundEffect = true;
+					}
+				}
+				
+				if ( needSoundEffect ){
+					SoundMgr.Instance.playEffect(SoundsEnum.NEED_INSURRANCE);
 				}
 			}else{
 				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
@@ -358,7 +414,6 @@ package
 				
 			if ( bet == 0 ) {
 				FloatHint.Instance.show('请先选择筹码再下注哦~~');
-				//ChipsViewUIImpl.Instance.shakeIt();
 				return;
 			}
 			var table:TableData = this.tables[tableId];
@@ -367,7 +422,15 @@ package
 				table.display = this.subTableDisplays[tableId];
 				table.display.tableData = table;
 			}
+			if ( table.currentBet == maxBet ){
+				FloatHint.Instance.show('已达本桌最大下注限额');
+				return;
+			}
 			table.currentBet += bet;
+			if ( table.currentBet > maxBet){
+				table.currentBet = maxBet;
+				FloatHint.Instance.show('本桌下注限额'+maxBet);
+			}
 			table.actived = true;
 			table.display.showBet();
 		}
@@ -381,9 +444,20 @@ package
 				FloatHint.Instance.show('请先选择筹码再下注哦~~');
 				return;
 			}
+			
 			var table:TableData = this.tables[tableId];
 			if ( table != null && table.currentBet != 0 ){
+				
+				if ( table.pairBet == maxPairBet ){
+					FloatHint.Instance.show('已达本桌最大对子下注限额');
+					return;
+				}
+				
 				table.pairBet += bet;
+				if ( table.pairBet > maxPairBet){
+					table.pairBet = maxPairBet;
+					FloatHint.Instance.show('本桌对子下注限额'+maxPairBet);
+				}
 				var tableDisplay:BaseTable = this.tableDisplays[tableId];
 				tableDisplay.addPairBet(bet);
 			}
@@ -409,13 +483,29 @@ package
 			for (var key in this.tables){
 				table = tables[key];
 				if ( table.currentBet != 0){
+					if ( table.currentBet < minBet){
+						FloatHint.Instance.show('本桌最低下注金额' + minBet);
+						buttons.enable(true);
+						got = false;
+						return false;
+					}
 					got = true;
 					betObj[table.tableId] = table.currentBet;
 					needMoney += table.currentBet;
 					obj.stage[table.tableId] = {};
 					obj.stage[table.tableId][HttpComunicator.START] = table.currentBet;
 				}
+				
 				if ( table.pairBet != 0 && table.currentBet != 0 ){
+					
+					if ( table.pairBet < minPairBet){
+						FloatHint.Instance.show('本桌最低下注金额' + minBet);
+						buttons.enable(true);
+						got = false;
+						gotPair = false;
+						return false;
+					}
+					
 					gotPair = true;
 					pairBet[table.tableId] = table.pairBet;
 					
@@ -657,7 +747,8 @@ package
 			}
 			
 			this.money = money;
-			BalanceImpl.Instance.rockAndRoll();
+			if( pairResult == null || pairResult.length == 0)
+				BalanceImpl.Instance.rockAndRoll();
 		}
 		
 		//对子奖励
@@ -820,6 +911,9 @@ package
 			
 			if ( this.endTables.indexOf(tabId) == -1){
 				var table:TableData = tables[tabId];
+				if ( table.blackjack ){
+					SoundMgr.Instance.playEffect(SoundsEnum.BLACKJACK);
+				}
 				table.display.selected = false;
 				table.display.updatePoints(true);
 				this.endTables.push(tabId);

@@ -204,10 +204,7 @@ package uiimpl
 				}
 			}
 			
-			mgr.start();
-			if ( MainViewImpl.Instance.y != 0){
-				MainViewImpl.Instance.tween(true);
-			}
+			start();
 		}
 		
 		public function skip():void{
