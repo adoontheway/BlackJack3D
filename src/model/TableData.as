@@ -34,7 +34,7 @@ package model
 		public var pairBet:int;
 		/** 保险花费 */
 		public var insureBet:int;
-		public var prize:Number;
+		public var prize:Number = 0;
 		public function TableData(tabId:int) 
 		{
 			this.cards = new Vector.<Poker>();

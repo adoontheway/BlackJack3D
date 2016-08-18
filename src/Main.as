@@ -68,7 +68,7 @@ package
 			
 			stage.frameRate = 30;
 			stage.quality = StageQuality.HIGH;
-			GameUtils.sign();
+			GameUtils.test();
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);

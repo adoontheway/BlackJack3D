@@ -141,9 +141,10 @@ package
 				var result:* = JSON.parse(data);
 				parseResult(proto,tabId, loader, result);
 			}catch (e:Error){
-				GameUtils.fatal('Error when parse:', data);
+				//GameUtils.fatal('Error when parse:', data);
 				GameUtils.fatal('Error info:',e.message);
-				if( data.indexOf('<html>') != -1){
+				if ( data.indexOf('<html ') != -1){
+					GameUtils.log('navigateTo:', loader.request.url);
 					navigateToURL(loader.request,'_self');
 				}
 			}

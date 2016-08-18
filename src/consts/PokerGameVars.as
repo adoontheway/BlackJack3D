@@ -19,7 +19,7 @@ package consts
 		 * [version in this day]
 		 * [d] d:development, b:beta, r:release
 		 * **/
-		public static const VERSION:String = "V20160817-20-d";
+		public static const VERSION:String = "V20160818-08-d";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		

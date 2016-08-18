@@ -298,7 +298,7 @@ package
 					}else if ( table.blackjack ){
 						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1);
 					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_21_0 : SoundsEnum.BANKER_21_1);
 					}else{
 						if ( table.numA > 0 && table.points + 10 < 21){
 							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)]);
@@ -449,7 +449,9 @@ package
 			if ( table != null && table.currentBet != 0 ){
 				
 				if ( table.pairBet == maxPairBet ){
-					FloatHint.Instance.show('已达本桌最大对子下注限额');
+					setTimeout(function(){
+						FloatHint.Instance.show('已达本桌最大对子下注限额');
+					}, 200);
 					return;
 				}
 				

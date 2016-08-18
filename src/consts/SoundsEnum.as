@@ -55,8 +55,10 @@ package consts
 		
 		public static const BANKER_BJ_0:String = "sounds/banker_bj_0.mp3";
 		public static const BANKER_BJ_1:String = "sounds/banker_bj_1.mp3";
-		public static const BANKER_BUST_0:String = "sounds/banker_bj_0.mp3";
-		public static const BANKER_BUST_1:String = "sounds/banker_bj_1.mp3";
+		public static const BANKER_BUST_0:String = "sounds/banker_bust_0.mp3";
+		public static const BANKER_BUST_1:String = "sounds/banker_bust_1.mp3";
+		public static const BANKER_21_0:String = "sounds/banker_21_0.mp3";
+		public static const BANKER_21_1:String = "sounds/banker_21_1.mp3";
 		
 		public static const NEED_INSURRANCE:String = "sounds/need_insure.mp3";
 		public static function InitSounds():void{

@@ -360,7 +360,9 @@ package uiimpl
 					Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);
 				}
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
-				if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
+				if( tableData.bust){
+					SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1);
+				}else if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
 					SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
 				}else if ( tableData.numA > 0 && tableData.points <= 11){
 					SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)]);
