@@ -182,7 +182,6 @@ package uiimpl
 			}else{
 				clean();
 			}
-			
 		}
 		
 		public function betAndStart(double:Boolean = false):void{

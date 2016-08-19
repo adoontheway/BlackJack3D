@@ -158,7 +158,7 @@ package
 		}
 	
 		//private var dispenseTimer:uint = 0;
-		private var dispenseQueue:Array = [];
+		public var dispenseQueue:Array = [];
 		/** 要牌请求的结果处理 **/
 		public function onHited(data:Object):void{
 			var stage:Object = data.stage;
@@ -204,11 +204,9 @@ package
 				}
 				
 				if ( dispenseQueue.length == 0 ){
-					if ( table.bust ){
+					if ( table.bust ){//要牌不会要到21点，所以这里不用处理21点，并且为了不重复播报21点，设置了一个boolean值
 						table.display.end();
 						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 : SoundsEnum.BUST_1);
-					}else if ( table.blackjack ){
-						SoundMgr.Instance.playEffect( SoundsEnum.BLACKJACK );
 					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
 						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
 					}else{
@@ -231,6 +229,11 @@ package
 				if ( !started  || tables[0].blackjack){
 					setTimeout(onRoundEnd, 500);
 				}else{
+					
+					if ( playBlackJack ){
+						SoundMgr.Instance.playEffect( SoundsEnum.BLACKJACK );
+						playBlackJack = false;
+					}
 					this.checkButtons();
 				}
 				//检查是否有对子奖励
@@ -267,7 +270,10 @@ package
 				if ( card != FAKE_CARD_VALUE){
 					starting = false;
 					poker.rotationY = 180 ;
+				}else{
+					poker.rotationY = 90 ;
 				}
+				
 				if ( tableId != 0 ){
 					table.display.addCard(poker);
 				}else{
@@ -312,11 +318,10 @@ package
 				
 			}
 			
+			dispenseComplete(0);
 			if ( needCheck ){
 				buttons.enable(false);
 			}
-			
-			dispenseComplete(0);
 		}
 		/** 在点击确认保险和跳过保险之后隐藏所有保险按钮 **/
 		public function unvisAllInsureBtn():void{
@@ -630,10 +635,12 @@ package
 				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
 			}
 			
-			if ( started && _currentTable != null && _currentTable.canSplit){
-				_currentTable.display.btn_split.visible = true;
-			}
-			buttons.enable(true);
+			setTimeout(function():void{
+				if ( started && _currentTable != null && _currentTable.canSplit){
+					_currentTable.display.btn_split.visible = true;
+				}
+				buttons.enable(true);
+			}, 600);
 		}
 		/**
 		 * 假牌翻转
@@ -661,7 +668,7 @@ package
 			}
 			
 		}
-		
+		private var playBlackJack:Boolean;
 		/**
 		 * 游戏开始或者读取游戏进度
 		 * **/
@@ -697,6 +704,11 @@ package
 				}
 				//这些值是否要用这里的
 				table.isSplited = player.split_table_id != 0;
+				
+				if ( !playBlackJack ){
+					playBlackJack = player.blackJack == 1;
+				}
+				
 				table.blackjack = player.blackJack == 1;
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
@@ -856,19 +868,6 @@ package
 			
 			table.display.addCard(poker, false);
 			//GameUtils.log('Table:', son_id, 'Points:', table.points,'Bet:',table.currentBet,new_stage.amount[HttpComunicator.SPLIT]);
-			/*
-			poker.x = 0 ;
-			poker.y = 0;
-			poker.rotation = 0;
-			
-			var targetPoint:Point = table.display.poker_con.globalToLocal(poker.parent.localToGlobal(new Point(poker.x, poker.y)));
-			table.display.poker_con.addChild(poker);
-			table.display.visible = true;
-			poker.x = targetPoint.x;
-			poker.y = targetPoint.y;
-			TweenLite.to(poker, 0.5, {x:0, y:0, onComplete:onSplitComplete, onCompleteParams:[poker, table]});
-			*/
-			
 			dispense(father_id, int(father_card[1]));
 		}
 		
@@ -913,9 +912,10 @@ package
 			
 			if ( this.endTables.indexOf(tabId) == -1){
 				var table:TableData = tables[tabId];
+				/*
 				if ( table.blackjack ){
 					SoundMgr.Instance.playEffect(SoundsEnum.BLACKJACK);
-				}
+				}*/
 				table.display.selected = false;
 				table.display.updatePoints(true);
 				this.endTables.push(tabId);
@@ -1001,6 +1001,7 @@ package
 			this.fakePoker = null;
 			this.requestedBaneker = false;
 			this.needCheck = false;
+			this.playBlackJack = false;
 			
 			PokerGameVars.TempInsureCost = 0;
 		}

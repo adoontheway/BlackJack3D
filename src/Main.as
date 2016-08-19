@@ -72,7 +72,7 @@ package
 			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
-			SoundMgr.Instance.playEffect(SoundsEnum.WELCOME);
+			
 		}
 		
 		private function parseParams():void{
@@ -149,7 +149,7 @@ package
 		
 		private function onAssetsLoade():void{
 			HttpComunicator.Instance.requesAccount();//assets all loaded, or something display incorrectly
-			
+			SoundMgr.Instance.playEffect(SoundsEnum.WELCOME);
 			bgLoaded();
 			
 			LoadView.Instance.hide();
@@ -169,7 +169,7 @@ package
 			
 			if ( SoundBtn != null){
 				var mc:MovieClip = new SoundBtn() as MovieClip;
-				mc.x = 50;
+				mc.x = 120;
 				mc.y = 100;
 				this.stage.addChild(mc);
 				SoundMgr.Instance.setBtn(mc);

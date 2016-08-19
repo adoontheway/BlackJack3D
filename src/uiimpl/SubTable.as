@@ -86,7 +86,7 @@ package uiimpl
 			poker.targetY = 0;
 			
 			if ( dispenseStartPoint == null ){
-				dispenseStartPoint = this.globalToLocal( PokerGameVars.DispensePostion); 
+				dispenseStartPoint = this.poker_con.globalToLocal( PokerGameVars.DispensePostion); 
 			}
 			
 			poker.x = dispenseStartPoint.x;
@@ -98,6 +98,9 @@ package uiimpl
 		private function onTweenComplete():void{
 			TableUtil.reOrderContainer(poker_con, 0, 200, 200);
 			mgr.dispenseComplete(id);
+			if ( mgr.dispenseQueue.length == 0 && this._selected){
+				readPoints();
+			}
 		}
 		private function betTable(evt:MouseEvent):void{
 			var bet:int = ChipsViewUIImpl.Instance.currentValue;
@@ -337,10 +340,22 @@ package uiimpl
 		}
 		private var secondRequest:Boolean = false;
 		public function set selected(val:Boolean):void{
+			var numCards:int = tableData.cards.length;
+			if ( _selected == val ){
+				if ( val ){
+					if (numCards != 2){
+						Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
+					}else{
+						Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);
+					}
+				}
+				return;
+			}
+				
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
-				var numCards:int = tableData.cards.length;
+				
 				GameUtils.log('Check dispense on selected : ', numCards, secondRequest);
 				Buttons.Instance.enable(true);
 				if ( numCards == 1 && !secondRequest){
@@ -353,23 +368,13 @@ package uiimpl
 					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id);
 				}
 				this.btn_split.visible = tableData.canSplit;
-				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut});
+				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut, onComplete:onSelectComplete});
 				if (numCards != 2){
 					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
 				}else{
 					Buttons.Instance.switchModel(Buttons.MODEL_DOUBLE);
 				}
 				this.poker_con.filters = [PokerGameVars.Drop_Shadow_Filter_LONGWAY];
-				if( tableData.bust){
-					SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1);
-				}else if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
-					SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
-				}else if ( tableData.numA > 0 && tableData.points <= 11){
-					SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)]);
-				}else{
-					SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + tableData.points]);
-				}
-				
 			}else{
 				this.btn_split.visible = false;
 				TweenLite.to(poker_con, 0.2, {scale:0.8, ease:Bounce.easeInOut}); 
@@ -379,6 +384,25 @@ package uiimpl
 			
 			if ( id > 3 ){
 				FrameMgr.Instance.add(this.frameItem);
+			}
+		}
+		
+		private function onSelectComplete():void{
+			if ( tableData.cards.length == 1 || mgr.dispenseQueue.length != 0){
+				return;
+			}
+			readPoints();
+		}
+		
+		private function readPoints():void{
+			if( tableData.bust){
+				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1);
+			}else if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
+				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+			}else if ( tableData.numA > 0 && tableData.points <= 11){
+				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)]);
+			}else{
+				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + tableData.points]);
 			}
 		}
 		

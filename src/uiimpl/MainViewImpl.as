@@ -109,12 +109,11 @@ package uiimpl
 			poker.targetY = 0;
 			tweening = true;
 			SoundMgr.Instance.playEffect( SoundsEnum.CARD ); 
-			if (poker.value != -1){
+			//if (poker.value != -1){
 				TweenLite.to(poker, 0.4, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
-			}else{
-				TweenLite.to(poker, 0.4, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
-			}
-			updatePoints();
+			//}else{
+				//TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
+			//}
 		}
 		public var showFakeCardAfterTween:Boolean;
 		private function reOrderBankerContaner():void{
@@ -127,6 +126,7 @@ package uiimpl
 				//GameUtils.log('Banker dipense complete..');
 				mgr.onBankerDispense();
 			}
+			updatePoints();
 		}
 		
 		public function traverseTheFakePoker(poker:Poker):void{

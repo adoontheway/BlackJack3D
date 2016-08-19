@@ -64,6 +64,7 @@ package
 		
 		override public function set rotationY(value:Number):void{
 			super.rotationY  = value;
+			if ( this._value == GameMgr.FAKE_CARD_VALUE) return;
 			if ( rotationY > 90 ){
 				if ( this.url != 'png.pokers.back'){
 					this.url = 'png.pokers.back';

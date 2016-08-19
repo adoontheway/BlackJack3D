@@ -19,7 +19,7 @@ package consts
 		 * [version in this day]
 		 * [d] d:development, b:beta, r:release
 		 * **/
-		public static const VERSION:String = "V20160818-08-d";
+		public static const VERSION:String = "V20160819-17-d";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		
@@ -29,7 +29,7 @@ package consts
 		
 		public static var ChipLostPos:Point = new Point(350, 70);
 		public static var ChipGainPos:Point = new Point(850, 100);
-		public static var DispensePostion:Point = new Point(612, 50);
+		public static var DispensePostion:Point = new Point(612, 100);
 		public static var DisaprearPoint:Point = new Point(50, 80);
 		public static var Glow_Filter:GlowFilter = new GlowFilter(0xcccccc, 0.5);
 		public static var YELLOW_Glow_Filter:GlowFilter = new GlowFilter(0xffff00, 1, 8, 8, 1, 2);
