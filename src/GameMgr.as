@@ -137,7 +137,7 @@ package
 				GameUtils.log('select table:', _currentTable.tableId);
 			}else{
 				var table:TableData = tables[0];
-				GameUtils.log('banker table :', table.cards.length, table.blackjack);
+				GameUtils.log('banker table :', table.cards.length, table.blackjack,fakeCard,started);
 				if ( table.cards.length == 1 && !requestedBaneker){
 					requestedBaneker = true
 					var obj:Object = {};
@@ -206,14 +206,14 @@ package
 				if ( dispenseQueue.length == 0 ){
 					if ( table.bust ){//要牌不会要到21点，所以这里不用处理21点，并且为了不重复播报21点，设置了一个boolean值
 						table.display.end();
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 : SoundsEnum.BUST_1);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 : SoundsEnum.BUST_1, true);
 					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1, true);
 					}else{
 						if ( table.numA > 0 && table.points + 10 < 21){
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)]);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)], true);
 						}else{
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points]);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points], true);
 						}
 					}
 				}
@@ -225,13 +225,13 @@ package
 				var cardId:int = _instance.dispenseQueue.shift();
 				dispenseTo(tabId, cardId);
 			}else{
-				buttons.enable(true);
 				if ( !started  || tables[0].blackjack){
-					setTimeout(onRoundEnd, 500);
+					//setTimeout(onRoundEnd, 1000);
+					//buttons.enable(true);
 				}else{
-					
+					buttons.enable(true);
 					if ( playBlackJack ){
-						SoundMgr.Instance.playEffect( SoundsEnum.BLACKJACK );
+						SoundMgr.Instance.playEffect( SoundsEnum.BLACKJACK, true );
 						playBlackJack = false;
 					}
 					this.checkButtons();
@@ -300,16 +300,16 @@ package
 					
 					var table:TableData = tables[0];
 					if ( table.bust ){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_BUST_0 : SoundsEnum.BANKER_BUST_1);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_BUST_0 : SoundsEnum.BANKER_BUST_1, true,true);
 					}else if ( table.blackjack ){
-						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1);
+						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1, true,true);
 					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_21_0 : SoundsEnum.BANKER_21_1);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_21_0 : SoundsEnum.BANKER_21_1, true,true);
 					}else{
 						if ( table.numA > 0 && table.points + 10 < 21){
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)]);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)], true,true);
 						}else{
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points]);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points], true,true);
 						}
 					}
 				}else if ( this.currentTables.length == 0 && this._currentTable == null ){
@@ -363,7 +363,7 @@ package
 				}
 				
 				if ( needSoundEffect ){
-					SoundMgr.Instance.playEffect(SoundsEnum.NEED_INSURRANCE);
+					SoundMgr.Instance.playEffect(SoundsEnum.NEED_INSURRANCE, true);
 				}
 			}else{
 				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
@@ -454,16 +454,18 @@ package
 			if ( table != null && table.currentBet != 0 ){
 				
 				if ( table.pairBet == maxPairBet ){
-					setTimeout(function(){
+					setTimeout(function():void{
 						FloatHint.Instance.show('已达本桌最大对子下注限额');
-					}, 200);
+					}, 300);
 					return;
 				}
 				
 				table.pairBet += bet;
 				if ( table.pairBet > maxPairBet){
 					table.pairBet = maxPairBet;
-					FloatHint.Instance.show('本桌对子下注限额'+maxPairBet);
+					setTimeout(function():void{
+						FloatHint.Instance.show('本桌对子下注限额' + maxPairBet);
+					}, 300);
 				}
 				var tableDisplay:BaseTable = this.tableDisplays[tableId];
 				tableDisplay.addPairBet(bet);
@@ -610,14 +612,14 @@ package
 			}
 		}
 
-		public var fakeCard:int = -1;
+		private var fakeCard:int = -1;
 		private var fakePoker:Poker;
 		public var needCheck:Boolean;
 		/**
 		 * 开始查牌
 		 * **/
 		public function playCheck():void{
-			//var poker:Poker = pokerMap[ FAKE_CARD_VALUE];
+			
 			if ( fakePoker != null ){
 				buttons.enable(false);
 				TweenLite.to(fakePoker, 0.5, {scale:1.2, y:fakePoker.y - 20, onComplete:onCheckPhase1});
@@ -629,11 +631,14 @@ package
 		 * **/
 		public function onCheckPhase1():void{
 			//GameUtils.log('mgr.onCheckPhase1:',fakeCard);
-			if ( fakeCard != -1 ){
-				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
-			}else{
-				TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
+			if ( fakePoker != null ){
+				if ( fakeCard != -1 ){
+					TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:onCheckPhase2});
+				}else{
+					TweenLite.to(fakePoker, 0.5, {scale:1, y:fakePoker.y+20, onComplete:checkButtons});
+				}
 			}
+			
 			
 			setTimeout(function():void{
 				if ( started && _currentTable != null && _currentTable.canSplit){
@@ -652,6 +657,7 @@ package
 		}
 		/**
 		 * 游戏结束
+		 * 游戏结束
 		 * **/
 		public function onRoundEnd():void{
 			//GameUtils.log('mgr.onRoundEnd');
@@ -662,7 +668,7 @@ package
 			}
 			
 			buttons.switchModel(Buttons.MODEL_END);
-			
+			buttons.enable(true);
 			if ( totalDispensed >= 164 ){//要洗牌了
 				
 			}
@@ -672,8 +678,9 @@ package
 		/**
 		 * 游戏开始或者读取游戏进度
 		 * **/
-		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean):void{
-			this.started = true;
+		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean, fakeCard:int):void{
+			this.started = fakeCard == -1;
+			this.fakeCard = fakeCard;
 			var table:TableData ;
 			if ( mainView.y != 0){
 				mainView.tween(true);
@@ -904,7 +911,7 @@ package
 		}
 		
 		private function putToEnd(tabId:int,check:Boolean = true):void{
-			GameUtils.log('Before put ', tabId, 'to the end', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
+			//GameUtils.log('Before put ', tabId, 'to the end', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			var index:int = this.currentTables.indexOf(tabId);
 			if ( index != -1){
 				this.currentTables.splice(index, 1);
@@ -919,7 +926,7 @@ package
 				table.display.selected = false;
 				table.display.updatePoints(true);
 				this.endTables.push(tabId);
-				GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
+				//GameUtils.log('after ', this.currentTables.join('.'), ' vs ', this.endTables.join('.'));
 			}
 			
 			if( check )

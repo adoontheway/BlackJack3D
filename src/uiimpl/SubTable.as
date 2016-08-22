@@ -396,13 +396,13 @@ package uiimpl
 		
 		private function readPoints():void{
 			if( tableData.bust){
-				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1);
+				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1,true);
 			}else if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
-				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
+				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1,true);
 			}else if ( tableData.numA > 0 && tableData.points <= 11){
-				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)]);
+				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)],true);
 			}else{
-				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + tableData.points]);
+				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + tableData.points],true);
 			}
 		}
 		

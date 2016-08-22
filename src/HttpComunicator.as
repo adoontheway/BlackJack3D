@@ -285,7 +285,7 @@ package
 			var fakeCard:int = cardsMap[0].length == 1 ? -1 : cardsMap[0].pop();
 			var needCheck:Boolean = int(cardsMap[0][0]) % 100 >= 10;
 			arr.sort();
-			mgr.onStarted(data.player,  Number(data.account),isStart, data['insuranced'] != null && data['insuranced'] == 1);			
+			mgr.onStarted(data.player,  Number(data.account), isStart, data['insuranced'] != null && data['insuranced'] == 1,fakeCard);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
@@ -316,7 +316,7 @@ package
 			mgr.needCheck = needCheck;
 			if ( needCheck ){
 				setTimeout(function():void{
-					mgr.fakeCard = fakeCard;
+					//mgr.fakeCard = fakeCard;
 					mgr.playCheck();
 					if ( fakeCard != -1){
 						mgr.endAllTables();

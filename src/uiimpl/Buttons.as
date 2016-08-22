@@ -246,7 +246,9 @@ package uiimpl
 			}
 		}
 		private function double():void{
-			//this.hideAllBtns();
+			if (mgr.currentTable.display.btn_split.visible ){
+				mgr.currentTable.display.btn_split.visible = false;
+			}
 			if ( mgr.started ){
 				//GameUtils.log('double 0 : ',mgr.started,mgr.currentTable)
 				if ( mgr.currentTable == null) return;
@@ -266,6 +268,9 @@ package uiimpl
 		}
 		
 		private function stand():void{
+			if (mgr.currentTable.display.btn_split.visible ){
+				mgr.currentTable.display.btn_split.visible = false;
+			}
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.STOP;
 			obj.stage = {};
