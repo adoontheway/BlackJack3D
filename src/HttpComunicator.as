@@ -320,7 +320,7 @@ package
 					mgr.playCheck();
 					if ( fakeCard != -1){
 						mgr.endAllTables();
-						mgr.onRoundEnd();
+						//mgr.onRoundEnd();
 					}
 				}, num * 500);
 			}

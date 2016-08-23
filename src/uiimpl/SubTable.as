@@ -226,7 +226,7 @@ package uiimpl
 			if ( _selected && (poker_con.scale > 0.9) ){
 				parent.setChildIndex(this,parent.numChildren - 1);
 				FrameMgr.Instance.remove(this.name);
-				btn_split.visible = !tableData.isSplited && tableData.canSplit;
+				btn_split.visible = tableData.canSplit;
 			}else if ( !_selected && (poker_con.scale <= 0.9)){
 				parent.setChildIndex(this,parent.numChildren - 2);
 				FrameMgr.Instance.remove(this.name);

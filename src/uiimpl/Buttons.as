@@ -228,7 +228,7 @@ package uiimpl
 		}
 		
 		private function hit():void{ 
-			if (mgr.currentTable.display.btn_split.visible ){
+			if (mgr.currentTable != null && mgr.currentTable.display.btn_split.visible ){
 				mgr.currentTable.display.btn_split.visible = false;
 			}
 			var obj:Object = {};
@@ -246,12 +246,15 @@ package uiimpl
 			}
 		}
 		private function double():void{
-			if (mgr.currentTable.display.btn_split.visible ){
-				mgr.currentTable.display.btn_split.visible = false;
-			}
+			
 			if ( mgr.started ){
 				//GameUtils.log('double 0 : ',mgr.started,mgr.currentTable)
 				if ( mgr.currentTable == null) return;
+				
+				if (mgr.currentTable.display.btn_split.visible ){
+					mgr.currentTable.display.btn_split.visible = false;
+				}
+			
 				if ( mgr.currentTable.currentBet > mgr.money){
 					FloatHint.Instance.show("当前余额不足，不能加倍");
 					return;

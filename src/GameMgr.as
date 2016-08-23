@@ -146,6 +146,7 @@ package
 					HttpComunicator.Instance.send(HttpComunicator.BANKER_TURN,obj,0);
 					GameUtils.log('select table: null');
 				}else{
+					GameUtils.log('nextTable.roundEnd');
 					this.onRoundEnd();
 					return;
 				}
@@ -288,7 +289,6 @@ package
 		}
 		/** 庄家发牌之后的回调 **/
 		public function onBankerDispense():void{
-			
 			//GameUtils.log('mgr.onBankerDispense : ', this.dispenseQueue.length);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
@@ -299,17 +299,18 @@ package
 					}
 					
 					var table:TableData = tables[0];
+					var needEnd:Boolean = table.cards.length > 1;
 					if ( table.bust ){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_BUST_0 : SoundsEnum.BANKER_BUST_1, true,true);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_BUST_0 : SoundsEnum.BANKER_BUST_1, true,needEnd);
 					}else if ( table.blackjack ){
-						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1, true,true);
+						SoundMgr.Instance.playEffect( Math.random() > 0.5 ? SoundsEnum.BANKER_BJ_0 : SoundsEnum.BANKER_BJ_1, true,needEnd);
 					}else if( table.points == 21 || (table.points == 11 && table.numA > 0)){
-						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_21_0 : SoundsEnum.BANKER_21_1, true,true);
+						SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BANKER_21_0 : SoundsEnum.BANKER_21_1, true,needEnd);
 					}else{
 						if ( table.numA > 0 && table.points + 10 < 21){
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)], true,true);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+(table.points + 10)], true,needEnd);
 						}else{
-							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points], true,true);
+							SoundMgr.Instance.playEffect( SoundsEnum['POINT_'+table.points], true,needEnd);
 						}
 					}
 				}else if ( this.currentTables.length == 0 && this._currentTable == null ){
@@ -575,7 +576,7 @@ package
 					table.display.end();
 				}
 				started = false;
-				setTimeout(	onRoundEnd, 1500);
+				//setTimeout(onRoundEnd, 1500);
 			}else{
 				setTimeout(checkButtons, 1500);
 			}
@@ -641,10 +642,13 @@ package
 			
 			
 			setTimeout(function():void{
-				if ( started && _currentTable != null && _currentTable.canSplit){
-					_currentTable.display.btn_split.visible = true;
-				}
-				buttons.enable(true);
+				if ( started){
+					buttons.enable(true);
+					if(_currentTable != null && _currentTable.canSplit){
+						_currentTable.display.btn_split.visible = true;
+						buttons.enable(true);
+					}
+				} 
 			}, 600);
 		}
 		/**
@@ -657,10 +661,9 @@ package
 		}
 		/**
 		 * 游戏结束
-		 * 游戏结束
-		 * **/
+		 * */
 		public function onRoundEnd():void{
-			//GameUtils.log('mgr.onRoundEnd');
+			GameUtils.log('mgr.onRoundEnd');
 			this.started = false;
 			if ( _currentTable != null ){
 				_currentTable.display.selected = false;
@@ -679,8 +682,9 @@ package
 		 * 游戏开始或者读取游戏进度
 		 * **/
 		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean, fakeCard:int):void{
-			this.started = fakeCard == -1;
 			this.fakeCard = fakeCard;
+			this.started = fakeCard == -1;
+			GameUtils.log('mgr.onStarted: fakeCard.',fakeCard,'started',started);
 			var table:TableData ;
 			if ( mainView.y != 0){
 				mainView.tween(true);
