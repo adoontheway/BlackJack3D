@@ -43,12 +43,13 @@ package
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 		}
 		private var openupLoader:Loader;
+		private var flag:Boolean = false;
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUnknownError);
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
+			//stage.scaleMode = StageScaleMode.NO_SCALE;//this value was set in the html page
+			stage.align = StageAlign.TOP;
 			stage.addEventListener(Event.RESIZE, onResize);
 			
 			parseParams();
@@ -73,6 +74,7 @@ package
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
 			GameUtils.log(PokerGameVars.VERSION);
+			GameUtils.log(stage.scaleMode, stage.align);
 		}
 		
 		private function parseParams():void{
@@ -93,7 +95,7 @@ package
 		
 		private function onLoadingViewLoaded():void{
 			App.loader.loadAssets([
-				PokerGameVars.resRoot+"assets/bg.swf?v="+PokerGameVars.VERSION  + 'u='+GameUtils.unique,
+				PokerGameVars.resRoot+"assets/bg.swf?v="+PokerGameVars.VERSION  + '&u='+GameUtils.unique,
 				PokerGameVars.resRoot+"assets/chips.swf?v="+PokerGameVars.VERSION, 
 				PokerGameVars.resRoot+"assets/ui.swf?v="+PokerGameVars.VERSION, 
 				PokerGameVars.resRoot+"assets/nums.swf?v="+PokerGameVars.VERSION,
@@ -148,6 +150,7 @@ package
 		}
 		
 		private function onAssetsLoade():void{
+			flag = true;
 			HttpComunicator.Instance.requesAccount();//assets all loaded, or something display incorrectly
 			SoundMgr.Instance.playEffect(SoundsEnum.WELCOME);
 			bgLoaded();
@@ -164,7 +167,7 @@ package
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			this.stage.addChild(BalanceImpl.Instance);
-			
+			/**
 			var SoundBtn :Class = ApplicationDomain.currentDomain.getDefinition('SoundBtn') as Class; 
 			
 			if ( SoundBtn != null){
@@ -174,7 +177,7 @@ package
 				this.stage.addChild(mc);
 				SoundMgr.Instance.setBtn(mc);
 			}
-			
+			*/
 			onResize(null);
 			othersLoaded = true;
 			if ( openupLoaded ){
@@ -183,6 +186,7 @@ package
 		}
 		
 		private function onResize(evt:Event):void{
+			if ( !flag ) return;
 			GameVars.Stage_Width = stage.stageWidth;
 			GameVars.Stage_Height = stage.stageHeight;
 			GameVars.RedrawMask();

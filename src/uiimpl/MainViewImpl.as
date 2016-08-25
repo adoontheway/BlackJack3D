@@ -52,9 +52,10 @@ package uiimpl
 			this.banker_poker_con.scale = 0.8;
 			this.point_display.visible = false;
 			
+			this.btn_settings.addEventListener(MouseEvent.CLICK, onSettings);
+			
 			ChipsViewUIImpl.Instance.updateChips();
 			ChipsViewUIImpl.Instance.switchCover(false);
-			
 			addChild(ChipsViewUIImpl.Instance);
 		}
 		
@@ -92,6 +93,11 @@ package uiimpl
 			}
 			this.point_display.visible = true;
 		}
+		
+		private function onSettings(e:MouseEvent):void{
+			SettingsView.Instance.show();
+		}
+		
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
 		private var startPos:Point;

@@ -1,0 +1,4 @@
+<View width="437" height="143" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.img-remind-bg" layer="1"/>
+  <Label text="" styleSkin="png.comp.label" x="20" y="51" layer="1" width="393" height="72" multiline="true" wordWrap="true" align="center" autoSize="center" color="0xffffff" size="20" font="Microsoft Yahei" var="content" name="content" selectable="false"/>
+</View>

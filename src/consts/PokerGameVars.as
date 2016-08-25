@@ -19,7 +19,7 @@ package consts
 		 * [version in this day]
 		 * [d] d:development, b:beta, r:release
 		 * **/
-		public static const VERSION:String = "V20160823-01-dev";
+		public static const VERSION:String = "V20160825-09-dev";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		
@@ -43,7 +43,7 @@ package consts
 		0.3086, 0.6094, 0.0820, 0, 0,
 		0,      0,      0,      1, 0]);
 		
-		public static const ALL_CHIP_VALUE:Array = [1,2,5,10,50,100,200,300,500,600,1000,2000,3000,5000,6000,8000,10000];
+		public static const ALL_CHIP_VALUE:Array = [1,2,5,10,20,50,100,500,1000,2000];
 		public static const CHIP_SHOWS:Object = {
 			1:'1',
 			2:'2',

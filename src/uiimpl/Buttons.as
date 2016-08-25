@@ -84,7 +84,7 @@ package uiimpl
 		
 		private function onButton(evt:MouseEvent):void{
 			if ( mgr.requestedBaneker && mgr.started ) {//已经请求了庄家要牌并且正在游戏中
-				FloatHint.Instance.show('游戏结算中');
+				Reminder.Instance.show('游戏结算中');
 				return;
 			}
 			var bname:String = evt.target.name;
@@ -189,7 +189,8 @@ package uiimpl
 			var betData:Object  = mgr.lastBetData;
 			var pairBetData:Object = mgr.lastPairBetData;
 			if ( betData == null ){
-				FloatHint.Instance.show('no bet record');
+				enable(true);
+				Reminder.Instance.show('无上局下注记录');
 				return;
 			}
 			var chip:Chip;
@@ -246,7 +247,6 @@ package uiimpl
 			}
 		}
 		private function double():void{
-			
 			if ( mgr.started ){
 				//GameUtils.log('double 0 : ',mgr.started,mgr.currentTable)
 				if ( mgr.currentTable == null) return;
@@ -256,7 +256,8 @@ package uiimpl
 				}
 			
 				if ( mgr.currentTable.currentBet > mgr.money){
-					FloatHint.Instance.show("当前余额不足，不能加倍");
+					Reminder.Instance.show("当前余额不足，不能加倍");
+					this.enable(true);
 					return;
 				}
 				var obj:Object = {};

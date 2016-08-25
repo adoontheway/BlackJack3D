@@ -1,0 +1,20 @@
+<View width="437" height="143" sceneColor="0xffffff" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.img-remind-bg" layer="1"/>
+  <Image skin="png.images.img_btn_bg" x="52" y="34" layer="1"/>
+  <Image skin="png.images.img_btn_bg" x="116" y="34" layer="1"/>
+  <Image skin="png.images.img_btn_bg" x="184" y="34" layer="1"/>
+  <Image skin="png.images.img_btn_bg" x="256" y="35" layer="1" sizeGrid="20,20,3,3,1" width="137" height="45"/>
+  <Button skin="png.images.btn_voice" x="57" y="41" layer="1" stateNum="2" var="btn_voice_on"/>
+  <Button skin="png.images.btn_music_on" x="122" y="41" layer="1" stateNum="2" var="btn_mucis_on"/>
+  <Button skin="png.images.btn_help" x="190" y="41" layer="1" stateNum="2" var="btn_help"/>
+  <Image skin="png.images.img_add" x="265" y="51" layer="1" var="img_add"/>
+  <Image skin="png.images.img_sub" x="367" y="51" layer="1" var="img_sub"/>
+  <Label text="音效开" styleSkin="png.comp.label" x="46" y="87" layer="1" color="0xffffff" var="lab_voice" font="Microsoft Yahei" size="16"/>
+  <Label text="音乐开" styleSkin="png.comp.label" x="111" y="87" layer="1" color="0xffffff" var="lab_music" font="Microsoft Yahei" size="16"/>
+  <Label text="帮助" styleSkin="png.comp.label" x="189" y="87" layer="1" color="0xffffff" font="Microsoft Yahei" size="16"/>
+  <Label text="界面缩放" styleSkin="png.comp.label" x="289" y="87" layer="1" color="0xffffff" font="Microsoft Yahei" size="16"/>
+  <Label text="100%" styleSkin="png.comp.label" x="288" y="49" layer="1" color="0xffffff" font="Arial" size="16" var="lab_scale" width="73" height="21" align="center"/>
+  <Button skin="png.images.btn_music_off" x="118" y="37" layer="1" stateNum="2" var="btn_music_off"/>
+  <Button skin="png.images.btn_voice_off" x="53" y="38" layer="1" var="btn_voice_off" stateNum="2"/>
+  <Button skin="png.images.btn_close_1" x="406" y="13" layer="1" stateNum="2" var="btn_close"/>
+</View>

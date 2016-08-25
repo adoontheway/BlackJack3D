@@ -11,10 +11,9 @@
 		var log = function(info){
 			console.log(info);
 		};
-		var h = window.innerHeight - 130;
-		var scaleH = 100;
-		if( h < 720){
-			scaleH = parseInt(h/720 * 100);
+		
+		var changeViewScale = function(value){
+			document.body.style.zoom = value/100;
 		}
 		
 		var flashvars = {
@@ -43,7 +42,7 @@
 		};
 		swfobject.embedSWF(
 			"BlackJack2D.swf", 
-			"altContent", "100%", scaleH+"%", "10.0.0", 
+			"altContent", "100%", "100%", "10.0.0", 
 			"expressInstall.swf", 
 			flashvars, params, attributes);
 	</script>

@@ -185,11 +185,11 @@ package uiimpl
 		
 		private function split(evt:MouseEvent):void{ 
 			if ( mgr.money < tableData.currentBet){
-				FloatHint.Instance.show("当前余额不足，不能分牌");
+				Reminder.Instance.show("当前余额不足，不能分牌");
 				return;
 			}
 			if ( mgr.requestedBaneker && mgr.started ) {
-				FloatHint.Instance.show('游戏结算中');
+				Reminder.Instance.show('游戏结算中');
 				return;
 			}
 			this.btn_split.visible = false;
@@ -204,11 +204,11 @@ package uiimpl
 		
 		private function insurrance(evt:MouseEvent):void{
 			if ( PokerGameVars.TempInsureCost + tableData.currentBet * 0.5 > mgr.money){
-				FloatHint.Instance.show("当前余额不足，不能保险");
+				Reminder.Instance.show("当前余额不足，不能保险");
 				return;
 			}
 			if ( mgr.requestedBaneker && mgr.started ) {
-				FloatHint.Instance.show('游戏结算中');
+				Reminder.Instance.show('游戏结算中');
 				return;
 			}
 			PokerGameVars.TempInsureCost += tableData.currentBet * 0.5
@@ -236,14 +236,17 @@ package uiimpl
 		public function end():void{
 			GameUtils.assert(!tableData.actived ,'End Table '+this.id+' --> prize:'+tableData.prize+' bet:'+tableData.currentBet );
 			if ( !tableData.actived) return;
-			//if(!tableData.blackjack ) return;
 			
 			var gain:int = tableData.prize - tableData.currentBet ;
 			
 			var pos:Point = localToGlobal(new Point(40, 10));
 			if ( gain < 0){
 				comman.duke.NumDisplay.show( gain, pos.x,  pos.y);
-				removeAllBet( -1, chips_con, 114, 96);
+				
+				setTimeout(function():void{
+					removeAllBet( -1, chips_con, 114, 96);
+				}, 200);
+				
 				img_result_0.url = 'png.images.result_lose';
 			}else if (gain > 0){
 				comman.duke.NumDisplay.show( gain, pos.x, pos.y);
@@ -252,7 +255,7 @@ package uiimpl
 				sp.x = pos.x;
 				sp.y = pos.y;
 				addChild(sp);
-				TweenLite.to(sp, 0.8, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
+				TweenLite.to(sp, dispenseTime, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
 				if ( !tableData.blackjack){
 					img_result_0.url = 'png.images.result_win_1';
 				}else{
@@ -261,7 +264,11 @@ package uiimpl
 				
 			}else{
 				comman.duke.NumDisplay.show( 0, pos.x,  pos.y);
-				removeAllBet(1, chips_con, 114, 96);
+				
+				setTimeout(function():void{
+					removeAllBet(1, chips_con, 114, 96);
+				}, 200);
+				
 				img_result_0.url = 'png.images.result_push';
 			}
 			bet_display.visible = false;
@@ -271,9 +278,9 @@ package uiimpl
 		
 		private function showResultLab(flag:Boolean):void{
 			if ( this.img_result_0.x == 165 && flag ){
-				TweenLite.to(img_result_0, 0.3, {x:65});
+				TweenLite.to(img_result_0, 0.2, {x:65});
 			}else if ( this.img_result_0.x == 65 && !flag){
-				TweenLite.to(img_result_0, 0.3, {x:165, onComplete:onFold});
+				TweenLite.to(img_result_0, 0.2, {x:165, onComplete:onFold});
 			}
 		}
 		
@@ -396,13 +403,13 @@ package uiimpl
 		
 		private function readPoints():void{
 			if( tableData.bust){
-				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1,true);
+				SoundMgr.Instance.playVoice(Math.random() > 0.5 ? SoundsEnum.BUST_0 :  SoundsEnum.BUST_1);
 			}else if ( tableData.points == 21 || tableData.numA > 0 && tableData.points == 11){
-				SoundMgr.Instance.playEffect(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1,true);
+				SoundMgr.Instance.playVoice(Math.random() > 0.5 ? SoundsEnum.POINT_21_0 : SoundsEnum.POINT_21_1);
 			}else if ( tableData.numA > 0 && tableData.points <= 11){
-				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + (tableData.points+10)],true);
+				SoundMgr.Instance.playVoice(SoundsEnum['POINT_' + (tableData.points+10)]);
 			}else{
-				SoundMgr.Instance.playEffect(SoundsEnum['POINT_' + tableData.points],true);
+				SoundMgr.Instance.playVoice(SoundsEnum['POINT_' + tableData.points]);
 			}
 		}
 		

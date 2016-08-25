@@ -2,6 +2,7 @@
 package game.ui.mui {
 	import morn.core.components.*;
 	public class MainViewUI extends View {
+		public var btn_settings:Button = null;
 		public var banker_poker_con:Box = null;
 		public var point_display:Box = null;
 		public var img_points_bg:Image = null;
@@ -10,6 +11,7 @@ package game.ui.mui {
 			<View width="800" height="600">
 			  <Image skin="png.bg.desk" x="-644" y="-1"/>
 			  <Image skin="png.loading.img-logo" x="332" y="833"/>
+			  <Button skin="png.images.btn_settings" x="-216" stateNum="2" var="btn_settings" y="0"/>
 			  <Image skin="png.images.chip-box" x="259" y="-11"/>
 			  <Image skin="png.images.recycle-bin" x="-130" y="-64"/>
 			  <Image skin="png.images.dispenser" x="612" y="-63"/>
