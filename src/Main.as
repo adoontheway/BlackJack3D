@@ -71,11 +71,11 @@ package
 			stage.frameRate = 30;
 			stage.quality = StageQuality.HIGH;
 			
-			GameUtils.DEBUG_LEVEL = GameUtils.LOG;
+			//GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
 			GameUtils.log(PokerGameVars.VERSION);
-			GameUtils.log(stage.scaleMode, stage.align);
+			//GameUtils.log(stage.scaleMode, stage.align);
 		}
 		
 		private function parseParams():void{
@@ -90,6 +90,7 @@ package
 				HttpComunicator.loaddataUrl = params.loaddataUrl;
 				HttpComunicator.pollUserAccountUrl = params.pollUserAccountUrl;
 				HttpComunicator.rechargeUrl = params.rechargeUrl;
+				GameMgr.Instance.setEnv(params.env);
 			}
 			GameMgr.Instance.setup(params.table || 1);
 		}
@@ -141,6 +142,7 @@ package
 		private function disposeOpenup():void{
 			this.stage.removeChild(openupLoader);
 			openupLoader.unloadAndStop();
+			openupLoader = null;
 		}
 		
 		private var bg:Bitmap;

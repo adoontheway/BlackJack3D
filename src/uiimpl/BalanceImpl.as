@@ -52,7 +52,7 @@ package uiimpl
 				this.lab_0.text = GameUtils.NumberToString(_blance,',',0);
 				FrameMgr.Instance.remove(name);
 			}else{
-				current += gap * 0.25;
+				current += gap * 0.2;
 				this.lab_0.text = GameUtils.NumberToString(current,',',0);
 			}
 			//GameUtils.log("balance update",current);

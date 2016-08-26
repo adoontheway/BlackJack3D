@@ -17,9 +17,9 @@ package consts
 		 * [V] for version
 		 * [date]
 		 * [version in this day]
-		 * [d] dev:development, beta:beta, alpha:alpha, r:release
+		 * [d] dev:development, beta:beta, r:release
 		 * **/
-		public static const VERSION:String = "V20160826-01-beta";
+		public static const VERSION:String = "V20160826-14-beta";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		

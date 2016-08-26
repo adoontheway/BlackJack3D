@@ -15,7 +15,9 @@
 		var changeViewScale = function(value){
 			document.body.style.zoom = value/100;
 		}
-		
+		var updateBalance = function(num){
+			bomao.Games.updateUserAccount(num);
+		};
 		var flashvars = {
 			gameId : global_game_config_ssc['gameId'],
 			lotery:1,

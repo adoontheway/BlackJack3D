@@ -225,6 +225,9 @@ package uiimpl
 			if ( result ){
 				enable(false);
 				MainViewImpl.Instance.tween(true);
+			}else{
+				clean();
+				enable(true);
 			}
 		}
 		
@@ -257,7 +260,7 @@ package uiimpl
 			
 				if ( mgr.currentTable.currentBet > mgr.money){
 					Reminder.Instance.show("当前余额不足，不能加倍");
-					this.enable(true);
+					enable(true);
 					return;
 				}
 				var obj:Object = {};

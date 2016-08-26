@@ -58,31 +58,29 @@ package
 		public var soundMgr:SoundMgr;
 		public function GameMgr() 
 		{
-			//this.pokerMap = {};
 			this.name = 'gamemgr';
-			
-			setEnv();
-			
-			HttpComunicator.Instance.mgr = this;
 			soundMgr = SoundMgr.Instance;
 			lastActiveTime = new Date().time;
 			setInterval(checkOutTime, 60000);
 		}
 		
-		public static const DEV:uint = 1;
-		public static const PRODUCTION:uint = 2;
+		public static const DEV:String = "develop";
+		public static const PRODUCTION:String = "";
 		
-		private var currentEnv:uint = 1;
-		public function setEnv():void{
+		private var currentEnv:String = "production";
+		public function setEnv(env:String):void{
+			currentEnv = env;
 			if ( currentEnv ==  DEV){
 				GameUtils.DEBUG_LEVEL = GameUtils.LOG;
-				HttpComunicator.decrKey = '1234567890-abcdef';
+				HttpComunicator.decrKey = '0123456789abcdef';
 				HttpComunicator.decrIV = '1234567891234567';
 			}else if (currentEnv ==  PRODUCTION){
-				GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
+				GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 				HttpComunicator.decrKey = '9WPH0OLXY498JC0X';
 				HttpComunicator.decrIV = 'X4O9HHJR05BFSD4I';
 			}
+		
+			HttpComunicator.Instance.mgr = this;
 		}
 		
 		private var minBet:int;
@@ -107,7 +105,6 @@ package
 			if ( !started ) return;
 			var referTime:int = new Date().time - lastActiveTime;
 			if ( referTime >= GameVars.FIVE_MINUTES && OverTimeReminder.Instance.parent == null){
-				//GameUtils.log('long time no move since : ', lastActiveTime, '-------', referTime);
 				showAutoRemind(GameVars.TEN_MINUTES - referTime + GameVars.FIVE_MINUTES);
 			}
 		}
@@ -396,6 +393,7 @@ package
 				GameUtils.log('mgr.checkButtons : 1', currentTable != null);
 				if ( currentTable != null){
 					_currentTable.display.selected = true;
+					_currentTable.display.btn_split.visible = _currentTable.display.tableData.canSplit;
 					if ( auto ){
 						autoStep();
 					}
@@ -554,6 +552,7 @@ package
 			if (got){
 				if ( needMoney > this.money){
 					Reminder.Instance.show("对不起，您的账户余额不够本次下注！");
+					buttons.enable(true);
 					return false;
 				}
 				//GameUtils.log('mgr.start :', JSON.stringify(obj));
@@ -653,6 +652,7 @@ package
 				buttons.enable(false);
 				TweenLite.to(fakePoker, 0.5, {scale:1.2, y:fakePoker.y - 20, onComplete:onCheckPhase1});
 			}
+
 			needCheck = false;
 		}
 		/**
@@ -991,7 +991,7 @@ package
 			var obj:Object = {};
 			obj.wayId = HttpComunicator.INSURE;
 			obj.stage = {};
-			
+			var need:Number = 0;
 			var table:TableData;
 			for each (var i:int in this.currentTables){
 				table = this.tables[i];
@@ -999,9 +999,24 @@ package
 				if ( table.insured){
 					obj.stage[i] = {};
 					obj.stage[i][HttpComunicator.INSURE] = table.currentBet * 0.5;
+					need += table.currentBet * 0.5;
 				}
 			}
-			HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
+			if ( need <= _money){
+				HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
+			}else{
+				for each (var i:int in this.currentTables){
+					table = this.tables[i];
+					if(table.display.visible){
+						table.insured = false;
+						table.display.btn_insurrance.visible = true;
+					}
+				}
+				
+				Reminder.Instance.show("余额不足");
+				buttons.switchModel(Buttons.MODEL_INSRRUREABLE);
+				buttons.enable(true);
+			}
 		}
 
 		/**

@@ -30,6 +30,7 @@ package uiimpl
 		private var frameItem:FrameItem;
 		private var mgr:GameMgr;
 		private var dispenseTime:Number = 0.4;
+		
 		public function SubTable($id:int) 
 		{
 			super();
@@ -186,6 +187,7 @@ package uiimpl
 		private function split(evt:MouseEvent):void{ 
 			if ( mgr.money < tableData.currentBet){
 				Reminder.Instance.show("当前余额不足，不能分牌");
+				Buttons.Instance.enable(true);
 				return;
 			}
 			if ( mgr.requestedBaneker && mgr.started ) {
@@ -255,7 +257,7 @@ package uiimpl
 				sp.x = pos.x;
 				sp.y = pos.y;
 				addChild(sp);
-				TweenLite.to(sp, dispenseTime, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
+				TweenLite.to(sp, dispenseTime+0.2, {x:50, y:50, onComplete:onGainComplete, onCompleteParams:[sp]});
 				if ( !tableData.blackjack){
 					img_result_0.url = 'png.images.result_win_1';
 				}else{
@@ -297,7 +299,7 @@ package uiimpl
 		public function removeAllBet(type:int, con:DisplayObjectContainer, rawX:int, rawY:int, reclamContainer:Boolean = false):void{
 			//GameUtils.log('Subtable.removeAllBet(): ',con == null, con.parent == null);
 			var point:Point = con.parent.globalToLocal(type == -1 ? PokerGameVars.ChipLostPos : PokerGameVars.ChipGainPos );
-			TweenLite.to(con, 0.8, {x:point.x, y:point.y, onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
+			TweenLite.to(con, 1.0, {x:point.x, y:point.y, onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
 		}
 		
 		public function removeAllChip(con:DisplayObjectContainer,rawX:int,rawY:int,reclamContainer:Boolean):void{
@@ -362,7 +364,6 @@ package uiimpl
 			_selected = val;
 			this.chips_con.visible = !val;
 			if ( val ){
-				
 				GameUtils.log('Check dispense on selected : ', numCards, secondRequest);
 				Buttons.Instance.enable(true);
 				if ( numCards == 1 && !secondRequest){
@@ -374,7 +375,6 @@ package uiimpl
 					obj.stage[id] = [];
 					HttpComunicator.Instance.send(HttpComunicator.HIT, obj, id);
 				}
-				this.btn_split.visible = tableData.canSplit;
 				TweenLite.to(poker_con, 0.2, {scale:1.1, ease:Bounce.easeInOut, onComplete:onSelectComplete});
 				if (numCards != 2){
 					Buttons.Instance.switchModel(Buttons.MODEL_NORMAL);
@@ -399,6 +399,7 @@ package uiimpl
 				return;
 			}
 			readPoints();
+			this.btn_split.visible = tableData.canSplit;
 		}
 		
 		private function readPoints():void{

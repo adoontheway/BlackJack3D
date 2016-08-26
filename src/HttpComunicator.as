@@ -5,6 +5,7 @@ package
 	import consts.PokerGameVars;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
+	import flash.external.ExternalInterface;
 	import flash.net.URLLoader;
 	import flash.net.URLLoaderDataFormat;
 	import flash.net.URLRequest;
@@ -16,6 +17,7 @@ package
 	import flash.utils.setTimeout;
 	import uiimpl.BalanceImpl;
 	import uiimpl.Buttons;
+	import uiimpl.Reminder;
 	
 	import flash.utils.ByteArray;
 	import com.hurlant.util.Base64;
@@ -51,16 +53,16 @@ package
 		public static var currentTime:Number = 1469425223;
 		public static var _token:String = "";
 		public static var is_agent:int = 1;
-		// /users/safe-reset-fund-password
 		public var mgr:GameMgr;
 		
-		public var decrKey:String = '9WPH0OLXY498JC0X';
-		public	var decrIV:String = 'X4O9HHJR05BFSD4I';
+		public static var decrKey:String = '9WPH0OLXY498JC0X';
+		public static var decrIV:String = 'X4O9HHJR05BFSD4I';
 		private var key:ByteArray;
 		private var pad:IPad;
 		private var aes:ICipher;
 		public function HttpComunicator() 
 		{
+			//GameUtils.log("HttpComunicator:",decrKey, decrIV);
 			key = Hex.toArray(Hex.fromString(decrKey));                
 			pad = new NullPad();
 			aes = Crypto.getCipher("aes-cbc", key, pad);
@@ -74,7 +76,7 @@ package
 			if ( !PokerGameVars.NEED_CRYPTO ){
 				return src;
 			}
-			var inputBA:ByteArray=Hex.toArray(Hex.fromString(src));    
+			var inputBA:ByteArray = Hex.toArray(Hex.fromString(src));    
 			aes.encrypt(inputBA); 
 			return Base64.encodeByteArray(inputBA);
 		}
@@ -93,6 +95,9 @@ package
 			loader.load(data.wayId, tableId, request,onComplete,onError);
 		}
 		
+		/**
+		 * 账户信息
+		 * **/
 		public function requesAccount():void{
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(pollUserAccountUrl);
@@ -100,6 +105,9 @@ package
 			loader.load(0,0,request,onAccountInfo,onError);
 		}
 		
+		/**
+		 * 游戏存档
+		 * **/
 		public function requestGameData():void{
 			lock = true;
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
@@ -130,7 +138,10 @@ package
 					}
 				}
 			}catch (e:Error){
-				GameUtils.fatal('读取账户信息出错:',e.message);
+				Reminder.Instance.show('解析账户信息出错:'+e.message);
+			}finally{
+				loader.reset();
+				PoolMgr.reclaim(loader);
 			}
 			
 		}
@@ -141,10 +152,8 @@ package
 				var result:* = JSON.parse(data);
 				parseResult(proto,tabId, loader, result);
 			}catch (e:Error){
-				//GameUtils.fatal('Error when parse:', data);
 				GameUtils.fatal('Error info:',e.message);
 				if ( data.indexOf('<html ') != -1){
-					GameUtils.log('navigateTo:', loader.request.url);
 					navigateToURL(loader.request,'_self');
 				}
 			}
@@ -186,26 +195,38 @@ package
 						GameUtils.log('unknown proto', proto);
 						break;
 				}
+				
+				if( result.data.hasOwnProperty("account") && ExternalInterface.available){
+					 ExternalInterface.call("updateBalance",result.data.account);
+				}
+				
+				loader.reset();
 				PoolMgr.reclaim(loader);
 			}else{
 				var code:int = result.errcode;
 				if ( result.msg != null){
-					FloatHint.Instance.show(result.msg);
+					Reminder.Instance.show(result.msg);
 				}else{
-					FloatHint.Instance.show('未知的错误码:'+code+" 协议号:"+proto+" stage:"+tabId);
+					Reminder.Instance.show('未知的错误码:'+code+" 协议号:"+proto+" stage:"+tabId);
 				}
 				
 				Buttons.Instance.enable(true);
 				/**--------  错误码处理逻辑 ---------**/
 				if ( code == -505 && proto == HttpComunicator.START && mgr.currentTable != null){//牌局已经开始
 					mgr.currentTable.display.selected = true;
+					loader.reset();
 					PoolMgr.reclaim(loader);
-				}else if ( code == -417 && proto == HttpComunicator.BANKER_TURN){//超时结算
+				}else if ( code == -417){// && proto == HttpComunicator.BANKER_TURN){//超时结算
+					/**
 					mgr.requestedBaneker = false;
 					Buttons.Instance.switchModel(Buttons.MODEL_END);
 					PoolMgr.reclaim(loader);
-				}else if ( code == -512 ){
+					*/
 					loader.resend();
+					Buttons.Instance.enable( false );
+				}else if ( code == -512 ){//系统繁忙
+					loader.resend();
+					Buttons.Instance.enable( false );
 				}
 			}
 		}
@@ -248,21 +269,18 @@ package
 		}
 		
 		private function onHitBack(data:Object):void{
-			//GameUtils.log('onHit ', data.newCard,  data.stageId);
 			mgr.onHited(data);
 		}
 		
 		private function onStart(data:Object):void{
-			//GameUtils.log('onStart ', data.banker,  data.player);
 			if ( data.banker != null && data.player != null ){
 				initDispatch(data,true);
 			}
 		}
 		
 		private function onGameData(data:Object, isStart:Boolean):void{
-			//GameUtils.log('onGameData ');
 			if ( data.banker != null && data.player != null ){
-				FloatHint.Instance.show("读取游戏存档完成");
+				Reminder.Instance.show("读取游戏存档完成");
 				initDispatch(data,isStart);
 			}
 		}
@@ -273,7 +291,6 @@ package
 			var maxLen:int = 0;
 			var len:int = 0;
 			var cardsMap:Object = {};
-			//GameUtils.log('initDispatch');
 			for (var i:String in data.player){
 				arr.push(int(i));
 				tempArr =  data.player[i].cards.split(",");
@@ -289,13 +306,11 @@ package
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
-			//GameUtils.log('arr:',arr.join(','));
 			var num:uint = 0;
 			for (var j:int = 0; j < len; j++){
 				num++;
 				tabId = arr[j];
 				tempArr = cardsMap[tabId];
-				//GameUtils.log('loop:',j,' tabld:'+tabId,' tempArr:'+tempArr,' arrLen:'+len,' repeat:'+maxLen);
 				if ( tempArr.length != 0){
 					mgr.dispense(tabId, int(tempArr.shift()));
 				}
@@ -303,7 +318,6 @@ package
 				if ( j == len -1 ){
 					maxLen--;
 					if ( maxLen <= 0 ){
-						//GameUtils.log(j,maxLen);
 						break;
 					}else{
 						j = -1;
@@ -316,7 +330,7 @@ package
 			mgr.needCheck = needCheck;
 			if ( needCheck ){
 				setTimeout(function():void{
-					//mgr.fakeCard = fakeCard;
+					//mgr.fakeCard = fakeCard;//fakeCard在onStarted里面传入，根据他判断是否
 					mgr.playCheck();
 					if ( fakeCard != -1){
 						mgr.endAllTables();
