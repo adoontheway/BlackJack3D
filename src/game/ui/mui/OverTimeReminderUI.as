@@ -10,7 +10,7 @@ package game.ui.mui {
 			  <Button skin="png.images.btn_back" x="172" y="90" stateNum="2" var="btn_return" name="btn_return"/>
 			  <Label text="HI~你还在不在啊？快回来" x="29" y="22" width="382" height="34" multiline="true" wordWrap="true" align="center" autoSize="center" color="0xffffff" size="20" font="Microsoft Yahei"/>
 			  <Label text="游戏将在            秒后自动进行" x="43" y="52" width="360" height="37" multiline="true" wordWrap="true" align="center" autoSize="center" color="0xffffff" size="16" font="Microsoft Yahei"/>
-			  <Label text="00:00" x="178" y="53" width="57" height="36" color="0xf0d860" font="Arial" size="20" align="center" var="timer"/>
+			  <Label x="178" y="53" width="57" height="36" color="0xf0d860" font="Arial" size="20" align="center" var="timer"/>
 			</View>;
 		public function OverTimeReminderUI(){}
 		override protected function createChildren():void {

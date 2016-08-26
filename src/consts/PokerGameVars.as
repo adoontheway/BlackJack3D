@@ -17,9 +17,9 @@ package consts
 		 * [V] for version
 		 * [date]
 		 * [version in this day]
-		 * [d] d:development, b:beta, r:release
+		 * [d] dev:development, beta:beta, alpha:alpha, r:release
 		 * **/
-		public static const VERSION:String = "V20160825-09-dev";
+		public static const VERSION:String = "V20160826-01-beta";
 		
 		public static var NEED_CRYPTO:Boolean = true;
 		
@@ -66,32 +66,7 @@ package consts
 			10000:'1W'
 		};
 		/** bet down limit, bet up limit, pairbet down limit, pairbet up limit **/
-			public static const LIMITS:Array = [1, 500, 1, 50, 50, 6000, 5, 500, 100, 12000, 10, 1000];
-		
-		/** 
-		 * 每个位置的信息 庄家 0 1-3未分牌的1-3号位置 4-6分牌后的1-3号位置 7-9分牌后的1-3号从位 
-		 * x，y 起始点
-		 * k 斜率方程 y = k * x + b; 也用来计算牌的rotation = ctg(k)
-		 * b 斜率方程相关
-		 * **/
-		/**
-		public static const TABLE_POS:Object = {
-			'0':{x:300, k:0, b:100},//庄家
-			'1':{x:580, k:-0.6, b:610,sx:550,sk:-0.6,sb:650},//未分牌 1
-			'2':{x:375, k:0, b:290,sx:400,sk:0,sb:290},// 未分牌 2
-			'3':{x:145, k:1, b:95, sx:160, sk:1, sb:85},//未分牌 3
-			
-			'4':{x:510, k:-0.8, b:690},//分牌 1
-			'5':{x:350, k:0, b:290},//分牌 2 3
-			'6':{x:130, k:1, b:105}//分牌 3
-		};
-		
-		public static const Circle_Pos:Object = {
-			'3':{x:145, y:240},
-			'2':{x:375, y:290},
-			'1':{x:615,y:240}
-		};
-		*/
+		public static const LIMITS:Array = [1, 500, 1, 50, 50, 6000, 5, 500, 100, 12000, 10, 1000];
 		
 		public static const Model_Config:Object = {
 		0:[1, 5, 10, 20, 50, 100,],

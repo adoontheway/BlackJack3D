@@ -28,10 +28,10 @@
 			is_agent : global_game_config_ssc['is_agent'],
 			resRoot:''
 		};
-		
+		var scaleModel = window.innerHeight >= 800 ? "noscale" : "noborder";
 		var params = {
 			menu: "false",
-			scale: "noScale",
+			scale: scaleModel,
 			allowFullscreen: "true",
 			allowScriptAccess: "always",
 			bgcolor: "",

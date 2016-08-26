@@ -27,6 +27,7 @@ package
 	import flash.utils.ByteArray;
 	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
+	import morn.core.components.Button;
 	import morn.core.handlers.Handler;
 	import uiimpl.*;
 	
@@ -148,7 +149,7 @@ package
 			this.bg = new Bitmap(claz);
 			this.addChild(bg);
 		}
-		
+		private var btn_settings:Button;
 		private function onAssetsLoade():void{
 			flag = true;
 			HttpComunicator.Instance.requesAccount();//assets all loaded, or something display incorrectly
@@ -167,6 +168,13 @@ package
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);
 			this.stage.addChild(BalanceImpl.Instance);
+			
+			btn_settings = new Button("png.images.btn_settings");
+			btn_settings.stateNum = 2;
+			btn_settings.x = 300;
+			btn_settings.y = 5;
+			btn_settings.addEventListener(MouseEvent.CLICK, onSettings);
+			this.stage.addChild(btn_settings);
 			/**
 			var SoundBtn :Class = ApplicationDomain.currentDomain.getDefinition('SoundBtn') as Class; 
 			
@@ -183,6 +191,10 @@ package
 			if ( openupLoaded ){
 				playOpenUp();
 			}
+		}
+		
+		private function onSettings(e:MouseEvent):void{
+			SettingsView.Instance.show();
 		}
 		
 		private function onResize(evt:Event):void{

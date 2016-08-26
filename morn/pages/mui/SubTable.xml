@@ -10,11 +10,11 @@
   <Image skin="png.images.result_lose" x="60" y="-5" layer="1" var="img_result_1"/>
   <Box layers="1,1,0,0,第 1 层" layer="1" x="144" y="-17" var="point_display">
     <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
-    <Label styleSkin="png.comp.label" x="5" y="10" layer="1" var="lab_points" color="0xffffff" text="21" size="30" width="56" height="38" align="center" font="Din" multiline="true"/>
+    <Label styleSkin="png.comp.label" x="5" y="10" layer="1" var="lab_points" color="0xffffff" text="" size="30" width="56" height="38" align="center" font="Din" multiline="true"/>
     <Box layers="1,1,0,0,第 1 层" layer="1" x="7" y="11" var="soft_gro">
-      <Label text="1" styleSkin="png.comp.label" layer="1" color="0xffffff" font="Din" size="20" var="soft_0" width="25" height="33" align="right"/>
+      <Label styleSkin="png.comp.label" layer="1" color="0xffffff" font="Din" size="20" var="soft_0" width="25" height="33" align="right"/>
       <Label text="/" styleSkin="png.comp.label" x="20" y="4" layer="1" color="0xffffff" font="Din" size="20" var="soft_1" width="18" height="33"/>
-      <Label text="11" styleSkin="png.comp.label" x="25" y="12" layer="1" color="0xffffff" font="Din" size="20" var="soft_2" width="26" height="33" align="left"/>
+      <Label styleSkin="png.comp.label" x="25" y="12" layer="1" color="0xffffff" font="Din" size="20" var="soft_2" width="26" height="33" align="left"/>
     </Box>
   </Box>
 </View>

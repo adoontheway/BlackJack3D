@@ -29,9 +29,9 @@ package game.ui.mui {
 			  <Label text="音乐开" x="111" y="87" color="0xffffff" var="lab_music" font="Microsoft Yahei" size="16"/>
 			  <Label text="帮助" x="189" y="87" color="0xffffff" font="Microsoft Yahei" size="16"/>
 			  <Label text="界面缩放" x="289" y="87" color="0xffffff" font="Microsoft Yahei" size="16"/>
-			  <Label text="100%" x="288" y="49" color="0xffffff" font="Arial" size="16" var="lab_scale" width="73" height="21" align="center"/>
+			  <Label x="288" y="49" color="0xffffff" font="Arial" size="16" var="lab_scale" width="73" height="21" align="center"/>
 			  <Button skin="png.images.btn_music_off" x="118" y="37" stateNum="2" var="btn_music_off"/>
-			  <Button skin="png.images.btn_voice_off" x="53" y="38" var="btn_voice_off" stateNum="2"/>
+			  <Button skin="png.images.btn_voice_off" x="53" y="37" var="btn_voice_off" stateNum="2"/>
 			  <Button skin="png.images.btn_close_1" x="406" y="13" stateNum="2" var="btn_close"/>
 			</View>;
 		public function SettingsViewUI(){}

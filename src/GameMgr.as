@@ -60,13 +60,31 @@ package
 		{
 			//this.pokerMap = {};
 			this.name = 'gamemgr';
-			HttpComunicator.Instance.mgr = this;
 			
+			setEnv();
+			
+			HttpComunicator.Instance.mgr = this;
 			soundMgr = SoundMgr.Instance;
 			lastActiveTime = new Date().time;
 			setInterval(checkOutTime, 60000);
-			
 		}
+		
+		public static const DEV:uint = 1;
+		public static const PRODUCTION:uint = 2;
+		
+		private var currentEnv:uint = 1;
+		public function setEnv():void{
+			if ( currentEnv ==  DEV){
+				GameUtils.DEBUG_LEVEL = GameUtils.LOG;
+				HttpComunicator.decrKey = '1234567890-abcdef';
+				HttpComunicator.decrIV = '1234567891234567';
+			}else if (currentEnv ==  PRODUCTION){
+				GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
+				HttpComunicator.decrKey = '9WPH0OLXY498JC0X';
+				HttpComunicator.decrIV = 'X4O9HHJR05BFSD4I';
+			}
+		}
+		
 		private var minBet:int;
 		private var maxBet:int;
 		private var minPairBet:int;
@@ -233,7 +251,9 @@ package
 					//setTimeout(onRoundEnd, 1000);
 					//buttons.enable(true);
 				}else{
-					buttons.enable(true);
+					if( this.currentTables.length!=0)
+						buttons.enable(true);
+						
 					if ( playBlackJack ){
 						soundMgr.playVoice( SoundsEnum.BLACKJACK );
 						playBlackJack = false;
@@ -728,7 +748,7 @@ package
 					playBlackJack = player.blackJack == 1;
 				}
 				
-				table.blackjack = player.blackJack == 1;
+				//table.blackjack = player.blackJack == 1;
 				table.bust = player.bust == 1;
 				table.insureBet = player.insurance;
 				table.actived = player.bust != 1;//只有在读取游戏进度的时候才有可能爆牌,读取游戏进度的游戏不显示结果

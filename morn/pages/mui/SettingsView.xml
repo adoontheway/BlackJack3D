@@ -13,8 +13,8 @@
   <Label text="音乐开" styleSkin="png.comp.label" x="111" y="87" layer="1" color="0xffffff" var="lab_music" font="Microsoft Yahei" size="16"/>
   <Label text="帮助" styleSkin="png.comp.label" x="189" y="87" layer="1" color="0xffffff" font="Microsoft Yahei" size="16"/>
   <Label text="界面缩放" styleSkin="png.comp.label" x="289" y="87" layer="1" color="0xffffff" font="Microsoft Yahei" size="16"/>
-  <Label text="100%" styleSkin="png.comp.label" x="288" y="49" layer="1" color="0xffffff" font="Arial" size="16" var="lab_scale" width="73" height="21" align="center"/>
+  <Label styleSkin="png.comp.label" x="288" y="49" layer="1" color="0xffffff" font="Arial" size="16" var="lab_scale" width="73" height="21" align="center"/>
   <Button skin="png.images.btn_music_off" x="118" y="37" layer="1" stateNum="2" var="btn_music_off"/>
-  <Button skin="png.images.btn_voice_off" x="53" y="38" layer="1" var="btn_voice_off" stateNum="2"/>
+  <Button skin="png.images.btn_voice_off" x="53" y="37" layer="1" var="btn_voice_off" stateNum="2"/>
   <Button skin="png.images.btn_close_1" x="406" y="13" layer="1" stateNum="2" var="btn_close"/>
 </View>

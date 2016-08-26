@@ -54,8 +54,8 @@ package
 		// /users/safe-reset-fund-password
 		public var mgr:GameMgr;
 		
-		private const decrKey:String = '0123456789abcdef';
-		private	const decrIV:String = '1234567891234567';
+		public var decrKey:String = '9WPH0OLXY498JC0X';
+		public	var decrIV:String = 'X4O9HHJR05BFSD4I';
 		private var key:ByteArray;
 		private var pad:IPad;
 		private var aes:ICipher;
