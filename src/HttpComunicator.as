@@ -195,11 +195,6 @@ package
 						GameUtils.log('unknown proto', proto);
 						break;
 				}
-				
-				if( result.data.hasOwnProperty("account") && ExternalInterface.available){
-					 ExternalInterface.call("updateBalance",result.data.account);
-				}
-				
 				loader.reset();
 				PoolMgr.reclaim(loader);
 			}else{
@@ -228,6 +223,12 @@ package
 					loader.resend();
 					Buttons.Instance.enable( false );
 				}
+			}
+			if ( result.data.hasOwnProperty("account") ){
+				if( ExternalInterface.available){
+					ExternalInterface.call("updateBalance", result.data.account);
+				}
+				mgr.money = result.data.account;
 			}
 		}
 		

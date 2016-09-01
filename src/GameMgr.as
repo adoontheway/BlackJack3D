@@ -79,7 +79,7 @@ package
 				HttpComunicator.decrKey = '9WPH0OLXY498JC0X';
 				HttpComunicator.decrIV = 'X4O9HHJR05BFSD4I';
 			}
-		
+			PokerGameVars.setUpVersion(env);
 			HttpComunicator.Instance.mgr = this;
 		}
 		
@@ -309,14 +309,14 @@ package
 		}
 		/** 庄家发牌之后的回调 **/
 		public function onBankerDispense():void{
-			//GameUtils.log('mgr.onBankerDispense : ', this.dispenseQueue.length);
+			GameUtils.log('mgr.onBankerDispense : dipenseQueueLen-', this.dispenseQueue.length," started-",started,"needCheck-",needCheck);
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					if ( !needCheck ){
 						var table:TableData;
 						for each(var i:int in this.endTables){
 							table = this.tables[i];
-							if( table.display.visible)
+							if( table.actived && table.display.visible)
 								table.display.end();
 						}
 						
@@ -825,7 +825,7 @@ package
 			var players:Object = data.player;
 			
 			this.started = false;
-			
+			this.needCheck = false;
 			var table:TableData;
 			var player:*;
 			for ( var j:String in players){
