@@ -14,7 +14,7 @@ package uiimpl
 		public function LoadView() 
 		{
 			super();
-			this.loading_bar.sizeGrid = '4,3,6,3,1';
+			this.loading_bar.sizeGrid = '4,3,6,5,1';
 		}
 		
 		/** pro:0-1 */
@@ -23,7 +23,7 @@ package uiimpl
 				GameUtils.fatal("异常加载进度:", pro);
 				return;
 			}
-			loading_bar.width = MAX_LENGTH * pro
+			loading_bar.width = MAX_LENGTH * pro;
 		}
 		
 		public function show():void{

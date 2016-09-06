@@ -207,10 +207,15 @@ package
 				
 				Buttons.Instance.enable(true);
 				/**--------  错误码处理逻辑 ---------**/
-				if ( code == -505 && proto == HttpComunicator.START && mgr.currentTable != null){//牌局已经开始
-					mgr.currentTable.display.selected = true;
-					loader.reset();
-					PoolMgr.reclaim(loader);
+				if ( code == -505 ){//牌局已经开始
+					if( proto == HttpComunicator.START && mgr.currentTable != null ){
+						mgr.currentTable.display.selected = true;
+						loader.reset();
+						PoolMgr.reclaim(loader);
+					}else{//游戏已结束
+						
+					}
+					
 				}else if ( code == -417){// && proto == HttpComunicator.BANKER_TURN){//超时结算
 					/**
 					mgr.requestedBaneker = false;
@@ -226,6 +231,7 @@ package
 					
 				}
 			}
+			
 			if ( result.data.hasOwnProperty("account") ){
 				if( ExternalInterface.available){
 					ExternalInterface.call("updateBalance", result.data.account);

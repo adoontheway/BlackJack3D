@@ -43,6 +43,10 @@ package
 		}
 		private var openupLoader:Loader;
 		private var flag:Boolean = false;
+		
+		[Embed(source="embeds/DINBold.ttf", fontName="Din", mimeType="application/x-font")] 
+        public var DINBold:Class; 
+		
 		private function init(e:Event = null):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
@@ -155,13 +159,12 @@ package
 			bgLoaded();
 			
 			LoadView.Instance.hide();
-			
+			/**
 			if ( ApplicationDomain.currentDomain.hasDefinition('DinBold')){
 				var FontClass:Class = ApplicationDomain.currentDomain.getDefinition('DinBold') as Class;
 				Font.registerFont(FontClass);
-			}
+			}*/
 			
-
 			SoundsEnum.InitSounds();
 			MainViewImpl.Instance.y = -150;
 			this.stage.addChild(MainViewImpl.Instance);

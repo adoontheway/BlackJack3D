@@ -23,7 +23,7 @@ package uiimpl
 		{
 			super();
 			this.name = 'balanceui';
-			this.y = 40;
+			this.y = 10;
 			frameItem = new FrameItem(name, update);
 			
 			this.addEventListener(Event.ADDED_TO_STAGE, onAdded);
@@ -82,7 +82,7 @@ package uiimpl
 		}
 		
 		public function onResize():void{
-			this.x = MainViewImpl.Instance.x + 800;
+			this.x = MainViewImpl.Instance.x + 850;
 		}
 		
 		private static var _instance:BalanceImpl;
