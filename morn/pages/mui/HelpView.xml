@@ -1,0 +1,6 @@
+<View width="673" height="777" sceneColor="0x0" layers="1,1,0,0,第 1 层">
+  <Image skin="png.images.img_help_bg" layer="1"/>
+  <Image skin="png.images.img_help_txt" x="17" y="14" layer="1" var="img_content"/>
+  <VScrollBar skin="png.comp.vscroll" x="637" y="56" layer="1" width="17" height="698" var="scroller"/>
+  <Button skin="png.images.btn_close_1" x="636" y="20" layer="1" stateNum="2" var="img_close"/>
+</View>

@@ -19,7 +19,7 @@ package consts
 		 * [version in this day]
 		 * [d] dev:development, beta:beta, r:release
 		 * **/
-		private static const LOCAL_VERSION:String = "V20160901-03-";
+		private static const LOCAL_VERSION:String = "V20160906-02";
 		public static var VERSION:String;
 		
 		public static var NEED_CRYPTO:Boolean = true;
@@ -78,7 +78,7 @@ package consts
 		public static const Chars:Array = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
 		
 		public static function setUpVersion(env:String):void{
-			VERSION = LOCAL_VERSION + env;
+			VERSION = LOCAL_VERSION +"-"+ env;
 		}
 	}
 

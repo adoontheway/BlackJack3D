@@ -1,7 +1,5 @@
 package
 {
-	
-	
 	import comman.duke.*;
 	import comman.duke.display.BitmapClipFactory;
 	import consts.*;
@@ -62,7 +60,7 @@ package
 			openupLoader.load(new URLRequest(PokerGameVars.resRoot+"swfs/openup.swf?v="+PokerGameVars.VERSION));
 			App.init(this);
 			
-			App.loader.loadAssets([PokerGameVars.resRoot+"assets/loading.swf"],new Handler(onLoadingViewLoaded));
+			App.loader.loadAssets([PokerGameVars.resRoot+"assets/loading.swf?v="+PokerGameVars.VERSION],new Handler(onLoadingViewLoaded));
 			
 			GameVars.STAGE = stage;
 			GameVars.Stage_Width = stage.stageWidth;
@@ -71,11 +69,9 @@ package
 			stage.frameRate = 30;
 			stage.quality = StageQuality.HIGH;
 			
-			//GameUtils.DEBUG_LEVEL = GameUtils.LOG;
 			FrameMgr.Instance.init(stage);
 			SoundMgr.Instance.playBg(SoundsEnum.BG);
 			GameUtils.log(PokerGameVars.VERSION);
-			//GameUtils.log(stage.scaleMode, stage.align);
 		}
 		
 		private function parseParams():void{
@@ -177,17 +173,7 @@ package
 			btn_settings.y = 5;
 			btn_settings.addEventListener(MouseEvent.CLICK, onSettings);
 			this.stage.addChild(btn_settings);
-			/**
-			var SoundBtn :Class = ApplicationDomain.currentDomain.getDefinition('SoundBtn') as Class; 
-			
-			if ( SoundBtn != null){
-				var mc:MovieClip = new SoundBtn() as MovieClip;
-				mc.x = 120;
-				mc.y = 100;
-				this.stage.addChild(mc);
-				SoundMgr.Instance.setBtn(mc);
-			}
-			*/
+
 			onResize(null);
 			othersLoaded = true;
 			if ( openupLoaded ){
@@ -235,7 +221,7 @@ package
              {
                  message = event.error.toString();
              }
-			 GameUtils.fatal('Stage Uncaught Errors :', message);
+			 GameUtils.fatal('Stage Uncaught Errors:', message);
 		}
 	}
 	

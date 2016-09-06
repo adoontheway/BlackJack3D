@@ -130,7 +130,7 @@ package
 				if ( result.isSuccess == 1){
 					var data:Object =  result.data[0].data[0];
 					if ( data.type == "balance"){
-						var balance = parseFloat(data.data);
+						var balance:Number = parseFloat(data.data);
 						//GameUtils.log("balance:",balance);
 						GameMgr.Instance.money = balance;
 						if( BalanceImpl.Instance.parent != null)
@@ -222,6 +222,8 @@ package
 				}else if ( code == -512 ){//系统繁忙
 					loader.resend();
 					Buttons.Instance.enable( false );
+				}else if( code == -409 && proto == HttpComunicator.HIT){//已经停止要牌
+					
 				}
 			}
 			if ( result.data.hasOwnProperty("account") ){

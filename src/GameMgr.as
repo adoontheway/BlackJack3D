@@ -65,9 +65,9 @@ package
 		}
 		
 		public static const DEV:String = "develop";
-		public static const PRODUCTION:String = "";
+		public static const PRODUCTION:String = "production";
 		
-		private var currentEnv:String = "production";
+		private var currentEnv:String = "develop";
 		public function setEnv(env:String):void{
 			currentEnv = env;
 			if ( currentEnv ==  DEV){
@@ -75,7 +75,7 @@ package
 				HttpComunicator.decrKey = '0123456789abcdef';
 				HttpComunicator.decrIV = '1234567891234567';
 			}else if (currentEnv ==  PRODUCTION){
-				GameUtils.DEBUG_LEVEL = GameUtils.LOG;
+				GameUtils.DEBUG_LEVEL = GameUtils.FATAL;
 				HttpComunicator.decrKey = '9WPH0OLXY498JC0X';
 				HttpComunicator.decrIV = 'X4O9HHJR05BFSD4I';
 			}
@@ -722,7 +722,6 @@ package
 			if( this.tables[0] == null)
 				mainView.bankerData = this.tables[0] = new TableData(0);
 			
-			var table:TableData;
 			var tableId:int;
 			var player:Object;
 			var pairArr:Array;
@@ -1005,7 +1004,7 @@ package
 			if ( need <= _money){
 				HttpComunicator.Instance.send(HttpComunicator.INSURE, obj, 0);
 			}else{
-				for each (var i:int in this.currentTables){
+				for each (i in this.currentTables){
 					table = this.tables[i];
 					if(table.display.visible){
 						table.insured = false;
@@ -1039,7 +1038,7 @@ package
 				tables[key].reset();
 			}
 			for ( key in this.tableDisplays){
-				tableDisplays[key].reset();
+				tableDisplays[key].reset(true);
 			}
 			for ( key in this.subTableDisplays){
 				subTableDisplays[key].reset();

@@ -47,28 +47,29 @@ package uiimpl
 			if ( $id == 1 ){
 				this.x = 625;
 				this.y = 290;
-				claz = ApplicationDomain.currentDomain.getDefinition('RightRing') as Class;
+				//claz = ApplicationDomain.currentDomain.getDefinition('RightRing') as Class;
 			}else if ( $id == 2 ){
 				this.x = 270;
 				this.y = 355;
 				this.table.skin = "png.images.btn_table_middle";
 				this.pair.skin = "png.images.btn_pair_center";
-				claz = ApplicationDomain.currentDomain.getDefinition('CenterRing') as Class;
+				//claz = ApplicationDomain.currentDomain.getDefinition('CenterRing') as Class;
 			}else if ( $id == 3 ){
 				this.x = -85;
 				this.y = 295;
 				this.table.skin = "png.images.btn_table_left";
 				this.pair.skin = "png.images.btn_pair_left";
-				claz = ApplicationDomain.currentDomain.getDefinition('LeftRing') as Class;
+				//claz = ApplicationDomain.currentDomain.getDefinition('LeftRing') as Class;
 			}
-			
+			/*
 			if ( claz != null ){
 				reminder = new claz() as MovieClip;
 				reminder.x = 110;
 				reminder.y = 110;
 				reminder.mouseChildren = reminder.mouseEnabled = false;
-				//this.addChild(reminder);
+				this.addChild(reminder);
 			}
+			*/
 			
 			this.name = 'table_' + $id;
 			mgr = GameMgr.Instance;

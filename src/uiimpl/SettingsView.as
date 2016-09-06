@@ -79,7 +79,8 @@ package uiimpl
 			SoundMgr.Instance.voiceSwitch(true);
 		}
 		public function onHelp(e:MouseEvent):void{
-			
+			this.hide(null);
+			HelpView.Instance.show();
 		}
 		
 		public function show():void{
