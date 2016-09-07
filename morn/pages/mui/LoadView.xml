@@ -1,5 +1,5 @@
-<View width="193" height="410" sceneColor="0" layers="1,1,0,0,第 1 层">
-  <Image skin="png.loading.loading-icon" layer="1" x="-0.5"/>
-  <Image skin="png.loading.loading-bar" x="22" y="199" layer="1" var="loading_bar"/>
+<View width="193" height="410" sceneColor="0" layers="2,1,1,1,第 2 层;1,1,1,0,第 1 层">
+  <Image skin="png.loading.loading-bar-1" x="22" y="198" layer="1" var="loading_bar" sizeGrid="4,3,1,2,1" width="61" height="8"/>
   <Image skin="png.loading.img-logo" x="40.5" y="283" layer="1"/>
+  <Image skin="png.loading.loading-icon" layer="2"/>
 </View>

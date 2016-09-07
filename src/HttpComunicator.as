@@ -105,6 +105,7 @@ package
 			loader.load(0,0,request,onAccountInfo,onError);
 		}
 		
+		public static var gameDataFlag:Boolean = false;
 		/**
 		 * 游戏存档
 		 * **/
@@ -288,6 +289,10 @@ package
 		}
 		
 		private function onGameData(data:Object, isStart:Boolean):void{
+			gameDataFlag = true;
+			if( Buttons.Instance.parent){
+				Buttons.Instance.enable(true);
+			}
 			if ( data.banker != null && data.player != null ){
 				Reminder.Instance.show("读取游戏存档完成");
 				initDispatch(data,isStart);
@@ -311,7 +316,7 @@ package
 			var fakeCard:int = cardsMap[0].length == 1 ? -1 : cardsMap[0].pop();
 			var needCheck:Boolean = int(cardsMap[0][0]) % 100 >= 10;
 			arr.sort();
-			mgr.onStarted(data.player,  Number(data.account), isStart, data['insuranced'] != null && data['insuranced'] == 1,fakeCard);			
+			mgr.onStarted(data.player, Number(data.account), isStart, data['insuranced'] != null && data['insuranced'] == 1,fakeCard,needCheck);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
@@ -335,18 +340,18 @@ package
 			}
 			
 			mgr.dispense(0, -1);
+			
 			num++;
-			mgr.needCheck = needCheck;
+			//mgr.needCheck = needCheck;
 			if ( needCheck ){
 				setTimeout(function():void{
-					//mgr.fakeCard = fakeCard;//fakeCard在onStarted里面传入，根据他判断是否
 					mgr.playCheck();
 					if ( fakeCard != -1){
 						mgr.endAllTables();
-						//mgr.onRoundEnd();
 					}
-				}, num * 500);
+				}, num * 650);
 			}
+			
 		}
 		
 		private function onError(proto:*, tabldId:int, e:IOErrorEvent):void{

@@ -14,7 +14,7 @@ package uiimpl
 		public function LoadView() 
 		{
 			super();
-			this.loading_bar.sizeGrid = '4,3,6,5,1';
+			//this.loading_bar.sizeGrid = '4,2,6,4,1';
 		}
 		
 		/** pro:0-1 */

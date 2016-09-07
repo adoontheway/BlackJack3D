@@ -59,6 +59,9 @@ package uiimpl
 		
 		public function afterStart():void{
 			Buttons.Instance.switchModel(Buttons.MODEL_START);
+			if( !HttpComunicator.gameDataFlag ){
+				Buttons.Instance.enable(false);
+			}
 			this.addChild(Buttons.Instance);
 		}
 		
@@ -95,26 +98,37 @@ package uiimpl
 		private var tweening:Boolean = false;
 		private var tweenQueue:Array = [];
 		private var startPos:Point;
+		private var startMiddlePos:Point;
 		public function onDispenseBanker(poker:Poker):void{
 			if ( tweening ){
 				tweenQueue.push(poker);
 				return;
 			}
 			this.banker_poker_con.addChild(poker);
-			if( startPos == null)
+			if( startPos == null){
 				startPos = banker_poker_con.globalToLocal( PokerGameVars.DispensePostion);
+				startMiddlePos = new Point(startPos.x - 10, startPos.y + 100);
+			}
+				
 			poker.x = startPos.x;
 			poker.y = startPos.y;
 			poker.targetX = banker_poker_con.numChildren*20;
 			poker.targetY = 0;
 			tweening = true;
 			SoundMgr.Instance.playEffect( SoundsEnum.CARD ); 
-			//if (poker.value != -1){
-				TweenLite.to(poker, 0.4, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
-			//}else{
-				//TweenLite.to(poker, 0.3, {x:poker.targetX, y:poker.targetY, rotation:0, onComplete:this.reOrderBankerContaner});
-			//}
+			tweenPhase1(poker);
+			//TweenLite.to(poker, 0.4, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
 		}
+		
+		private function tweenPhase1(poker:Poker):void{
+			poker.scale = 0.8;
+			TweenLite.to(poker, 0.2, {scale:1, x:startMiddlePos.x, y:startMiddlePos.y, onComplete:this.tweenPhase2, onCompleteParams:[poker]});
+		}
+		
+		private function tweenPhase2(poker:Poker):void{
+			TweenLite.to(poker, 0.3, {rotationY:0, x:poker.targetX, y:poker.targetY,rotation:0, onComplete:this.reOrderBankerContaner});
+		}
+		
 		public var showFakeCardAfterTween:Boolean;
 		private function reOrderBankerContaner():void{
 			tweening = false;
@@ -154,6 +168,7 @@ package uiimpl
 		}
 		
 		private var dispenserPos:Point = new Point(612, 50);
+		private var dispenserMiddlePos:Point = new Point(600, 150);
 		private var diapearPos:Point = new Point(50, 80);
 		private var chipLostPos:Point = new Point(350, 50);
 		private var chipGainPos:Point = new Point(850, 50);
@@ -161,6 +176,9 @@ package uiimpl
 			this.x = GameVars.Stage_Width - this.width >> 1;
 			PokerGameVars.DispensePostion = this.localToGlobal(dispenserPos);
 			PokerGameVars.DispensePostion.y -= this.y;
+			PokerGameVars.DispenseMiddlePostion = this.localToGlobal(dispenserMiddlePos);
+			PokerGameVars.DispenseMiddlePostion.y -= this.y;
+			
 			PokerGameVars.DisaprearPoint = this.localToGlobal(diapearPos);
 			PokerGameVars.DisaprearPoint.y -= this.y;
 			PokerGameVars.ChipLostPos = this.localToGlobal(chipLostPos);

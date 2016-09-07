@@ -97,7 +97,7 @@ package
 		
 		private function onLoadingViewLoaded():void{
 			App.loader.loadAssets([
-				PokerGameVars.resRoot+"assets/bg.swf?v="+PokerGameVars.VERSION  + '&u='+GameUtils.unique,
+				PokerGameVars.resRoot+"assets/bg.swf?v="+PokerGameVars.VERSION,
 				PokerGameVars.resRoot+"assets/chips.swf?v="+PokerGameVars.VERSION, 
 				PokerGameVars.resRoot+"assets/ui.swf?v="+PokerGameVars.VERSION, 
 				PokerGameVars.resRoot+"assets/nums.swf?v="+PokerGameVars.VERSION,

@@ -643,7 +643,7 @@ package
 
 		private var fakeCard:int = -1;
 		private var fakePoker:Poker;
-		public var needCheck:Boolean;
+		private var needCheck:Boolean;
 		/**
 		 * 开始查牌
 		 * **/
@@ -684,7 +684,7 @@ package
 		public function onCheckPhase2():void{
 			//GameUtils.log('mgr.onCheckPhase2');
 			this.onFakeCard(this.fakeCard);
-			this.needCheck = false;
+			//this.needCheck = false;
 			this.fakeCard = FAKE_CARD_VALUE;
 		}
 		/**
@@ -709,8 +709,9 @@ package
 		/**
 		 * 游戏开始或者读取游戏进度
 		 * **/
-		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean, fakeCard:int):void{
+		public function onStarted(players:Object, money:int, isStart:Boolean, hasInsured:Boolean, fakeCard:int,needCheck:Boolean):void{
 			this.fakeCard = fakeCard;
+			this.needCheck = needCheck;
 			this.started = fakeCard == -1;
 			GameUtils.log('mgr.onStarted: fakeCard.',fakeCard,'started',started);
 			var table:TableData ;

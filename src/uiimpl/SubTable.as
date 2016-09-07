@@ -38,9 +38,13 @@ package uiimpl
 			this.x = $id <= 3 ? 35 : 65;
 			this.y = $id <= 3 ? 40 : -20;
 			if ( $id % 3 == 2){
-				this.dispenseTime = 0.5;
+				dispenseTime = 0.5;
+				middleOffsetX = -90;
+				middleOffsetY = 40;
 			}else if ( $id % 3 == 0 ){
-				this.dispenseTime = 0.6;
+				dispenseTime = 0.6;
+				middleOffsetX = -180;
+				middleOffsetY = 60;
 			}
 			this.visible = $id <= 3;
 			this.poker_con.scale = 0.8;
@@ -57,7 +61,7 @@ package uiimpl
 			this.frameItem = new FrameItem(this.name, this.update);
 			
 			mgr = GameMgr.Instance;
-			this.lab_points.text = this.id+"";
+			this.lab_points.text = "";
 			mgr.registerSubTableDisplay( $id, this);
 			ImageClickCenter.Instance.add(this.btn_insurrance);
 			ImageClickCenter.Instance.add(this.btn_split);
@@ -80,20 +84,70 @@ package uiimpl
 			if( needTween )
 				doTween(poker);
 		}
+		
+		
+		
 		private var dispenseStartPoint:Point;
 		private function doTween(poker:Poker):void{
+			GameVars.STAGE.addChild(poker);
+			poker.x = PokerGameVars.DispensePostion.x;
+			poker.y = PokerGameVars.DispensePostion.y;
+			/**
+			GameVars.Raw_Point.x = (poker_con.numChildren+1) * 20;
+			GameVars.Raw_Point.y = 0;
+			
+			var targetPos:Point = poker_con.localToGlobal(GameVars.Raw_Point);
+			poker.targetX = targetPos.x;
+			poker.targetY = targetPos.y;
+			*/
+			
+			if ( dispenseStartPoint == null ){
+				dispenseStartPoint = this.poker_con.globalToLocal( PokerGameVars.DispensePostion); 
+				dispenseMiddlePoint = this.poker_con.globalToLocal(PokerGameVars.DispenseMiddlePostion);
+			}
+			/**
 			this.poker_con.addChild(poker);
 			poker.targetX = poker_con.numChildren*20;
 			poker.targetY = 0;
 			
 			if ( dispenseStartPoint == null ){
 				dispenseStartPoint = this.poker_con.globalToLocal( PokerGameVars.DispensePostion); 
+				dispenseMiddlePoint = this.poker_con.globalToLocal(PokerGameVars.DispenseMiddlePostion);
 			}
 			
 			poker.x = dispenseStartPoint.x;
 			poker.y = dispenseStartPoint.y;
+			*/
 			SoundMgr.Instance.playEffect( SoundsEnum.CARD );
-			TweenLite.to(poker, this.dispenseTime, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
+			tweenPhase1(poker);
+			//TweenLite.to(poker, this.dispenseTime, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:this.onTweenComplete});
+		}
+		
+		private var dispenseMiddlePoint:Point;
+		private var middleOffsetX:int = -30;
+		private var middleOffsetY:int = -10;
+		private function tweenPhase1(poker:Poker):void{
+			poker.scale = 0.8;
+			TweenLite.to(poker, 0.2, {scale:1, x:PokerGameVars.DispenseMiddlePostion.x, y:PokerGameVars.DispenseMiddlePostion.y, onComplete:tweenPhase2,onCompleteParams:[poker]});
+			/**
+			if( _selected ){
+				TweenLite.to(poker, 0.2, {scale:1, x:PokerGameVars.DispenseMiddlePostion.x, y:PokerGameVars.DispenseMiddlePostion.y, onComplete:tweenPhase2,onCompleteParams:[poker]});
+			}else{//未选中的桌子的scale是0.8
+				TweenLite.to(poker, 0.2, {x:PokerGameVars.DispenseMiddlePostion.x, y:PokerGameVars.DispenseMiddlePostion.y, onComplete:tweenPhase2,onCompleteParams:[poker]});
+			}
+			/**
+			TweenLite.to(poker, 0.2, {scale:1, x:dispenseMiddlePoint.x, y:dispenseMiddlePoint.y, onComplete:tweenPhase2,onCompleteParams:[poker]});
+			*/
+		}
+		
+		private function tweenPhase2(poker:Poker):void{
+			poker_con.addChild(poker);
+			poker.targetX = poker_con.numChildren*20;
+			poker.targetY = 0;
+			poker.scale = 1;
+			poker.x = dispenseMiddlePoint.x + (_selected ? middleOffsetX : 0);
+			poker.y = dispenseMiddlePoint.y + (_selected ? middleOffsetY : 0);
+			TweenLite.to(poker, dispenseTime, {x:poker.targetX, rotationY:0,rotation:0,y:poker.targetY, onComplete:onTweenComplete});
 		}
 		
 		private function onTweenComplete():void{
