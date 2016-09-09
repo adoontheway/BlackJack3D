@@ -19,7 +19,7 @@ package consts
 		 * [version in this day]
 		 * [d] dev:development, beta:beta, r:release
 		 * **/
-		private static const LOCAL_VERSION:String = "V20160907-35";
+		private static const LOCAL_VERSION:String = "V20160909-08";
 		public static var VERSION:String;
 		
 		public static var NEED_CRYPTO:Boolean = true;
@@ -29,7 +29,7 @@ package consts
 		public static var resRoot:String = '';
 		
 		public static var ChipLostPos:Point = new Point(350, 70);
-		public static var ChipGainPos:Point = new Point(850, 100);
+		public static var ChipGainPos:Point = new Point(850, 50);
 		public static var DispensePostion:Point = new Point(612, 100);
 		public static var DispenseMiddlePostion:Point = new Point(600, 180);
 		public static var DisaprearPoint:Point = new Point(50, 80);

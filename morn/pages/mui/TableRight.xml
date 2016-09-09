@@ -2,4 +2,5 @@
   <Button skin="png.images.btn_table_right" layer="1" stateNum="2" var="table"/>
   <Button skin="png.images.btn_pair_right" x="197" layer="1" stateNum="2" y="11" var="pair"/>
   <Box skin="png.comp.blank" x="228" y="14" layer="1" var="pair_con" width="81" height="33"/>
+  <UIView source="mui/MyBet.xml" x="293" y="2" layer="1" var="pair_bet_display"/>
 </View>

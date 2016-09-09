@@ -76,20 +76,30 @@ package uiimpl
 			
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
 			pair.addEventListener(MouseEvent.CLICK, this.betPair);
-			
+			pair_bet_display.visible = false;
+			pair_bet_display.btn_close.addEventListener(MouseEvent.CLICK, this.cleanPairBet);
 			mgr.registerTableDisplay(id, this);
 			
 			this.addChild(new SubTable(this.id + 3));
 			this.addChild(new SubTable(this.id));
 			pair_con.filters = [PokerGameVars.Drop_Shadow_Filter_SHORTWAY];
 		}
-		
+		/**
 		public function showReminder(flag:Boolean):void{
 			if ( reminder == null ) return;
 			if ( flag && !this.contains(this.reminder)){
 				this.addChild(this.reminder);
 			}else if(!flag && this.contains(this.reminder)){
 				this.removeChild(this.reminder);
+			}
+		}
+		*/
+		
+		private function cleanPairBet(evt:MouseEvent):void{
+			if ( !mgr.started && !mgr.starting && !HttpComunicator.lock){
+				reset();//remove pair chips
+				var tableData:TableData = mgr.getTableDataById(id);
+				tableData.pairBet = 0;
 			}
 		}
 		
@@ -102,10 +112,21 @@ package uiimpl
 			mgr.refresh();
 			mgr.betPair(id);
 		}
+		
 		public function addPairBet(bet:int):void{
 			var tableData:TableData = mgr.getTableDataById(id);
 			SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
 			TableUtil.displayChipsToContainer(tableData.pairBet, pair_con);
+			updateBetinfo();
+		}
+		
+		public function updateBetinfo():void{
+			var tableData:TableData = mgr.getTableDataById(id);
+			this.pair_bet_display.visible = true;
+			this.pair_bet_display.lab.text = GameUtils.NumberToString(tableData.pairBet);
+			this.pair_bet_display.lab.width = this.pair_bet_display.lab.textField.textWidth + 10;
+			this.pair_bet_display.bet_bg.width =  15 + this.pair_bet_display.lab.width;
+			this.pair_bet_display.btn_close.x = this.pair_bet_display.bet_bg.width - 12;
 		}
 		
 		public function onPairResult(gain:int):void{
@@ -119,6 +140,7 @@ package uiimpl
 				chip.autoHide(gain == 0 ? 0 : 1);
 				num--;
 			}
+			this.pair_bet_display.visible = false;
 		}
 		
 		private var _referPairPos:Point;
@@ -146,6 +168,7 @@ package uiimpl
 					PoolMgr.reclaim(chip);
 				}
 			}
+			this.pair_bet_display.visible = false;
 			
 		}
 	}

@@ -29,7 +29,7 @@ package uiimpl
 		private var _selected:Boolean;
 		private var frameItem:FrameItem;
 		private var mgr:GameMgr;
-		private var dispenseTime:Number = 0.4;
+		private var dispenseTime:Number = 0.5;
 		
 		public function SubTable($id:int) 
 		{
@@ -125,7 +125,7 @@ package uiimpl
 		
 		private var dispenseMiddlePoint:Point;
 		private var middleOffsetX:int = -30;
-		private var middleOffsetY:int = -10;
+		private var middleOffsetY:int = -30;
 		private function tweenPhase1(poker:Poker):void{
 			poker.scale = 0.8;
 			TweenLite.to(poker, 0.2, {scale:1, x:PokerGameVars.DispenseMiddlePostion.x, y:PokerGameVars.DispenseMiddlePostion.y, onComplete:tweenPhase2,onCompleteParams:[poker]});

@@ -313,13 +313,18 @@ package
 			if ( this.dispenseQueue.length == 0 ){
 				if ( !this.started ){
 					if ( !needCheck ){
-						var table:TableData;
-						for each(var i:int in this.endTables){
-							table = this.tables[i];
-							if( table.actived && table.display.visible)
-								table.display.end();
-						}
 						
+						setTimeout(function():void{
+							GameUtils.log("endTables.length:", endTables.length);
+							var ttable:TableData;
+							for each(var i:int in endTables){
+								ttable = tables[i];
+								GameUtils.log(ttable.tableId, ttable.actived,ttable.display.visible);
+								if( ttable.actived && ttable.display.visible)
+									ttable.display.end();
+							}
+						}, 1000);
+						var table:TableData;
 						table = tables[0];
 						var needEnd:Boolean = table.cards.length > 1;
 						if ( table.bust ){
@@ -619,7 +624,7 @@ package
 					if( newCard.length != 0 )
 						table.display.end();
 				}
-			}, 1000);
+			}, 1500);
 			
 		}
 		
@@ -1023,13 +1028,15 @@ package
 		 * 重置桌子：目前只在关闭筹码值显示的时候调用
 		 * **/
 		public function resetTable(tabId:int):void{
-			var subTable:SubTable = this.subTableDisplays[tabId];
-			subTable.reset();
-			var baseTable:BaseTable = this.tableDisplays[tabId];
-			baseTable.reset(true);
-			var tableData:TableData = this.tables[tabId];
-			if( tableData != null)
-				tableData.reset();
+			if( !started && !starting ){
+				var subTable:SubTable = this.subTableDisplays[tabId];
+				subTable.reset();
+				var baseTable:BaseTable = this.tableDisplays[tabId];
+				baseTable.reset(true);
+				var tableData:TableData = this.tables[tabId];
+				if( tableData != null)
+					tableData.reset();
+			}
 		}
 		/**
 		 * 重置
