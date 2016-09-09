@@ -97,7 +97,7 @@ package uiimpl
 		
 		private function cleanPairBet(evt:MouseEvent):void{
 			if ( !mgr.started && !mgr.starting && !HttpComunicator.lock){
-				reset();//remove pair chips
+				reset(true);//remove pair chips
 				var tableData:TableData = mgr.getTableDataById(id);
 				tableData.pairBet = 0;
 			}

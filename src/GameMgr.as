@@ -248,7 +248,7 @@ package
 					//setTimeout(onRoundEnd, 1000);
 					//buttons.enable(true);
 				}else{
-					if( this.currentTables.length!=0)
+					if( this.currentTables.length != 0 && !HttpComunicator.lock)
 						buttons.enable(true);
 						
 					if ( playBlackJack ){
@@ -427,16 +427,18 @@ package
 				Reminder.Instance.show('没有上局下注记录');
 				return;
 			}
-			var chip:Chip;
-			var table:TableData;
-			for (var i in lastBetData){
-				betToTable(i, lastBetData[i]);
-			}
-			if ( lastPairBetData != null ){
-				for ( i in lastPairBetData){
-					betPair(i,lastPairBetData[i] );
+			setTimeout(function():void{
+				var chip:Chip;
+				var table:TableData;
+				for (var i in lastBetData){
+					betToTable(i, lastBetData[i]);
 				}
-			}
+				if ( lastPairBetData != null ){
+					for ( i in lastPairBetData){
+						betPair(i, lastPairBetData[i]);
+					}
+				}
+			}, 500);
 		}
 		
 		/**
@@ -457,6 +459,7 @@ package
 				table.display = this.subTableDisplays[tableId];
 				table.display.tableData = table;
 			}
+			
 			if ( table.currentBet == maxBet ){
 				Reminder.Instance.show('已达本桌最大下注限额');
 				return;

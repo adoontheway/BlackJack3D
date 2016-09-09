@@ -8,6 +8,7 @@ package uiimpl
 	import consts.SoundsEnum;
 	import flash.display.DisplayObject;
 	import flash.events.MouseEvent;
+	import flash.utils.setTimeout;
 	import game.ui.mui.ButtonGroupUI;
 	import model.ProtocolClientEnum;
 	import model.TableData;
@@ -173,6 +174,7 @@ package uiimpl
 		
 		
 		public function repeat():void{
+			//有时候筹码不见了是因为这里添加了之后table正在清理中，所以一起清掉了
 			mgr.repeatBet();
 		}
 		

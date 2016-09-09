@@ -83,6 +83,7 @@ package
 		
 		public function send(wayId:int, data:*, tableId:int):void{
 			lock = true;
+			Buttons.Instance.enable(false);
 			//GameUtils.log(wayId, JSON.stringify(data));
 			var loader:SomeUrlLoader = PoolMgr.gain(SomeUrlLoader);
 			var request:URLRequest = new URLRequest(submitUrl);
