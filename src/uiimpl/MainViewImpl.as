@@ -45,6 +45,8 @@ package uiimpl
 			mgr = GameMgr.Instance;
 			mgr.mainView = this;
 			
+			this.img_bg.url = "png.bg.desk-"+(mgr.currentModel+1);
+			
 			this.addChild(new BaseTable(1));
 			this.addChild(new BaseTable(2));
 			this.addChild(new BaseTable(3));
@@ -167,11 +169,11 @@ package uiimpl
 			this.showFakeCardAfterTween = false;
 		}
 		
-		private var dispenserPos:Point = new Point(612, 50);
-		private var dispenserMiddlePos:Point = new Point(600, 150);
-		private var diapearPos:Point = new Point(50, 80);
-		private var chipLostPos:Point = new Point(350, 50);
-		private var chipGainPos:Point = new Point(850, 50);
+		private var dispenserPos:Point = new Point(1256, 50);
+		private var dispenserMiddlePos:Point = new Point(1244, 150);
+		private var diapearPos:Point = new Point(600, 50);
+		private var chipLostPos:Point = new Point(940, 30);
+		private var chipGainPos:Point = new Point(1494, 30);
 		public function onResize():void{
 			this.x = GameVars.Stage_Width - this.width >> 1;
 			PokerGameVars.DispensePostion = this.localToGlobal(dispenserPos);

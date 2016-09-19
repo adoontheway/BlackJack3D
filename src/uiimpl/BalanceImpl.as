@@ -82,7 +82,7 @@ package uiimpl
 		}
 		
 		public function onResize():void{
-			this.x = MainViewImpl.Instance.x + 850;
+			this.x = MainViewImpl.Instance.x + 1494;
 		}
 		
 		private static var _instance:BalanceImpl;

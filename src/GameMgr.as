@@ -319,7 +319,7 @@ package
 							var ttable:TableData;
 							for each(var i:int in endTables){
 								ttable = tables[i];
-								GameUtils.log(ttable.tableId, ttable.actived,ttable.display.visible);
+								GameUtils.log("mgr.onBankerDispense:",ttable.tableId, ttable.actived,ttable.display.visible);
 								if( ttable.actived && ttable.display.visible)
 									ttable.display.end();
 							}
@@ -445,7 +445,7 @@ package
 		 * 添加赌注到某桌
 		 * 仅限开局使用
 		 * **/
-		public function betToTable(tableId:int, bet:uint = 0):void{
+		public function betToTable(tableId:int, bet:uint = 0, now:Boolean=false):void{
 			if ( bet == 0 ) 
 				bet = ChipsViewUIImpl.Instance.currentValue;
 				
@@ -470,7 +470,7 @@ package
 				Reminder.Instance.show('本桌下注限额'+maxBet);
 			}
 			table.actived = true;
-			table.display.showBet();
+			table.display.showBet(now);
 		}
 		/**
 		 * 赌对子
@@ -773,7 +773,7 @@ package
 					lastPairBetData[i] = table.pairBet;
 				}
 				if( !isStart )//如果是读取游戏进度，那么要展示筹码
-					table.display.showBet();
+					table.display.showBet(true);
 					
 				if ( player.stop == 0 ){
 					this.currentTables.push(tableId);
@@ -808,7 +808,7 @@ package
 			}
 			
 			this.money = money;
-			if( pairResult == null || pairResult.length == 0)
+			//if( pairResult == null || pairResult.length == 0)
 				BalanceImpl.Instance.rockAndRoll();
 		}
 		
@@ -856,10 +856,12 @@ package
 			
 			var len:int = cards.length;
 			var card:int;
-			//GameUtils.log('Banker card check :', table.cards.join(','),' vs', cards.join(','));
+			table = tables[0];
+			//GameUtils.log('Banker card check :', tables[0].cards.join(','),' vs', cards.join(','));
 			if ( len != 1 ){
 				for (var i:int = 1 ;  i < len; i++){
 					card = int(cards[i]);
+					if ( table.cards.length > i && card == table.cards[i].value ) continue; 
 					this.dispense(0, card);
 				}
 			}else{

@@ -34,7 +34,7 @@ package uiimpl
 			super();
 			this.img_mask.cacheAsBitmap = this.img_cover.cacheAsBitmap = true;
 			this.img_cover.mask = this.img_mask;
-			this.x = 149;
+			this.x = 743;
 			this.y = 623;
 			init();
 		}

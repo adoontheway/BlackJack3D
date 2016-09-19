@@ -191,7 +191,7 @@ package
 						onBankerTurn(result.data);
 						break;
 					case GAME_DATA:
-						onGameData(result.data, false);
+						onGameData(result.data);
 						break;
 					default:
 						GameUtils.log('unknown proto', proto);
@@ -206,8 +206,9 @@ package
 				}else{
 					Reminder.Instance.show('未知的错误码:'+code+" 协议号:"+proto+" stage:"+tabId);
 				}
-				
+
 				Buttons.Instance.enable(true);
+				
 				/**--------  错误码处理逻辑 ---------**/
 				if ( code == -505 ){//牌局已经开始
 					if( proto == HttpComunicator.START && mgr.currentTable != null ){
@@ -289,14 +290,14 @@ package
 			}
 		}
 		
-		private function onGameData(data:Object, isStart:Boolean):void{
+		private function onGameData(data:Object):void{
 			gameDataFlag = true;
 			if( Buttons.Instance.parent){
 				Buttons.Instance.enable(true);
 			}
 			if ( data.banker != null && data.player != null ){
 				Reminder.Instance.show("读取游戏存档完成");
-				initDispatch(data,isStart);
+				initDispatch(data, false);
 			}
 		}
 		
@@ -313,11 +314,16 @@ package
 				maxLen = len < maxLen ? maxLen : len;
 				cardsMap[i] = tempArr;
 			}
+			var rawBankerLen:int = 0;
 			cardsMap[0] = data.banker.cards;
-			var fakeCard:int = cardsMap[0].length == 1 ? -1 : cardsMap[0].pop();
+			rawBankerLen = data.banker.cards.length;
+			maxLen = rawBankerLen < maxLen ? maxLen : rawBankerLen;
+			
+			var hasInsured:Boolean =  data['insuranced'] != null && data['insuranced'] == 1;
+			var fakeCard:int = cardsMap[0].length == 1 ? -1 : (isStart ? cardsMap[0].pop() : -1);
 			var needCheck:Boolean = int(cardsMap[0][0]) % 100 >= 10;
 			arr.sort();
-			mgr.onStarted(data.player, Number(data.account), isStart, data['insuranced'] != null && data['insuranced'] == 1,fakeCard,needCheck);			
+			mgr.onStarted(data.player, Number(data.account), isStart, hasInsured,fakeCard,needCheck);			
 			arr.push(0);
 			len = arr.length;
 			var tabId:int;
@@ -339,20 +345,28 @@ package
 					}
 				}
 			}
-			
-			mgr.dispense(0, -1);
-			
 			num++;
-			//mgr.needCheck = needCheck;
-			if ( needCheck ){
+			//GameUtils.log(isStart, rawBankerLen);
+			if ( isStart || (rawBankerLen == 1) ){
+				mgr.dispense(0, -1);
+				//mgr.needCheck = needCheck;
+				if ( needCheck ){
+					setTimeout(function():void{
+						mgr.playCheck();
+						if ( fakeCard != -1){
+							mgr.endAllTables();
+						}
+					}, num * 650);
+				}
+			}else{
 				setTimeout(function():void{
-					mgr.playCheck();
-					if ( fakeCard != -1){
-						mgr.endAllTables();
-					}
-				}, num * 650);
+					mgr.requestedBaneker = true
+					var obj:Object = {};
+					obj.wayId = HttpComunicator.BANKER_TURN;
+					obj.stage = [];
+					send(HttpComunicator.BANKER_TURN, obj, 0);
+				}, num*500);
 			}
-			
 		}
 		
 		private function onError(proto:*, tabldId:int, e:IOErrorEvent):void{

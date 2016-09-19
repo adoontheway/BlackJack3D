@@ -45,18 +45,18 @@ package uiimpl
 			this.id = $id;
 			var claz:Class;
 			if ( $id == 1 ){
-				this.x = 625;
-				this.y = 290;
+				this.x = 1220;
+				this.y = 330;
 				//claz = ApplicationDomain.currentDomain.getDefinition('RightRing') as Class;
 			}else if ( $id == 2 ){
-				this.x = 270;
-				this.y = 355;
+				this.x = 875;
+				this.y = 375;
 				this.table.skin = "png.images.btn_table_middle";
 				this.pair.skin = "png.images.btn_pair_center";
 				//claz = ApplicationDomain.currentDomain.getDefinition('CenterRing') as Class;
 			}else if ( $id == 3 ){
-				this.x = -85;
-				this.y = 295;
+				this.x = 520;
+				this.y = 330;
 				this.table.skin = "png.images.btn_table_left";
 				this.pair.skin = "png.images.btn_pair_left";
 				//claz = ApplicationDomain.currentDomain.getDefinition('LeftRing') as Class;
@@ -76,6 +76,7 @@ package uiimpl
 			
 			table.addEventListener(MouseEvent.CLICK, this.betTable);
 			pair.addEventListener(MouseEvent.CLICK, this.betPair);
+			pair_bet_display.bet_bg.sizeGrid = '20,18,22,20,1';
 			pair_bet_display.visible = false;
 			pair_bet_display.btn_close.addEventListener(MouseEvent.CLICK, this.cleanPairBet);
 			mgr.registerTableDisplay(id, this);
@@ -105,7 +106,7 @@ package uiimpl
 		
 		private function betTable(evt:MouseEvent):void{
 			mgr.refresh();
-			mgr.betToTable(id);
+			mgr.betToTable(id,0,true);
 		}
 		
 		private function betPair(evt:MouseEvent):void{
@@ -123,7 +124,7 @@ package uiimpl
 		public function updateBetinfo():void{
 			var tableData:TableData = mgr.getTableDataById(id);
 			this.pair_bet_display.visible = true;
-			this.pair_bet_display.lab.text = GameUtils.NumberToString(tableData.pairBet);
+			this.pair_bet_display.lab.text = GameUtils.NumberToString(tableData.pairBet,',', 0);
 			this.pair_bet_display.lab.width = this.pair_bet_display.lab.textField.textWidth + 10;
 			this.pair_bet_display.bet_bg.width =  15 + this.pair_bet_display.lab.width;
 			this.pair_bet_display.btn_close.x = this.pair_bet_display.bet_bg.width - 12;

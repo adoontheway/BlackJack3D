@@ -29,7 +29,7 @@ package uiimpl
 		private var _selected:Boolean;
 		private var frameItem:FrameItem;
 		private var mgr:GameMgr;
-		private var dispenseTime:Number = 0.5;
+		public var dispenseTime:Number = 0.5;
 		
 		public function SubTable($id:int) 
 		{
@@ -69,10 +69,22 @@ package uiimpl
 			//GameUtils.log('SubTable init : '+this.name);
 		}
 		
-		public function showBet():void{
-			SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
-			TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
-			this.updateBetinfo();
+		public function showBet(now:Boolean=false):void{
+			if( now ){
+				SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
+				TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
+				//GameUtils.log("show bet");
+				updateBetinfo();
+			}else{
+				setTimeout(function():void{
+					SoundMgr.Instance.playEffect(SoundsEnum.CHIP_DOWN);
+					
+					TableUtil.displayChipsToContainer(tableData.currentBet, chips_con);
+					//GameUtils.log("show bet");
+					updateBetinfo();
+				}, 900);
+			}
+			
 		}
 		
 		public function addCard(poker:Poker,needTween:Boolean=true):void 
@@ -166,7 +178,7 @@ package uiimpl
 		
 		public function updateBetinfo():void{
 			this.bet_display.visible = true;
-			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet);
+			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet,',', 0);
 			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 10;
 			this.bet_display.bet_bg.width =  15 + this.bet_display.lab.width;
 			this.bet_display.btn_close.x = this.bet_display.bet_bg.width - 12;
@@ -337,6 +349,8 @@ package uiimpl
 				TweenLite.to(img_result_0, 0.2, {x:65});
 			}else if ( this.img_result_0.x == 65 && !flag){
 				TweenLite.to(img_result_0, 0.2, {x:165, onComplete:onFold});
+			}else if( !flag ){
+				point_display.visible = false;
 			}
 		}
 		
@@ -353,10 +367,11 @@ package uiimpl
 		public function removeAllBet(type:int, con:DisplayObjectContainer, rawX:int, rawY:int, reclamContainer:Boolean = false):void{
 			//GameUtils.log('Subtable.removeAllBet(): ',con == null, con.parent == null);
 			var point:Point = con.parent.globalToLocal(type == -1 ? PokerGameVars.ChipLostPos : PokerGameVars.ChipGainPos );
-			TweenLite.to(con, 1.0, {x:point.x, y:point.y, onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
+			TweenLite.to(con, 1.0, {x:point.x, y:point.y,onComplete:removeAllChip, onCompleteParams:[con,rawX,rawY,reclamContainer]});
 		}
 		
-		public function removeAllChip(con:DisplayObjectContainer,rawX:int,rawY:int,reclamContainer:Boolean):void{
+		public function removeAllChip(con:Sprite, rawX:int, rawY:int, reclamContainer:Boolean):void{
+			//GameUtils.log('reset container:',con);
 			var chip:Chip;
 			while ( con.numChildren != 0){
 				chip = con.removeChildAt(0) as Chip;
@@ -377,6 +392,7 @@ package uiimpl
 		
 		public function reset():void 
 		{
+			//GameUtils.log('reset subtable');
 			secondRequest = false;
 			var poker:Poker;
 			var num:int = poker_con.numChildren - 1;
@@ -397,6 +413,9 @@ package uiimpl
 				PoolMgr.reclaim(chip);
 			}
 			this.lab_points.text =  "";
+			this.lab_points.visible = true;
+			this.soft_gro.visible = false;
+			
 			btn_insurrance.visible = btn_split.visible = mark_blackjack.visible = bet_display.visible = false;
 			this.visible = id <= 3;
 			showResultLab(false);

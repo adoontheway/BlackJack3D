@@ -75,6 +75,10 @@ package
 				}
 			}
 		}
+		
+		override public function toString():String{
+			return '[Poker :'+value+']';
+		}
 	}
 
 }

@@ -51,7 +51,7 @@ package uiimpl
 		public function Buttons() 
 		{
 			super();
-			this.x = 650;
+			this.x = 1294;
 			this.y = 515;
 			models = [
 			0,
@@ -172,9 +172,7 @@ package uiimpl
 			mgr.x2Bet();
 		}
 		
-		
 		public function repeat():void{
-			//有时候筹码不见了是因为这里添加了之后table正在清理中，所以一起清掉了
 			mgr.repeatBet();
 		}
 		

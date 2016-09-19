@@ -27,7 +27,7 @@ package game.ui.mui {
 			  <Image skin="png.images.btn-insurrance" x="25" y="30" stateNum="1" var="btn_insurrance"/>
 			  <Image skin="png.images.blackjack" x="-5" y="50" var="mark_blackjack"/>
 			  <MyBet x="179" y="84" var="bet_display" runtime="game.ui.mui.MyBetUI"/>
-			  <Box skin="png.comp.blank" x="79" y="116" var="insure_con"/>
+			  <Box skin="png.comp.blank" x="79" y="113" var="insure_con"/>
 			  <Image skin="png.images.result_lose" x="165" y="-5" var="img_result_0"/>
 			  <Image skin="png.images.result_lose" x="60" y="-5" var="img_result_1"/>
 			  <Box x="144" y="-17" var="point_display">
