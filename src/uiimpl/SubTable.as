@@ -179,7 +179,7 @@ package uiimpl
 		public function updateBetinfo():void{
 			this.bet_display.visible = true;
 			this.bet_display.lab.text = GameUtils.NumberToString(tableData.currentBet,',', 0);
-			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 10;
+			this.bet_display.lab.width = this.bet_display.lab.textField.textWidth + 12;
 			this.bet_display.bet_bg.width =  15 + this.bet_display.lab.width;
 			this.bet_display.btn_close.x = this.bet_display.bet_bg.width - 12;
 		}

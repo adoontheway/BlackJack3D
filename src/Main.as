@@ -52,7 +52,7 @@ package
 			removeEventListener(Event.ADDED_TO_STAGE, init);
 			stage.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onUnknownError);
 			//stage.scaleMode = StageScaleMode.NO_SCALE;//this value was set in the html page
-			stage.align = StageAlign.TOP;
+			stage.align = StageAlign.TOP_LEFT;
 			stage.addEventListener(Event.RESIZE, onResize);
 			
 			parseParams();
@@ -172,7 +172,7 @@ package
 			
 			btn_settings = new Button("png.images.btn_settings");
 			btn_settings.stateNum = 2;
-			btn_settings.x = 300;
+			btn_settings.x = 360;
 			btn_settings.y = 5;
 			btn_settings.addEventListener(MouseEvent.CLICK, onSettings);
 			this.stage.addChild(btn_settings);

@@ -14,10 +14,10 @@ package game.ui.mui {
 			  <Image skin="png.images.chip-box" x="848" y="-10"/>
 			  <Image skin="png.images.recycle-bin" x="459" y="-63"/>
 			  <Image skin="png.images.dispenser" x="1201" y="-62"/>
-			  <Box skin="png.comp.blank" x="948" y="126" var="banker_poker_con" width="81" height="33"/>
+			  <Box skin="png.comp.blank" x="943" y="126" var="banker_poker_con" width="81" height="33"/>
 			  <Box x="1042" y="99" var="point_display">
 			    <Image skin="png.images.bust" var="img_points_bg"/>
-			    <Label x="4" y="7" var="lab_points" color="0xffffff" size="30" width="58" height="36" align="center" font="Din"/>
+			    <Label x="4" y="6" var="lab_points" color="0xffffff" size="30" width="58" height="35" align="center" font="Din"/>
 			  </Box>
 			</View>;
 		public function MainViewUI(){}

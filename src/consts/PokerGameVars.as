@@ -19,7 +19,7 @@ package consts
 		 * [serial in this day]
 		 * [d] development:development, production:production
 		 * **/
-		private static const LOCAL_VERSION:String = "V20160919-37";
+		private static const LOCAL_VERSION:String = "V20160926-01";
 		public static var VERSION:String;
 		
 		public static var NEED_CRYPTO:Boolean = true;

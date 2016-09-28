@@ -935,7 +935,7 @@ package
 		public function onDoubled(newCard:int, tabId:int, tableData:Object):void{
 			var table:TableData = this.tables[tabId];
 			table.currentBet = int(tableData.amount[HttpComunicator.START]) +  int(tableData.amount[HttpComunicator.SPLIT]) +int(tableData.amount[HttpComunicator.DOUBLE]);
-			table.display.showBet();
+			table.display.showBet(true);
 			table.doubled = true;
 			dispense(tabId, newCard);
 		}

@@ -1,12 +1,12 @@
-<View width="1939" height="953" sceneColor="0x0" layers="1,1,1,1,第 1 层;2,1,1,0,第 2 层">
+<View width="1939" height="953" sceneColor="0x0" layers="1,1,0,0,第 1 层;2,1,0,1,第 2 层">
   <Image skin="png.bg.desk-1" x="0" y="-1" layer="2" var="img_bg"/>
   <Image skin="png.loading.img-logo" x="921" y="834" layer="2"/>
   <Image skin="png.images.chip-box" x="848" y="-10" layer="1"/>
   <Image skin="png.images.recycle-bin" x="459" y="-63" layer="1"/>
   <Image skin="png.images.dispenser" x="1201" y="-62" layer="1"/>
-  <Box skin="png.comp.blank" x="948" y="126" layer="1" var="banker_poker_con" width="81" height="33"/>
+  <Box skin="png.comp.blank" x="943" y="126" layer="1" var="banker_poker_con" width="81" height="33"/>
   <Box layers="1,1,0,0,第 1 层" layer="1" x="1042" y="99" var="point_display">
     <Image skin="png.images.bust" layer="1" var="img_points_bg"/>
-    <Label styleSkin="png.comp.label" x="4" y="7" layer="1" var="lab_points" color="0xffffff" size="30" width="58" height="36" align="center" font="Din"/>
+    <Label styleSkin="png.comp.label" x="4" y="6" layer="1" var="lab_points" color="0xffffff" size="30" width="58" height="35" align="center" font="Din"/>
   </Box>
 </View>

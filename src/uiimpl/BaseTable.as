@@ -125,7 +125,7 @@ package uiimpl
 			var tableData:TableData = mgr.getTableDataById(id);
 			this.pair_bet_display.visible = true;
 			this.pair_bet_display.lab.text = GameUtils.NumberToString(tableData.pairBet,',', 0);
-			this.pair_bet_display.lab.width = this.pair_bet_display.lab.textField.textWidth + 10;
+			this.pair_bet_display.lab.width = this.pair_bet_display.lab.textField.textWidth + 12;
 			this.pair_bet_display.bet_bg.width =  15 + this.pair_bet_display.lab.width;
 			this.pair_bet_display.btn_close.x = this.pair_bet_display.bet_bg.width - 12;
 		}

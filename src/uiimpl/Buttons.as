@@ -51,7 +51,7 @@ package uiimpl
 		public function Buttons() 
 		{
 			super();
-			this.x = 1294;
+			this.x = 1290;
 			this.y = 515;
 			models = [
 			0,
