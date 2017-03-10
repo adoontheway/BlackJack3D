@@ -98,6 +98,34 @@ package utils
 				PoolMgr.reclaim(con.removeChildAt(0));
 			}
 		}
+		
+		public static function shuffle(pokers:Array, times:int=15, scope:int=5):void{
+			var index0;
+			var index1;
+			var len:int = pokers.length;
+			var i:int = 0;
+			var temp:*;
+			var r0:*;
+			var r1:*;
+			while (times > 0){
+				index0 = Math.floor(Math.random() * len);
+				index1 = Math.floor(Math.random() * len);
+
+				while (index0 == index1 ){
+					index1 = Math.floor(Math.random() * len);
+				}
+				for (i = 0; i < scope; i++){
+					r0 = index0 % len;
+					r1 = index1 % len;
+					temp = pokers[r0];
+					pokers[r0] = pokers[r1];
+					pokers[r1] = temp;
+					index0++;
+					index1++;
+				}
+				times--;
+			}
+		}
 	}
 
 }

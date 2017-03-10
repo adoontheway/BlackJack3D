@@ -16,6 +16,9 @@ package consts
 		public static var Model:uint = 0;
 		public static var Desk:uint = 0;
 		
+		public static var resRoot:String = "";
+		public static var VERSION:String = "V4399-01";
+		
 		public static var ChipLostPos:Point = new Point(350, 70);
 		public static var ChipGainPos:Point = new Point(850, 100);
 		public static var DispensePostion:Point = new Point(612, 50);

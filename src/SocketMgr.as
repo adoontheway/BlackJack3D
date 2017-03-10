@@ -8,6 +8,7 @@ package
 	import consts.PokerGameVars;
 	import flash.events.IOErrorEvent;
 	import flash.utils.setTimeout;
+	import localServer.Server;
 	import model.ProtocolServerEnum;
 	import uiimpl.*;
 	/**
@@ -16,13 +17,15 @@ package
 	 */
 	public class SocketMgr 
 	{
-		private var socket:WebSocket;
+		//private var socket:WebSocket;
+		private var server:Server;
 		public function SocketMgr() 
 		{
 			
 		}
 		
 		public function init():void{
+			/*
 			this.socket = new WebSocket("ws://10.10.4.69:3333", "ws://10.10.4.69:3333");
 			this.socket.addEventListener(WebSocketEvent.MESSAGE, onMessage);
 			this.socket.addEventListener(WebSocketEvent.OPEN, onOpen);
@@ -32,17 +35,22 @@ package
 			this.socket.addEventListener(WebSocketEvent.FRAME, onFrame);
 			this.socket.addEventListener(IOErrorEvent.IO_ERROR, onIOError);
 			this.socket.connect();
+			*/
 			mgr = GameMgr.Instance;
+			server = new Server();
 		}
 		
 		public function send(data:*):void{
+			/*
 			if (!this.socket.connected){
 				FloatHint.Instance.show('服务器已经断开连接，请重新进入游戏');
 				return;
 			}
-			var msg:String = JSON.stringify(data);
-			GameUtils.log('sended: ', msg); 
-			this.socket.sendUTF(msg);
+			*/
+			server.handle(data);
+			//var msg:String = JSON.stringify(data);
+			//GameUtils.log('sended: ', msg); 
+			//this.socket.sendUTF(msg);
 		}
 		
 		private function parseData(data:Object):void{
@@ -168,6 +176,11 @@ package
 			//MainViewImpl.Instance.showBtns(MainViewImpl.START);
 			mgr.money = data.money;
 			//MainViewImpl.Instance.updateBalance(data.money);
+		}
+		
+		public function accept(data:Object):void{
+			TickerMgr.SYSTIME = data.time;
+			this.parseData(data);
 		}
 		
 		private function onMessage(evt:WebSocketEvent):void{

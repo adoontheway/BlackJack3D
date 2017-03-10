@@ -49,8 +49,8 @@ package
 			
 			
 			parseParams();
-			Security.allowDomain('*');
-			Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
+			//Security.allowDomain('*');
+			//Security.loadPolicyFile('xmlsocket://10.10.4.69:843/crossdomain.xml');
 			
 			openupLoader = new Loader();
 			openupLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, onOpenUpLoaded);
